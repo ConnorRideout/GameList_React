@@ -7,7 +7,7 @@ module.exports = {
   development: {
     client: 'sqlite3',
     connection: {
-      filename: './gameslist.db3',
+      filename: './src/data/gameslist.db3',
     },
     migrations: {
       directory: './src/data/migrations',
@@ -17,7 +17,7 @@ module.exports = {
     },
     pool: {
       afterCreate: (conn, done) => {
-        conn.run('PRAGMA foreign_keys = ON', done);
+        conn.run('PRAGMA foreign_keys = ON', done)
       },
     },
     useNullAsDefault: true,
@@ -54,4 +54,4 @@ module.exports = {
       tableName: 'knex_migrations',
     },
   },
-};
+}
