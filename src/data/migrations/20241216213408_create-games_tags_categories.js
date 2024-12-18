@@ -12,7 +12,12 @@ exports.up = (knex) => {
       tbl.string('image').unique()
       tbl.string('version').unique().notNullable()
       tbl.string('description', 2048).unique().notNullable()
-      tbl.string('program path').unique().notNullable()
+      tbl.string('program_path').unique().notNullable()
+      tbl.string('art').notNullable()
+      tbl.string('engine').notNullable()
+      tbl.string('genre').notNullable()
+      tbl.string('protagonist').notNullable()
+      tbl.string('status').notNullable()
     })
     .createTable('categories', (tbl) => {
       tbl.increments('category_id')
