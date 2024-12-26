@@ -65,6 +65,17 @@ exports.up = (knex) => {
         .onDelete('CASCADE')
       tbl.primary(['game_id', 'tag_id'])
     })
+    .createTable('timestamps', (tbl) => {
+      tbl.integer('game_id').primary()
+        .unsigned()
+        .notNullable()
+        .references('game_id')
+        .inTable('games')
+        .onUpdate('CASCADE')
+        .onDelete('CASCADE')
+      tbl.timestamp('created_at').defaultTo(knex.fn.now())
+      tbl.timestamp('updated_at').nullable()
+    })
 }
 
 /**
@@ -73,6 +84,7 @@ exports.up = (knex) => {
  */
 exports.down = (knex) => {
   return knex.schema
+    .dropTableIfExists('timestamps')
     .dropTableIfExists('games_tags')
     .dropTableIfExists('games_categories')
     .dropTableIfExists('tags')
