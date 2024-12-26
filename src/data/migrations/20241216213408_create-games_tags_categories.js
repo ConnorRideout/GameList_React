@@ -75,6 +75,7 @@ exports.up = (knex) => {
         .onDelete('CASCADE')
       tbl.timestamp('created_at').defaultTo(knex.fn.now())
       tbl.timestamp('updated_at').nullable()
+      tbl.timestamp('played_at').nullable()
     })
 }
 
