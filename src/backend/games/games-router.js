@@ -1,3 +1,4 @@
+/* eslint-disable promise/always-return */
 const express = require('express')
 const Games = require('./games-model')
 
@@ -5,9 +6,25 @@ const Games = require('./games-model')
 const router = express.Router()
 
 router.get('/', (req, res, next) => {
-  Games.findAll()
+  Games.getAll()
     .then(games => {
       res.status(200).json(games)
+    })
+    .catch(next)
+})
+
+router.get('/timestamps/:type', (req, res, next) => {
+  Games.getTimestamps(req.params.type)
+    .then(games => {
+      res.status(200).json(games)
+    })
+    .catch(next)
+})
+
+router.get('/game/:id', (req, res, next) => {
+  Games.getById(req.params.id)
+    .then(game => {
+      res.status(200).json(game)
     })
     .catch(next)
 })
