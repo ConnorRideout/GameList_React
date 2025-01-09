@@ -1,12 +1,15 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
-import icon from '../../assets/icon.svg';
+// import icon from '../../assets/icon.svg';
 import './App.css';
+
+import Picker from './shared/picker';
 
 function Hello() {
   return (
     <div>
       <div className="Hello">
-        <img width="200" alt="icon" src={icon} />
+        {/* <img width="200" alt="icon" src={icon} /> */}
+        <Picker/>
       </div>
       <h1>electron-react-boilerplate</h1>
       <div className="Hello">
