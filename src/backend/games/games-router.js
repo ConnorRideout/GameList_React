@@ -29,4 +29,20 @@ router.get('/game/:id', (req, res, next) => {
     .catch(next)
 })
 
+router.get('/tags', (req, res, next) => {
+  Games.getTags()
+    .then(tags => {
+      res.status(200).json(tags)
+    })
+    .catch(next)
+})
+
+router.get('/categories', (req, res, next) => {
+  Games.getCategories()
+    .then(cats => {
+      res.status(200).json(cats)
+    })
+    .catch(next)
+})
+
 module.exports = router

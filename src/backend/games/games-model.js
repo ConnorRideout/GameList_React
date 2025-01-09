@@ -1,5 +1,3 @@
-const knex = require('knex')
-
 const db = require('../../data/db-config')
 
 
@@ -35,7 +33,13 @@ function getAll() {
     .leftJoin('categories as c', 'gc.category_id', 'c.category_id')
     .leftJoin('timestamps as time', 'g.game_id', 'time.game_id')
     .groupBy('g.game_id')
-    .orderBy('g.title')
+    // .orderBy('g.title')
+    .orderByRaw(`
+        CASE
+          WHEN g.title GLOB '[^a-zA-Z0-9]*' THEN 0
+          ELSE 1
+        END, g.title ASC
+      `)
 }
 
 function getTimestamps(type) {
@@ -51,10 +55,22 @@ function getById(gameId) {
     .first()
 }
 
+function getTags() {
+  return db('tags')
+    .orderBy('tag_name')
+}
+
+function getCategories() {
+  return db('categories')
+    .orderBy('category_name')
+}
+
 
 
 module.exports = {
   getAll,
   getTimestamps,
-  getById
+  getById,
+  getTags,
+  getCategories
 }
