@@ -16,6 +16,7 @@ module.exports = {
     // semi: 'off',
     // quotes: 'off',
     'prettier/prettier': 'off',
+    'camelcase': 'off'
   },
   parserOptions: {
     ecmaVersion: 2022,
