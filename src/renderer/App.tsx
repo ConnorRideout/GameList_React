@@ -1,6 +1,6 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 // import icon from '../../assets/icon.svg';
-import './App.css';
+import './styles/App.scss';
 
 import Picker from './shared/picker';
 import Browse from './browse/browse';
