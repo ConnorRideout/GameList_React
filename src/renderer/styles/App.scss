@@ -1,56 +1,92 @@
+@import 'variables';
+
+* {
+  padding: $spacing;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
 body {
   position: relative;
-  color: white;
+  background-color: $bgNormal;
+  color: $fgNormal;
   height: 100vh;
-  background: linear-gradient(200.96deg,
-      #fedc2a -29.09%,
-      #dd5789 51.77%,
-      #7a2c9e 129.35%);
-  font-family: sans-serif;
-  overflow-y: hidden;
+  font-family: $fontFamily;
+  font-size: $fontDefault;
+
+  overflow-y: scroll;
   display: flex;
   justify-content: center;
   align-items: center;
+  min-width: $appWidth;
+  max-width: $appWidth;
+  min-height: $appHeight;
+  max-height: $appHeight;
 }
 
-button {
-  background-color: white;
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: none;
-  appearance: none;
-  font-size: 1.3rem;
-  box-shadow: 0px 8px 28px -6px rgba(24, 39, 75, 0.12),
-    0px 18px 88px -4px rgba(24, 39, 75, 0.14);
-  transition: all ease-in 0.1s;
-  cursor: pointer;
-  opacity: 0.9;
+.hasTooltip {
+  position: relative;
+  display: inline-block;
 }
 
-button:hover {
-  transform: scale(1.05);
+.tooltip {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0.1s ease-in, opacity 0.1s ease-in;
+  width: $tooltipWidth;
+  background-color: $bgDark;
+  color: $fgHighlightedText;
+  text-align: start;
+  padding: 5px;
+  border-radius: 8px;
+  border: 1px solid $fgDark;
+
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 50%;
+  margin-left: calc(-1 * $tooltipWidth / 2);
+}
+
+.hasTooltip:hover .tooltip {
+  visibility: visible;
   opacity: 1;
 }
 
-li {
-  list-style: none;
+.titleDefault {
+  color: $titleDefault;
 }
 
-a {
-  text-decoration: none;
-  height: fit-content;
-  width: fit-content;
-  margin: 10px;
+.titleCompleted {
+  color: $titleCompleted;
 }
 
-a:hover {
-  opacity: 1;
-  text-decoration: none;
+.titleFavorite {
+  color: $titleFavorite;
 }
 
-.Hello {
+.titleAbandoned {
+  color: $titleAbandoned;
+}
+
+.titleWatching {
+  color: $titleWatching;
+}
+
+.horizontalContainer {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 20px 0;
+}
+
+fieldset>legend {
+  text-decoration: underline;
+  font-size: $fontSmall;
+}
+
+fieldset p {
+  padding: 0 $spacing;
+}
+
+.description {
+  background-color: $bgLight;
+  min-height: 100%;
 }

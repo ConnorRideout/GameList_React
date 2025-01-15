@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
+import styled from 'styled-components'
 
 import Tools from './tools'
 import Title from './title'
@@ -8,12 +9,23 @@ import Categories from './categories'
 import Tags from './tags'
 import Description from './description'
 
+const LineitemDiv = styled.div`
+  min-height: 135px;
+  max-height: 135px;
+  padding: 0;
+
+  & fieldset {
+    margin: 0 1px;
+    padding-top: 0;
+  }
+`
+
 
 export default function Lineitem({lineData}) {
   const {game_id, path, title, url, image, version, description, program_path, tags, categories, created_at, played_at, updated_at, ...cats} = lineData
 
   return (
-    <div>
+    <LineitemDiv className='horizontalContainer' key={game_id}>
       <Tools
         path={path}
         programPath={program_path}
@@ -37,6 +49,6 @@ export default function Lineitem({lineData}) {
       <Description
         description={description}
       />
-    </div>
+    </LineitemDiv>
   )
 }

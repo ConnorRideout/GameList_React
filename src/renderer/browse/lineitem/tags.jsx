@@ -1,10 +1,16 @@
 import React from 'react'
+import styled from 'styled-components'
+
+const TagsFieldset = styled.fieldset`
+  min-width: 215px;
+  max-width: 215px;
+`
 
 export default function Tags({tags}) {
   return (
-    <fieldset>
+    <TagsFieldset>
       <legend>Tags</legend>
-      <p>{tags}</p>
-    </fieldset>
+      <p>{tags.split(',').join(', ')}</p>
+    </TagsFieldset>
   )
 }

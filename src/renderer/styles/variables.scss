@@ -1,6 +1,30 @@
-$bgNormal: #2D3640;
-$bgDark: #1E242B;
+// colors
+$bgDark: #191b1f;
+$bgNormal: #202328;
+$bgLight: #31363c;
+$fgDark: #384c61;
 $fgNormal: #849DB8;
 $fgLight: #9FE9FF;
 $fgHighlight: #004F80;
 $fgHighlightedText: #CBDFF3;
+
+$titleDefault: $fgNormal;
+$titleCompleted: #FFFFFF;
+$titleFavorite: #FFD700;
+$titleAbandoned: #C80000;
+$titleWatching: #99ff99;
+
+// sizes
+$tooltipWidth: 225px;
+$appWidth: 1340px;
+$appHeight: 1200px;
+
+// other
+$spacing: 3px;
+$fontFamily: 'Ebrima';
+$fontSmall: 8pt;
+$fontDefault: 11pt;
+$fontTitle: 12pt;
+$fontHeader: 14pt;
+$fontMax: 18pt;
+$titleShadow: 3px;

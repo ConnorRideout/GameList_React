@@ -7,7 +7,9 @@ import Lineitem from './lineitem/lineitem'
 export default function Browse() {
   return (
     <div>
-      <Lineitem lineData={sampleData[0]}/>
+      {sampleData.map(data => (
+        <Lineitem lineData={data} />
+      ))}
     </div>
   )
 }
