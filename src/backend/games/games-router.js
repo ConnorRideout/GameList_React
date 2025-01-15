@@ -37,8 +37,8 @@ router.get('/tags', (req, res, next) => {
     .catch(next)
 })
 
-router.get('/categories', (req, res, next) => {
-  Games.getCategories()
+router.get('/status', (req, res, next) => {
+  Games.getStatus()
     .then(cats => {
       res.status(200).json(cats)
     })

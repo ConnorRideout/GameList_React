@@ -17,17 +17,17 @@ exports.up = (knex) => {
       tbl.string('engine').notNullable()
       tbl.string('genre').notNullable()
       tbl.string('protagonist').notNullable()
-      tbl.string('status').notNullable()
+      tbl.string('play_status').notNullable()
     })
-    .createTable('categories', (tbl) => {
-      tbl.increments('category_id')
-      tbl.string('category_name').unique().notNullable()
+    .createTable('status', (tbl) => {
+      tbl.increments('status_id')
+      tbl.string('status_name').unique().notNullable()
     })
     .createTable('tags', (tbl) => {
       tbl.increments('tag_id')
       tbl.string('tag_name').unique().notNullable()
     })
-    .createTable('games_categories', (tbl) => {
+    .createTable('games_status', (tbl) => {
       tbl
         .integer('game_id')
         .unsigned()
@@ -37,14 +37,14 @@ exports.up = (knex) => {
         .onUpdate('CASCADE')
         .onDelete('CASCADE')
       tbl
-        .integer('category_id')
+        .integer('status_id')
         .unsigned()
         .notNullable()
-        .references('category_id')
-        .inTable('categories')
+        .references('status_id')
+        .inTable('status')
         .onUpdate('CASCADE')
         .onDelete('CASCADE')
-      tbl.primary(['game_id', 'category_id'])
+      tbl.primary(['game_id', 'status_id'])
     })
     .createTable('games_tags', (tbl) => {
       tbl
@@ -87,8 +87,8 @@ exports.down = (knex) => {
   return knex.schema
     .dropTableIfExists('timestamps')
     .dropTableIfExists('games_tags')
-    .dropTableIfExists('games_categories')
+    .dropTableIfExists('games_status')
     .dropTableIfExists('tags')
-    .dropTableIfExists('categories')
+    .dropTableIfExists('status')
     .dropTableIfExists('games')
 }

@@ -6,7 +6,7 @@ function getAll() {
   SELECT
       g.*,
       GROUP_CONCAT(DISTINCT t.tag_name) AS tags,
-      GROUP_CONCAT(DISTINCT c.category_name) AS categories
+      GROUP_CONCAT(DISTINCT c.status_name) AS status
   FROM
       games AS g
   LEFT JOIN
@@ -14,9 +14,9 @@ function getAll() {
   LEFT JOIN
       tags AS t ON gt.tag_id = t.tag_id
   LEFT JOIN
-      games_categories AS gc ON g.game_id = gc.game_id
+      games_status AS gc ON g.game_id = gc.game_id
   LEFT JOIN
-      categories AS c ON gc.category_id = c.category_id
+      status AS c ON gc.status_id = c.status_id
   GROUP BY
       g.game_id;
   */
@@ -24,13 +24,13 @@ function getAll() {
     .select(
       'g.*',
       db.raw('GROUP_CONCAT(DISTINCT t.tag_name) AS tags'),
-      db.raw('GROUP_CONCAT(DISTINCT c.category_name) AS categories'),
+      db.raw('GROUP_CONCAT(DISTINCT c.status_name) AS status'),
       'time.created_at', 'time.played_at', 'time.updated_at'
     )
     .leftJoin('games_tags as gt', 'g.game_id', 'gt.game_id')
     .leftJoin('tags as t', 'gt.tag_id', 't.tag_id')
-    .leftJoin('games_categories as gc', 'g.game_id', 'gc.game_id')
-    .leftJoin('categories as c', 'gc.category_id', 'c.category_id')
+    .leftJoin('games_status as gc', 'g.game_id', 'gc.game_id')
+    .leftJoin('status as c', 'gc.status_id', 'c.status_id')
     .leftJoin('timestamps as time', 'g.game_id', 'time.game_id')
     .groupBy('g.game_id')
     // .orderBy('g.title')
@@ -60,9 +60,9 @@ function getTags() {
     .orderBy('tag_name')
 }
 
-function getCategories() {
-  return db('categories')
-    .orderBy('category_name')
+function getStatus() {
+  return db('status')
+    .orderBy('status_name')
 }
 
 
@@ -72,5 +72,5 @@ module.exports = {
   getTimestamps,
   getById,
   getTags,
-  getCategories
+  getStatus
 }
