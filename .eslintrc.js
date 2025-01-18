@@ -13,10 +13,9 @@ module.exports = {
     '@typescript-eslint/no-shadow': 'error',
     'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': 'error',
-    // semi: 'off',
-    // quotes: 'off',
     'prettier/prettier': 'off',
-    'camelcase': 'off'
+    'camelcase': 'off',
+    'no-plusplus': 'off'
   },
   parserOptions: {
     ecmaVersion: 2022,
