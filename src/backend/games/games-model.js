@@ -57,12 +57,22 @@ function getById(gameId) {
 
 function getTags() {
   return db('tags')
-    .orderBy('tag_name')
+    .orderByRaw(`
+        CASE
+          WHEN tag_name GLOB '[^a-zA-Z0-9]*' THEN 0
+          ELSE 1
+        END, tag_name ASC
+      `)
 }
 
 function getStatus() {
   return db('status')
-    .orderBy('status_name')
+    .orderByRaw(`
+        CASE
+          WHEN status_name GLOB '[^a-zA-Z0-9]*' THEN 0
+          ELSE 1
+        END, status_name ASC
+      `)
 }
 
 
