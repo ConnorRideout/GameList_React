@@ -4,6 +4,7 @@
   padding: $spacing;
   margin: 0;
   overflow-wrap: anywhere;
+  box-sizing: border-box;
 }
 
 body {
@@ -75,6 +76,11 @@ body {
 
 .horizontalContainer {
   display: flex;
+}
+
+.verticalContainer {
+  display: flex;
+  flex-direction: column;
 }
 
 fieldset>legend {

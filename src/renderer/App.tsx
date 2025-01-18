@@ -10,8 +10,8 @@ function Hello() {
     <div>
       <div className="Hello">
         {/* <img width="200" alt="icon" src={icon} /> */}
-        {/* <Picker/> */}
-        <Browse/>
+        <Picker/>
+        {/* <Browse/> */}
       </div>
       <h1>electron-react-boilerplate</h1>
       <div className="Hello">
