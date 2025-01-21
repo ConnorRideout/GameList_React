@@ -8,12 +8,25 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
-import { autoUpdater } from 'electron-updater';
-import log from 'electron-log';
-import MenuBuilder from './menu';
-import { resolveHtmlPath } from './util';
+import path from 'path'
+import { app, BrowserWindow, shell, ipcMain, net, protocol } from 'electron'
+import { autoUpdater } from 'electron-updater'
+import log from 'electron-log'
+
+import sassVars from 'get-sass-vars'
+import {promises as fs, existsSync} from 'fs'
+
+import MenuBuilder from './menu'
+import { resolveHtmlPath } from './util'
+// TODO: fix the imgDir reference
+const imgDir = 'E:/Porn/Games/__GameList/lib/images'
+
+const getSassVars = async () => {
+  const css = await fs.readFile('./src/renderer/styles/variables.scss', 'utf-8')
+  const json = await sassVars(css)
+  return json
+}
+
 
 class AppUpdater {
   constructor() {
@@ -69,16 +82,24 @@ const createWindow = async () => {
     return path.join(RESOURCES_PATH, ...paths);
   };
 
+  let {$appWidth, $appHeight} = await getSassVars()
+  if (typeof $appWidth !== 'string') $appWidth = '700'
+  if (typeof $appHeight !== 'string') $appHeight = '1000'
+
   mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728,
+    width: parseInt($appWidth, 10),
+    height: parseInt($appHeight, 10),
     icon: getAssetPath('icon.png'),
     webPreferences: {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
+        // webSecurity: false,
+        // contextIsolation: true,
+        // nodeIntegration: false,
     },
+    resizable: false,
   });
 
   mainWindow.loadURL(resolveHtmlPath('index.html'));
@@ -127,6 +148,14 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(() => {
+    protocol.handle('load-image', async (request) => {
+      let imgPath = request.url
+        .replace('load-image://', '')
+        .replaceAll('_', ' ')
+      imgPath = path.resolve(imgDir, imgPath)
+      return net.fetch(`file://${imgPath}`)
+    })
+
     createWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
