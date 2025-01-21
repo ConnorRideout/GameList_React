@@ -15,7 +15,8 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': 'error',
     'prettier/prettier': 'off',
     'camelcase': 'off',
-    'no-plusplus': 'off'
+    'no-plusplus': 'off',
+    'no-else-return': 'off',
   },
   parserOptions: {
     ecmaVersion: 2022,
