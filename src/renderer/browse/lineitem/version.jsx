@@ -17,13 +17,13 @@ export default function Version({version, timestamps}) {
   return (
     <VersionFieldset>
       <legend>Version</legend>
-      <p className='hasTooltip'>{version}
+      <div className='hasTooltip'>{version}
         <span className='tooltip'>
           {Object.entries(timestamps).map(([time, timestamp]) => (
-            timestamp == null ? '' : <p>{`${parseTimestamp(time)}: ${timestamp.slice(0, -3)}`}</p>
+            timestamp == null ? '' : <p key={timestamp}>{`${parseTimestamp(time)}: ${timestamp.slice(0, -3)}`}</p>
           ))}
         </span>
-      </p>
+      </div>
     </VersionFieldset>
   )
 }

@@ -11,8 +11,8 @@ const TagColumn = styled.label`
 const PickerDiv = styled.div`
   min-width: 1000px;
   max-width: 1000px;
-  min-height: 250px;
-  max-height: 250px;
+  min-height: fit-content;
+  max-height: fit-content;
 `
 const CatFieldset = styled.fieldset`
   justify-content: space-evenly;
@@ -47,8 +47,8 @@ export default function Picker() {
       </CatFieldset>
       <fieldset className='verticalContainer'>
         <legend>Tags</legend>
-        {subDivideTags(sampleTags).map(row => (
-          <div className='horizontalContainer'>
+        {subDivideTags(sampleTags).map((row, idx) => (
+          <div key={`${row}${idx}`} className='horizontalContainer'>
             {row.map(({tag_id, tag_name}) => (
               <TagColumn htmlFor={`tag${tag_id}`}>
                 <input type="checkbox" key={`tag${tag_id}`} name={`tag${tag_id}`} />
