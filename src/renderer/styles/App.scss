@@ -23,6 +23,10 @@ body {
   max-width: 100%;
   min-height: calc(100vh - 7px);
   max-height: calc(100vh - 7px);
+
+  div {
+    padding: 0;
+  }
 }
 
 .hasTooltip {
@@ -33,7 +37,7 @@ body {
 .tooltip {
   visibility: hidden;
   opacity: 0;
-  transition: visibility 0.1s ease-in, opacity 0.1s ease-in;
+  transition: all 0.2s ease-in;
   width: $tooltipWidth;
   background-color: $bgDark;
   color: $fgHighlightedText;
@@ -43,21 +47,27 @@ body {
   border: 1px solid $fgDark;
 
   position: absolute;
-  z-index: 1;
+  z-index: 1000;
   bottom: 100%;
   left: 50%;
   margin-left: calc(-1 * $tooltipWidth / 2);
-
 }
 
 .tooltipImage {
   @extend .tooltip;
+  position: fixed;
+  bottom: auto;
+  left: auto;
+  right: $spacing;
+  top: $spacing;
+  max-width: calc(100vw - $spacing);
+  max-height: calc(100vh - $spacing);
   width: auto;
   padding: 0;
-  z-index: 1000;
 }
 
 .hasTooltip:hover .tooltip {
+  transition: all 0.2s ease-in 0.5s; // fade in after a 0.5s delay
   visibility: visible;
   opacity: 1;
 }
@@ -113,4 +123,27 @@ fieldset p {
 .gameScroll {
   @extend .verticalScrollContainer;
   border: 2px ridge $fgDark;
+  max-width: fit-content;
+  overflow-x: hidden;
+  padding-right: $spacing;
+}
+
+::-webkit-scrollbar {
+  // width: 15px;
+  background-image: linear-gradient(to right, $bgDark, $bgLight);
+  -webkit-border-radius: 100px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-image: linear-gradient(to right, lighten($bgLight, 5), $bgDark);
+  border: 1px solid $fgDark;
+  -webkit-border-radius: 100px;
+
+  &:hover {
+    background-image: linear-gradient(to right, lighten($bgLight, 10), lighten($bgDark, 5));
+  }
+
+  &:active {
+    background-image: linear-gradient(to right, darken($bgLight, 5), darken($bgDark, 5));
+  }
 }

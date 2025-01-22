@@ -14,7 +14,7 @@ const LineitemDiv = styled.div`
   max-height: 135px;
   padding: 0;
 
-  & fieldset {
+  fieldset {
     margin: 0 1px;
     padding-top: 0;
   }
