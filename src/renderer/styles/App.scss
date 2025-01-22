@@ -15,14 +15,14 @@ body {
   font-family: $fontFamily;
   font-size: $fontDefault;
 
-  overflow-y: scroll;
+  overflow-y: auto;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-width: $appWidth;
-  max-width: $appWidth;
-  min-height: $appHeight;
-  max-height: $appHeight;
+  min-width: 100%;
+  max-width: 100%;
+  min-height: calc(100vh - 7px);
+  max-height: calc(100vh - 7px);
 }
 
 .hasTooltip {
@@ -47,6 +47,14 @@ body {
   bottom: 100%;
   left: 50%;
   margin-left: calc(-1 * $tooltipWidth / 2);
+
+}
+
+.tooltipImage {
+  @extend .tooltip;
+  width: auto;
+  padding: 0;
+  z-index: 1000;
 }
 
 .hasTooltip:hover .tooltip {
@@ -83,6 +91,11 @@ body {
   flex-direction: column;
 }
 
+.verticalScrollContainer {
+  @extend .verticalContainer;
+  overflow-y: auto;
+}
+
 fieldset>legend {
   text-decoration: underline;
   font-size: $fontSmall;
@@ -95,4 +108,9 @@ fieldset p {
 .description {
   background-color: $bgLight;
   min-height: 100%;
+}
+
+.gameScroll {
+  @extend .verticalScrollContainer;
+  border: 2px ridge $fgDark;
 }

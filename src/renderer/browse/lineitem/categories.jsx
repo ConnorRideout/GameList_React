@@ -11,7 +11,7 @@ export default function Categories({categories}) {
     <CategoryFieldset>
       <legend>Categories</legend>
       {Object.entries(categories).map(([cat, val]) => (
-        <p>{`${cat.slice(0,1).toUpperCase()}${cat.slice(1)}: ${val}`}</p>
+        <p key={cat}>{`${cat.slice(0,1).toUpperCase()}${cat.slice(1)}: ${val}`}</p>
       ))}
     </CategoryFieldset>
   )
