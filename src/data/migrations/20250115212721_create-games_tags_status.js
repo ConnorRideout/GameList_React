@@ -13,11 +13,7 @@ exports.up = (knex) => {
       tbl.string('version').unique().notNullable()
       tbl.string('description', 2048).unique().notNullable()
       tbl.string('program_path').unique().notNullable()
-      tbl.string('art').notNullable()
-      tbl.string('engine').notNullable()
-      tbl.string('genre').notNullable()
       tbl.string('protagonist').notNullable()
-      tbl.string('play_status').notNullable()
     })
     .createTable('status', (tbl) => {
       tbl.increments('status_id')
@@ -26,6 +22,41 @@ exports.up = (knex) => {
     .createTable('tags', (tbl) => {
       tbl.increments('tag_id')
       tbl.string('tag_name').unique().notNullable()
+    })
+    .createTable('categories', (tbl) => {
+      tbl.increments('category_id')
+      tbl.string('category_name').unique().notNullable()
+    })
+    .createTable('category_options', tbl => {
+      tbl.increments('option_id')
+      tbl
+        .integer('category_id')
+        .unsigned()
+        .notNullable()
+        .references('category_id')
+        .inTable('categories')
+        .onUpdate('CASCADE')
+        .onDelete('CASCADE')
+      tbl.string('option_name').notNullable()
+    })
+    .createTable('games_category_options', (tbl) => {
+      tbl
+        .integer('game_id')
+        .unsigned()
+        .notNullable()
+        .references('game_id')
+        .inTable('games')
+        .onUpdate('CASCADE')
+        .onDelete('CASCADE')
+      tbl
+        .integer('option_id')
+        .unsigned()
+        .notNullable()
+        .references('option_id')
+        .inTable('category_options')
+        .onUpdate('CASCADE')
+        .onDelete('CASCADE')
+      tbl.primary(['game_id', 'option_id'])
     })
     .createTable('games_status', (tbl) => {
       tbl
@@ -88,6 +119,9 @@ exports.down = (knex) => {
     .dropTableIfExists('timestamps')
     .dropTableIfExists('games_tags')
     .dropTableIfExists('games_status')
+    .dropTableIfExists('games_category_options')
+    .dropTableIfExists('category_options')
+    .dropTableIfExists('categories')
     .dropTableIfExists('tags')
     .dropTableIfExists('status')
     .dropTableIfExists('games')
