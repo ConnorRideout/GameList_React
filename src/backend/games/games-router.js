@@ -52,7 +52,18 @@ router.get('/tags', (req, res, next) => {
 
 router.get('/status', (req, res, next) => {
   Games.getStatus()
+    .then(status => {
+      res.status(200).json(status)
+    })
+    .catch(next)
+})
+
+router.get('/categories', (req, res, next) => {
+  Games.getCategories()
     .then(cats => {
+      cats.forEach(cat => {
+        cat.options = cat.options.split(',')
+      })
       res.status(200).json(cats)
     })
     .catch(next)

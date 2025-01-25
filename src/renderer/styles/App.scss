@@ -5,6 +5,17 @@
   margin: 0;
   overflow-wrap: anywhere;
   box-sizing: border-box;
+  font-family: $fontFamily;
+  font-size: $fontDefault;
+}
+
+.headerMax {
+  font-size: $fontMax;
+  font-weight: bold;
+}
+
+.header {
+  font-size: $fontHeader;
 }
 
 body {
@@ -12,8 +23,6 @@ body {
   background-color: $bgNormal;
   color: $fgNormal;
   height: 100vh;
-  font-family: $fontFamily;
-  font-size: $fontDefault;
 
   overflow-y: auto;
   display: flex;
@@ -27,6 +36,16 @@ body {
   div {
     padding: 0;
   }
+}
+
+select {
+  background-image:
+    linear-gradient(to right, transparent calc(100% - 21px), $bgDark, calc(100% - 19px), darken($fgNormal, 20%), calc(100% - 18px), transparent calc(100% - 18px)),
+    linear-gradient(lighten($bgLight, 6%), $bgLight 50%, $bgNormal 50%, darken($bgNormal, 6%));
+  border: 1px solid darken($fgNormal, 20%);
+  outline: 1px solid black;
+  padding: 2px 0;
+  margin: 0 $spacing $spacing;
 }
 
 .hasTooltip {
@@ -107,12 +126,21 @@ body {
 }
 
 fieldset>legend {
+  padding: 0 calc($spacing / 2);
+  margin-left: $spacing;
+}
+
+.gameScroll fieldset>legend {
   text-decoration: underline;
   font-size: $fontSmall;
 }
 
 fieldset p {
   padding: 0 $spacing;
+}
+
+label>input {
+  margin: 0 4px 0 0;
 }
 
 .description {
