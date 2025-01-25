@@ -8,6 +8,19 @@ const router = express.Router()
 router.get('/', (req, res, next) => {
   Games.getAll()
     .then(games => {
+      games.forEach(game => {
+        // format tags
+        game.tags = game.tags !== null ? game.tags.split(',') : []
+        // format categories
+        const {categories} = game
+        delete game.categories
+        categories.split(',').forEach(category => {
+          const [cat, val] = category.split(':')
+          game[cat] = val
+        })
+        // format status
+        game.status = game.status !== null ? game.status.split(',') : []
+      })
       res.status(200).json(games)
     })
     .catch(next)

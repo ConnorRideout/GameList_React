@@ -40,7 +40,7 @@ function getAll() {
       'g.*',
       db.raw('GROUP_CONCAT(DISTINCT t.tag_name) AS tags'),
       db.raw('GROUP_CONCAT(DISTINCT s.status_name) AS status'),
-      db.raw('GROUP_CONCAT(DISTINCT c.category_name || ": " || co.option_name) AS categories'),
+      db.raw('GROUP_CONCAT(DISTINCT c.category_name || ":" || co.option_name) AS categories'),
       'time.created_at', 'time.played_at', 'time.updated_at'
     )
     .leftJoin('games_tags AS gt', 'g.game_id', 'gt.game_id')
@@ -94,6 +94,27 @@ function getStatus() {
       `)
 }
 
+function getCategories() {
+  /*
+  SELECT
+    c.*,
+    GROUP_CONCAT(o.option_name) AS options
+  FROM
+    categories AS c
+  JOIN
+    category_options AS o ON c.category_id = o.category_id
+  GROUP BY
+    c.category_id
+  */
+  return db('categories as c')
+    .select(
+      'c.*',
+      db.raw('GROUP_CONCAT(o.option_name) AS options')
+    )
+    .join('category_options AS o', 'c.category_id', 'o.category_id')
+    .groupBy('c.category_id')
+}
+
 
 
 module.exports = {
@@ -101,5 +122,6 @@ module.exports = {
   getTimestamps,
   getById,
   getTags,
-  getStatus
+  getStatus,
+  getCategories
 }

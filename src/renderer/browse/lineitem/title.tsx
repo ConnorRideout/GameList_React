@@ -1,6 +1,5 @@
-import React, {useState} from 'react'
+import React from 'react'
 import styled from 'styled-components'
-import ImageTooltip from './imagetooltip'
 
 const TitleFieldset = styled.fieldset`
   position: relative;
@@ -25,9 +24,9 @@ const TitleP = styled.p`
 interface Props {
   title: string,
   img: string,
-  categories: string[],
+  status: string[],
 }
-export default function Title({title, img, categories}: Props) {
+export default function Title({title, img, status}: Props) {
 
 
   const categoryHierarchy = ['Favorite', 'Abandoned', 'Watching']
@@ -48,7 +47,7 @@ export default function Title({title, img, categories}: Props) {
       />
       <legend>Title</legend>
       <img className='preview' src={`load-image://${imgPath}`} alt="Dynamic Local Resource" />
-      <TitleP className={`title${orderCats(categories)[0]}`}>{title}</TitleP>
+      <TitleP className={`title${orderCats(status)[0]}`}>{title}</TitleP>
     </TitleFieldset>
   )
 }

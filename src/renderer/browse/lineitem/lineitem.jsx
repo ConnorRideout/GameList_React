@@ -22,11 +22,10 @@ const LineitemDiv = styled.div`
 
 
 export default function Lineitem({lineData}) {
-  const {game_id, path, title, url, image, version, description, program_path, tags, categories, created_at, played_at, updated_at, ...cats} = lineData
+  const {game_id, path, title, url, image, version, description, program_path, tags, status, created_at, played_at, updated_at, ...categories} = lineData
 
-  let splitCategories = categories === null ? ['Default'] : categories.split(',')
-  const isComplete = splitCategories.includes('Complete')
-  splitCategories = splitCategories.filter(s => s !== 'Complete')
+  const isComplete = status.includes('Complete')
+  const splitStatus = status.filter(s => s !== 'Complete')
   return (
     <LineitemDiv className='horizontalContainer'>
       <Tools
@@ -37,7 +36,7 @@ export default function Lineitem({lineData}) {
       <Title
         title={title}
         img={image}
-        categories={splitCategories}
+        status={splitStatus}
       />
       <Version
         version={version}
@@ -45,7 +44,7 @@ export default function Lineitem({lineData}) {
         isComplete={isComplete}
       />
       <Categories
-        categories={cats}
+        categories={categories}
       />
       <Tags
         tags={tags}

@@ -10,7 +10,7 @@ export default function Tags({tags}) {
   return (
     <TagsFieldset>
       <legend>Tags</legend>
-      <p>{tags.split(',').join(', ')}</p>
+      <p>{tags.join(', ')}</p>
     </TagsFieldset>
   )
 }
