@@ -1,8 +1,8 @@
-import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
-// import icon from '../../assets/icon.svg';
-import './styles/App.scss';
+import { MemoryRouter as Router, Routes, Route } from 'react-router-dom'
+// import icon from '../../assets/icon.svg'
+import './styles/App.scss'
 
-import Browse from './browse/browse';
+import Browse from './browse/browse'
 
 
 export default function App() {
@@ -12,5 +12,5 @@ export default function App() {
         <Route path="/" element={<Browse />} />
       </Routes>
     </Router>
-  );
+  )
 }

@@ -1,5 +1,8 @@
 /* eslint-disable promise/always-return */
 const express = require('express')
+const sassVars = require('get-sass-vars')
+const { promises: fs} = require('fs')
+
 const Games = require('./games-model')
 
 
@@ -67,6 +70,18 @@ router.get('/categories', (req, res, next) => {
       res.status(200).json(cats)
     })
     .catch(next)
+})
+
+router.get('/styles', (req, res) => {
+  fs.readFile('./src/renderer/styles/variables.scss', 'utf-8')
+    .then(css => {
+      sassVars(css)
+        .then(json => {
+          res.status(200).json(json)
+        })
+        .catch(err => console.error(err))
+    })
+    .catch(err => console.error(err))
 })
 
 module.exports = router

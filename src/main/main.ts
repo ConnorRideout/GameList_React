@@ -12,12 +12,14 @@ import path from 'path'
 import { app, BrowserWindow, shell, ipcMain, net, protocol } from 'electron'
 import { autoUpdater } from 'electron-updater'
 import log from 'electron-log'
+import installExtension, {REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer'
 
 import sassVars from 'get-sass-vars'
-import {promises as fs, existsSync} from 'fs'
+import { promises as fs } from 'fs'
 
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
+
 // TODO: fix the imgDir reference
 const imgDir = 'E:/Porn/Games/__GameList/lib/images'
 
@@ -26,7 +28,6 @@ const getSassVars = async () => {
   const json = await sassVars(css)
   return json
 }
-
 
 class AppUpdater {
   constructor() {
@@ -95,9 +96,6 @@ const createWindow = async () => {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')
         : path.join(__dirname, '../../.erb/dll/preload.js'),
-        // webSecurity: false,
-        // contextIsolation: true,
-        // nodeIntegration: false,
     },
     resizable: false,
   });
@@ -148,6 +146,9 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(() => {
+    installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS])
+      .then(([redux, react]) => console.log(`Added Extensions:  ${redux.name}, ${react.name}`))
+      .catch((err) => console.log('An error occurred: ', err));
     protocol.handle('load-image', async (request) => {
       let imgPath = request.url
         .replace('load-image://', '')

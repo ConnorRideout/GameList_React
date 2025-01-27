@@ -17,6 +17,7 @@ module.exports = {
     'camelcase': 'off',
     'no-plusplus': 'off',
     'no-else-return': 'off',
+    'no-nested-ternary': 'off',
   },
   parserOptions: {
     ecmaVersion: 2022,

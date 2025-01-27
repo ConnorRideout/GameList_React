@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import styled from 'styled-components'
 
-import sampleData from '../../data/sample_data.json'
+import { getData } from '../../data/store/gamelibrary'
 import Picker from '../shared/picker'
 import Lineitem from './lineitem/lineitem'
 
@@ -15,6 +16,18 @@ const SearchFieldset = styled.fieldset`
 
 
 export default function Browse() {
+  const dispatch = useDispatch()
+
+  const gamelib = useSelector((state) => state.data.gamelib)
+  const status = useSelector((state) => state.data.status)
+  const error = useSelector((state) => state.data.error)
+
+  useEffect(() => {
+    if (status === 'idle') {
+      dispatch(getData())
+    }
+  }, [status, dispatch])
+
   return (
     <BrowseDiv className='verticalContainer'>
       <SearchFieldset>
@@ -22,9 +35,11 @@ export default function Browse() {
         <Picker isBrowse={true}/>
       </SearchFieldset>
       <div className='gameScroll'>
-        {sampleData.map(data => (
-          <Lineitem key={data.game_id} lineData={data} />
+        {status === 'loading' && <p>Loading...</p>}
+        {status === 'succeeded' && gamelib.map(gamedata => (
+          <Lineitem key={gamedata.game_id} lineData={gamedata} />
         ))}
+        {status === 'failed' && <p>Error: {error}</p>}
       </div>
     </BrowseDiv>
   )

@@ -1,10 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
+import { useSelector } from 'react-redux'
 
-// TODO: pull from data instead of sample
-import sampleTags from '../../data/sample_tags.json'
-import sampleStatus from '../../data/sample_status.json'
-import stampleCategories from '../../data/sample_categories.json'
 // TODO: place style vars into redux store
 
 const TagColumn = styled.label`
@@ -33,6 +30,10 @@ const CatFieldset = styled.fieldset`
 
 
 export default function Picker({isBrowse}) {
+  const categories = useSelector(state=> state.data.categories)
+  const tags = useSelector(state => state.data.tags)
+  const statuses = useSelector(state => state.data.statuses)
+
   const subDivideTags = data => {
     const tagsList = [...data]
     const numRows = Math.ceil(tagsList.length / 8)
@@ -52,12 +53,12 @@ export default function Picker({isBrowse}) {
     <PickerDiv>
       <CatFieldset className='horizontalContainer'>
         <legend className='header'>Categories</legend>
-        {stampleCategories.map(({category_id, category_name, options}) => (
-          <fieldset key={category_id}>
+        {categories.map(({category_id, category_name, options}) => (
+          <fieldset key={`${category_id}${category_name}`}>
             <legend>{`${category_name.slice(0,1).toUpperCase()}${category_name.slice(1)}`}</legend>
               <select name={category_name}>
                 {[isBrowse ? 'Any' : '', ...options].map(opt => (
-                  <option value={opt}>{opt}</option>
+                  <option key={`${category_id} ${opt}`} value={opt}>{opt}</option>
                 ))}
               </select>
           </fieldset>
@@ -66,12 +67,12 @@ export default function Picker({isBrowse}) {
           <legend>Protagonist</legend>
           <select name="Protagonist">
             {[isBrowse ? 'Any' : '', ...protagonists].map(protag => (
-              <option value={protag}>{protag}</option>
+              <option key={protag} value={protag}>{protag}</option>
             ))}
           </select>
         </fieldset>
-        {sampleStatus.map(({status_id, status_name}) => (
-          <label htmlFor={`status${status_id}`}>
+        {statuses.map(({status_id, status_name}) => (
+          <label key={`${status_id}${status_name}`} htmlFor={`status${status_id}`}>
             <input type="checkbox" key={`status${status_id}`} name={`status${status_id}`} />
             {status_name}
           </label>
@@ -79,10 +80,10 @@ export default function Picker({isBrowse}) {
       </CatFieldset>
       <fieldset className='verticalContainer'>
         <legend className='header'>Tags</legend>
-        {subDivideTags(sampleTags).map((row) => (
-          <div className='horizontalContainer'>
+        {subDivideTags(tags).map((row, idx) => (
+          <div key={`row${idx}`} className='horizontalContainer'>
             {row.map(({tag_id, tag_name}) => (
-              <TagColumn htmlFor={`tag${tag_id}`}>
+              <TagColumn key={`${tag_id}${tag_name}`} htmlFor={`tag${tag_id}`}>
                 <input type="checkbox" key={`tag${tag_id}`} name={`tag${tag_id}`} />
                 {tag_name}
               </TagColumn>
