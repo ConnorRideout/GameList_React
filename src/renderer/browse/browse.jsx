@@ -32,7 +32,7 @@ export default function Browse() {
     <BrowseDiv className='verticalContainer'>
       <SearchFieldset>
         <legend className='headerMax'>Search</legend>
-        <Picker isBrowse={true}/>
+        <Picker isBrowse/>
       </SearchFieldset>
       <div className='gameScroll'>
         {status === 'loading' && <p>Loading...</p>}

@@ -30,11 +30,7 @@ const slice = createSlice({
     status: 'idle',
     error: null,
   },
-  reducers: {
-    setStyleVars: (state, style) => {
-      state.styleVars = style
-    }
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       // GET DATA
