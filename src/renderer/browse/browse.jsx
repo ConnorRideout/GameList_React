@@ -11,7 +11,13 @@ const BrowseDiv = styled.div`
   max-height: calc(100vh - 5px);
 `
 const SearchFieldset = styled.fieldset`
-  padding: 7px;
+  padding: 0 7px;
+`
+const SearchButtonDiv = styled.div`
+  justify-content: space-evenly;
+  padding: 3px;
+  align-items: center;
+  margin: 3px;
 `
 
 
@@ -30,9 +36,13 @@ export default function Browse() {
 
   return (
     <BrowseDiv className='verticalContainer'>
-      <SearchFieldset>
+      <SearchFieldset className='verticalContainer'>
         <legend className='headerMax'>Search</legend>
         <Picker isBrowse/>
+        <SearchButtonDiv className='horizontalContainer'>
+          <button type='button'>Clear</button>
+          <button type='button'>Search</button>
+        </SearchButtonDiv>
       </SearchFieldset>
       <div className='gameScroll'>
         {status === 'loading' && <p>Loading...</p>}

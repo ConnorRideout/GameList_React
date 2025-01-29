@@ -1,8 +1,10 @@
 import React from 'react'
 import styled from 'styled-components'
+import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 
-// TODO: place style vars into redux store
+import TristateCheckbox from './tristateCheckbox'
+
 
 const TagColumn = styled.label`
   flex: 1 0 12.5%;
@@ -28,9 +30,8 @@ const CatFieldset = styled.fieldset`
   }
 `
 
-
 export default function Picker({isBrowse}) {
-  const categories = useSelector(state=> state.data.categories)
+  const categories = useSelector(state => state.data.categories)
   const tags = useSelector(state => state.data.tags)
   const statuses = useSelector(state => state.data.statuses)
 
@@ -72,21 +73,43 @@ export default function Picker({isBrowse}) {
           </select>
         </fieldset>
         {statuses.map(({status_id, status_name}) => (
-          <label key={`${status_id}${status_name}`} htmlFor={`status${status_id}`}>
-            <input type="checkbox" key={`status${status_id}`} name={`status${status_id}`} />
-            {status_name}
-          </label>
+          isBrowse ?
+            <TristateCheckbox
+              key={`${status_id}${status_name}`}
+              labelText={status_name}
+              name={`status${status_id}`}
+            />
+            :
+            <label
+              key={`${status_id}${status_name}`}
+              htmlFor={`status${status_id}`}
+            >
+              <input type="checkbox" key={`status${status_id}`} name={`status${status_id}`} />
+              {status_name}
+            </label>
         ))}
       </CatFieldset>
       <fieldset className='verticalContainer'>
         <legend className='header'>Tags</legend>
         {subDivideTags(tags).map((row, idx) => (
+          // eslint-disable-next-line react/no-array-index-key
           <div key={`row${idx}`} className='horizontalContainer'>
             {row.map(({tag_id, tag_name}) => (
-              <TagColumn key={`${tag_id}${tag_name}`} htmlFor={`tag${tag_id}`}>
-                <input type="checkbox" key={`tag${tag_id}`} name={`tag${tag_id}`} />
-                {tag_name}
-              </TagColumn>
+              isBrowse ?
+                <TristateCheckbox  style={{flex: '1 0 12.5%'}}
+                  key={`${tag_id}${tag_name}`}
+                  labelText={tag_name}
+                  name={`tag${tag_id}`}
+                />
+                :
+                <label
+                  style={{flex: '1 0 12.5%'}}
+                  key={`${tag_id}${tag_name}`}
+                  htmlFor={`tag${tag_id}`}
+                >
+                  <input type="checkbox" key={`tag${tag_id}`} name={`tag${tag_id}`} />
+                  {tag_name}
+                </label>
             ))}
           </div>
         ))}

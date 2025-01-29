@@ -28,3 +28,11 @@ $fontTitle: 12pt;
 $fontHeader: 14pt;
 $fontMax: 18pt;
 $titleShadow: 3px;
+
+@mixin bgGradient($direction: to bottom, $primaryGrad: none, $light: $bgLight, $dark: $bgDark) {
+  background-image:
+    $primaryGrad,
+    linear-gradient($direction, lighten($light, 10%), $light, 50%, lighten($dark, 5%) 50%, darken($dark, 5%));
+  // color % = color starts at %.
+  // color1, %, color2 = midpoint of the gradient between color1 and color2 is at %
+}

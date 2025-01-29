@@ -38,14 +38,109 @@ body {
   }
 }
 
+button {
+  @include bgGradient();
+  min-width: 75px;
+  padding: 2px;
+  border: 1px solid $fgDark;
+}
+
 select {
-  background-image:
-    linear-gradient(to right, transparent calc(100% - 21px), $bgDark, calc(100% - 19px), darken($fgNormal, 20%), calc(100% - 18px), transparent calc(100% - 18px)),
-    linear-gradient(lighten($bgLight, 6%), $bgLight 50%, $bgNormal 50%, darken($bgNormal, 6%));
+  @include bgGradient(to bottom,
+    linear-gradient(to right, transparent calc(100% - 21px), $bgDark, calc(100% - 19px), darken($fgNormal, 20%), calc(100% - 18px), transparent calc(100% - 18px)));
   border: 1px solid darken($fgNormal, 20%);
   outline: 1px solid black;
   padding: 2px 0;
   margin: 0 $spacing $spacing;
+}
+
+fieldset>legend {
+  padding: 0 calc($spacing / 2);
+  margin-left: $spacing;
+}
+
+fieldset p {
+  padding: 0 $spacing;
+}
+
+label {
+  display: flex;
+  align-items: center;
+
+  &>input[type=checkbox] {
+    margin: 0 4px 0 0;
+  }
+
+  &:hover>input[type=checkbox] {
+    filter: brightness(1.2)
+  }
+}
+
+input[type=checkbox] {
+  @include bgGradient();
+  appearance: none;
+  font: inherit;
+  color: currentColor;
+  width: 0.8em;
+  height: 0.8em;
+  border: 1px solid currentColor;
+  outline: 1px solid black;
+  display: grid;
+  place-content: center;
+
+  &::before {
+    content: "";
+    width: 0.5em;
+    height: 0.5em;
+    transform: scale(0);
+    transition: all 100ms ease-in-out;
+    background: white;
+    transform-origin: center;
+  }
+
+  &:checked {
+    background-image: linear-gradient(green, 50%, darkgreen 50%);
+
+    &::before {
+      transform: scale(1);
+      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    }
+  }
+
+  &:indeterminate {
+    background-image: linear-gradient(darkgoldenrod, 50%, darken(darkgoldenrod, 12) 50%);
+
+    &::before {
+      transform: scale(1);
+      clip-path: inset(0.15em 0.03em round 15%);
+    }
+  }
+
+  &:hover {
+    filter: brightness(1.2)
+  }
+}
+
+::-webkit-scrollbar {
+  // width: 15px;
+  background-image: linear-gradient(to right, darken($bgDark, 5), lighten($bgLight, 3));
+  -webkit-border-radius: 100px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-image: linear-gradient(to right, lighten($bgLight, 5), 45%, darken($bgDark, 3));
+  border: 1px solid darken($fgNormal, 20);
+  outline: 1px solid black;
+  -webkit-border-radius: 100px;
+
+  &:hover {
+    // background-image: linear-gradient(to right, lighten($bgLight, 10), lighten($bgDark, 5));
+    box-shadow: inset white;
+  }
+
+  &:active {
+    background-image: linear-gradient(to right, darken($bgLight, 5), darken($bgDark, 5));
+  }
 }
 
 .hasTooltip {
@@ -56,7 +151,7 @@ select {
 .tooltip {
   visibility: hidden;
   opacity: 0;
-  transition: all 0.2s ease-in;
+  transition: all 0.2s ease-in; // fade out immediately
   width: $tooltipWidth;
   background-color: $bgDark;
   color: $fgHighlightedText;
@@ -125,22 +220,9 @@ select {
   overflow-y: auto;
 }
 
-fieldset>legend {
-  padding: 0 calc($spacing / 2);
-  margin-left: $spacing;
-}
-
 .gameScroll fieldset>legend {
   text-decoration: underline;
   font-size: $fontSmall;
-}
-
-fieldset p {
-  padding: 0 $spacing;
-}
-
-label>input {
-  margin: 0 4px 0 0;
 }
 
 .description {
@@ -150,28 +232,9 @@ label>input {
 
 .gameScroll {
   @extend .verticalScrollContainer;
-  border: 2px ridge $fgDark;
+  outline: 2px ridge $fgDark;
   max-width: fit-content;
   overflow-x: hidden;
   padding-right: $spacing;
-}
-
-::-webkit-scrollbar {
-  // width: 15px;
-  background-image: linear-gradient(to right, $bgDark, $bgLight);
-  -webkit-border-radius: 100px;
-}
-
-::-webkit-scrollbar-thumb {
-  background-image: linear-gradient(to right, lighten($bgLight, 5), $bgDark);
-  border: 1px solid $fgDark;
-  -webkit-border-radius: 100px;
-
-  &:hover {
-    background-image: linear-gradient(to right, lighten($bgLight, 10), lighten($bgDark, 5));
-  }
-
-  &:active {
-    background-image: linear-gradient(to right, darken($bgLight, 5), darken($bgDark, 5));
-  }
+  border-right: $spacing solid transparent;
 }
