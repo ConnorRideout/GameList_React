@@ -4,6 +4,7 @@ import styled from 'styled-components'
 const DescriptionFieldset = styled.fieldset`
   overflow-y: auto;
   flex-grow: 1;
+  padding: 3px;
 `
 
 export default function Description({description}) {

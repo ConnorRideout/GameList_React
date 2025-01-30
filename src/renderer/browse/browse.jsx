@@ -59,7 +59,6 @@ export default function Browse() {
         {status === 'succeeded' && gamelib.map(gamedata => (
           <Lineitem
             key={gamedata.game_id}
-            dataName={gamedata.title}
             lineData={gamedata}
           />
         ))}

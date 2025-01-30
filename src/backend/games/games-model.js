@@ -1,3 +1,4 @@
+/* eslint-disable promise/always-return */
 const db = require('../../data/db-config')
 
 
@@ -70,7 +71,7 @@ function getTimestamps(type) {
 
 function getById(gameId) {
   return getAll()
-    .where({'g.game_id': gameId})
+    .where({ 'g.game_id': gameId })
     .first()
 }
 
@@ -115,6 +116,91 @@ function getCategories() {
     .groupBy('c.category_id')
 }
 
+function getTagByName(tag_name) {
+  /*
+  SELECT *
+  FROM tags
+  WHERE tag_name="Gay"
+  */
+  return db('tags')
+    .where({ tag_name })
+    .first()
+}
+
+function getStatusByName(status_name) {
+  /*
+  SELECT *
+  FROM status
+  WHERE status_name="Favorite"
+  */
+  return db('status')
+    .where({ status_name })
+    .first()
+}
+
+function getCategoryByName(category_name) {
+  /*
+  SELECT *
+  FROM categories
+  WHERE category_name="art"
+  */
+  return db('categories')
+    .where({ category_name })
+    .first()
+}
+
+function getCategoryOptionsByCategoryId(category_id) {
+  /*
+  SELECT option_id, option_name
+  FROM category_options
+  WHERE category_id=2
+  */
+  return db('category_options')
+    .select('option_id', 'option_name')
+    .where({ category_id })
+}
+
+async function insertNewGame(game) {
+  const { path, title, url, image, version, description, program_path, protagonist, tags, status, categories } = game;
+
+  // insert into games
+  const [game_id] = await db('games')
+    .insert({ path, title, url, image, version, description, program_path, protagonist });
+
+  // handle tags
+  await Promise.all(tags.map(async tag => {
+    const { tag_id } = await getTagByName(tag);
+    await db('games_tags').insert({ game_id, tag_id });
+  }));
+
+  // handle status
+  await Promise.all(status.map(async stat => {
+    const { status_id } = await getStatusByName(stat);
+    await db('games_status').insert({ game_id, status_id });
+  }));
+
+  // handle categories
+  await Promise.all(Object.entries(categories).map(async ([cat, val]) => {
+    const { category_id } = await getCategoryByName(cat);
+    const catOpts = await getCategoryOptionsByCategoryId(category_id);
+    const { option_id } = catOpts.find(({ option_name }) => option_name === val);
+    await db('games_category_options').insert({ game_id, option_id });
+  }));
+
+  // insert into timestamps
+  await db('timestamps').insert({ game_id });
+
+  // return the new game
+  const newGame = await getById(game_id);
+  return newGame;
+}
+
+async function deleteGame(game_id) {
+  const delGame = await getById(game_id)
+  await db('games').where({ game_id }).del()
+  return delGame
+}
+
 
 
 module.exports = {
@@ -123,5 +209,7 @@ module.exports = {
   getById,
   getTags,
   getStatus,
-  getCategories
+  getCategories,
+  insertNewGame,
+  deleteGame,
 }

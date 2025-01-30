@@ -1,3 +1,13 @@
+// helper type for objects of unknown length with {string: string} key-values
+interface StringMap {
+  [key: string]: string;
+}
+
+interface Timestamps {
+  created_at: string;
+  updated_at: string | null;
+  played_at: string | null;
+}
 interface GameEntry {
   /*
   "game_id": 2,
@@ -8,7 +18,6 @@ interface GameEntry {
   "version": "1.05_MOD1",
   "description": "Everything changed when the mysterious 'Love Cupid' arrived on the scene, transforming the fiery girl who loved to fight into a charming sweetheart! As we continued our playful dates at the game center, the sparks flew, and things only grew more intense. The game includes 4 base animated scenes.",
   "program_path": "Player.exe",
-  "protagonist": "Male",
   "tags": [
       "Animated",
       "Eroge",
@@ -20,13 +29,18 @@ interface GameEntry {
   "status": [
       "Completed"
   ],
-  "created_at": "2025-01-25 00:37:14",
-  "played_at": null,
-  "updated_at": null,
-  "art": "Drawn",
-  "engine": "RPGM",
-  "genre": "Action",
-  "play-status": "New"
+  "categories": {
+    "protagonist": "Male",
+    "art": "Drawn",
+    "engine": "RPGM",
+    "genre": "Action",
+    "play-status": "New"
+  },
+  "timestamps": {
+    "created_at": "2025-01-25 00:37:14",
+    "updated_at": null,
+    "played_at": null
+  }
   */
   game_id: number;
   path: string;
@@ -36,16 +50,10 @@ interface GameEntry {
   version: string;
   description: string;
   program_path: string;
-  protagonist: string;
   tags: string[];
   status: string[];
-  created_at: string;
-  played_at: string | null;
-  updated_at: string | null;
-  art: string;
-  engine: string;
-  genre: string;
-  'play-status': string;
+  categories: StringMap;
+  timestamps: Timestamps;
 }
 interface CategoryEntry {
   /*
@@ -78,9 +86,6 @@ interface TagEntry {
   */
  tag_id: number;
  tag_name: string;
-}
-interface StringMap {
-  [key: string]: string;
 }
 export interface GamelibState {
   gamelib: GameEntry[];
