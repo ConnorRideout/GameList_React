@@ -52,7 +52,7 @@ export default function Picker({isBrowse}) {
 
   return (
     <PickerDiv>
-      <CatFieldset className='horizontalContainer'>
+      <CatFieldset className='horizontal-container'>
         <legend className='header'>Categories</legend>
         {categories.map(({category_id, category_name, options}) => (
           <fieldset key={`${category_id}${category_name}`}>
@@ -89,11 +89,11 @@ export default function Picker({isBrowse}) {
             </label>
         ))}
       </CatFieldset>
-      <fieldset className='verticalContainer'>
+      <fieldset className='vertical-container'>
         <legend className='header'>Tags</legend>
         {subDivideTags(tags).map((row, idx) => (
           // eslint-disable-next-line react/no-array-index-key
-          <div key={`row${idx}`} className='horizontalContainer'>
+          <div key={`row${idx}`} className='horizontal-container'>
             {row.map(({tag_id, tag_name}) => (
               isBrowse ?
                 <TristateCheckbox  style={{flex: '1 0 12.5%'}}

@@ -9,7 +9,7 @@
   font-size: $fontDefault;
 }
 
-.headerMax {
+.header-max {
   font-size: $fontMax;
   font-weight: bold;
 }
@@ -54,6 +54,10 @@ select {
   margin: 0 $spacing $spacing;
 }
 
+fieldset {
+  border: 1px solid currentColor;
+}
+
 fieldset>legend {
   padding: 0 calc($spacing / 2);
   margin-left: $spacing;
@@ -61,6 +65,11 @@ fieldset>legend {
 
 fieldset p {
   padding: 0 $spacing;
+}
+
+svg,
+svg * {
+  padding: 0;
 }
 
 label {
@@ -72,7 +81,12 @@ label {
   }
 
   &:hover>input[type=checkbox] {
-    filter: brightness(1.2)
+    background-image: linear-gradient(red, 50%, darkred 50%);
+
+    &::before {
+      transform: scale(1);
+      clip-path: polygon(20% 0%, 0% 20%, 30% 50%, 0% 80%, 20% 100%, 50% 70%, 80% 100%, 100% 80%, 70% 50%, 100% 20%, 80% 0%, 50% 30%);
+    }
   }
 }
 
@@ -85,6 +99,7 @@ input[type=checkbox] {
   height: 0.8em;
   border: 1px solid currentColor;
   outline: 1px solid black;
+  position: relative;
   display: grid;
   place-content: center;
 
@@ -115,11 +130,8 @@ input[type=checkbox] {
       clip-path: inset(0.15em 0.03em round 15%);
     }
   }
-
-  &:hover {
-    filter: brightness(1.2)
-  }
 }
+
 
 ::-webkit-scrollbar {
   // width: 15px;
@@ -143,86 +155,58 @@ input[type=checkbox] {
   }
 }
 
-.hasTooltip {
-  position: relative;
-  display: inline-block;
-}
-
-.tooltip {
-  visibility: hidden;
-  opacity: 0;
-  transition: all 0.2s ease-in; // fade out immediately
+div.tooltip {
   width: $tooltipWidth;
-  background-color: $bgDark;
+  background: $bgDark;
   color: $fgHighlightedText;
   text-align: start;
   padding: 5px;
-  border-radius: 8px;
-  border: 1px solid $fgDark;
-
-  position: absolute;
   z-index: 1000;
-  bottom: 100%;
-  left: 50%;
-  margin-left: calc(-1 * $tooltipWidth / 2);
 }
 
-.tooltipImage {
-  @extend .tooltip;
-  position: fixed;
-  bottom: auto;
-  left: auto;
-  right: $spacing;
-  top: $spacing;
+div.tooltip-image {
   max-width: calc(100vw - $spacing);
   max-height: calc(100vh - $spacing);
   width: auto;
-  padding: 0;
+  padding: $spacing $spacing 0 $spacing;
+
+  img {
+    padding: 0
+  }
 }
 
-.hasTooltip:hover .tooltip {
-  transition: all 0.2s ease-in 0.5s; // fade in after a 0.5s delay
-  visibility: visible;
-  opacity: 1;
-}
-
-.titleDefault {
+.title-default {
   color: $titleDefault;
 }
 
-.titleCompleted {
+.title-completed {
   color: $titleCompleted;
 }
 
-.titleFavorite {
+.title-favorite {
   color: $titleFavorite;
 }
 
-.titleAbandoned {
+.title-abandoned {
   color: $titleAbandoned;
 }
 
-.titleWatching {
+.title-watching {
   color: $titleWatching;
 }
 
-.horizontalContainer {
+.horizontal-container {
   display: flex;
 }
 
-.verticalContainer {
+.vertical-container {
   display: flex;
   flex-direction: column;
 }
 
-.verticalScrollContainer {
-  @extend .verticalContainer;
+.vertical-scroll-container {
+  @extend .vertical-container;
   overflow-y: auto;
-}
-
-.gameScroll fieldset>legend {
-  text-decoration: underline;
-  font-size: $fontSmall;
 }
 
 .description {
@@ -230,11 +214,30 @@ input[type=checkbox] {
   min-height: 100%;
 }
 
-.gameScroll {
-  @extend .verticalScrollContainer;
+.game-scroll {
+  @extend .vertical-scroll-container;
   outline: 2px ridge $fgDark;
   max-width: fit-content;
   overflow-x: hidden;
-  padding-right: $spacing;
+  padding: 0 calc($spacing * 3) 0 $spacing;
   border-right: $spacing solid transparent;
+}
+
+.game-scroll fieldset>legend {
+  text-decoration: underline;
+  font-size: $fontSmall;
+}
+
+.circle-button {
+  border: 1px solid black;
+  border-radius: 50%;
+  max-width: 30px;
+  min-width: 30px;
+  max-height: 30px;
+  min-height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1px;
+  cursor: pointer;
 }

@@ -9,6 +9,8 @@ import Lineitem from './lineitem/lineitem'
 const BrowseDiv = styled.div`
   align-items: center;
   max-height: calc(100vh - 5px);
+  position: relative;
+  z-index: 1;
 `
 const SearchFieldset = styled.fieldset`
   padding: 0 7px;
@@ -34,20 +36,32 @@ export default function Browse() {
     }
   }, [status, dispatch])
 
+  const scrollToLetter = letter => {
+    const item = document.querySelector(`div[data-name^="${letter}"`)
+    if (item) {
+      item.scrollIntoView({behavior: 'smooth', block: 'start'})
+    }
+  }
+
   return (
-    <BrowseDiv className='verticalContainer'>
-      <SearchFieldset className='verticalContainer'>
-        <legend className='headerMax'>Search</legend>
+    <BrowseDiv className='vertical-container'>
+      <SearchFieldset className='vertical-container'>
+        <legend className='header-max'>Search</legend>
         <Picker isBrowse/>
-        <SearchButtonDiv className='horizontalContainer'>
+        <SearchButtonDiv className='horizontal-container'>
           <button type='button'>Clear</button>
           <button type='button'>Search</button>
         </SearchButtonDiv>
       </SearchFieldset>
-      <div className='gameScroll'>
+      <button type='button' onClick={() => scrollToLetter('F')}>test</button>
+      <div className='game-scroll'>
         {status === 'loading' && <p>Loading...</p>}
         {status === 'succeeded' && gamelib.map(gamedata => (
-          <Lineitem key={gamedata.game_id} lineData={gamedata} />
+          <Lineitem
+            key={gamedata.game_id}
+            dataName={gamedata.title}
+            lineData={gamedata}
+          />
         ))}
         {status === 'failed' && <p>Error: {error}</p>}
       </div>

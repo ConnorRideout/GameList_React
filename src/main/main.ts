@@ -89,9 +89,9 @@ const createWindow = async () => {
 
   mainWindow = new BrowserWindow({
     show: false,
-    width: parseInt($appWidth, 10),
-    height: parseInt($appHeight, 10),
-    icon: getAssetPath('icon.png'),
+    width: parseInt($appWidth, 10) + 20,
+    height: parseInt($appHeight, 10) + 35,
+    icon: getAssetPath('icon.ico'),
     webPreferences: {
       preload: app.isPackaged
         ? path.join(__dirname, 'preload.js')

@@ -2,8 +2,8 @@ import React from "react"
 import styled from "styled-components"
 
 const CategoryFieldset = styled.fieldset`
-  min-width: 155px;
-  max-width: 155px;
+  min-width: 170px;
+  max-width: 170px;
 `
 
 export default function Categories({categories}) {

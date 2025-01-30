@@ -1,6 +1,8 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import axios from "axios"
 
+import { GamelibState } from "../types/types-gamelibrary"
+
 function url(append = '') {
   const path = append.slice(0,1) === '/' ? append.slice(1) : append
   return `http://localhost:9000/${path}`
@@ -18,18 +20,20 @@ export const getData = createAsyncThunk(
   }
 )
 
+const initialState: GamelibState = {
+  gamelib: [],
+  categories: [],
+  statuses: [],
+  tags: [],
+  styleVars: {},
+  // application status
+  status: 'idle',
+  error: undefined,
+}
+
 const slice = createSlice({
   name: 'gamelib',
-  initialState: {
-    gamelib: [],
-    categories: [],
-    statuses: [],
-    tags: [],
-    styleVars: {},
-    // application status
-    status: 'idle',
-    error: null,
-  },
+  initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
@@ -53,4 +57,3 @@ const slice = createSlice({
 
 export default slice.reducer
 
-export const { setStyleVars } = slice.actions
