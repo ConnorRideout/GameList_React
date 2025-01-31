@@ -8,7 +8,7 @@ function getAll() {
       g.*,
       GROUP_CONCAT(DISTINCT t.tag_name) AS tags,
       GROUP_CONCAT(DISTINCT s.status_name) AS status,
-      GROUP_CONCAT(DISTINCT c.category_name || ': ' || co.option_name) AS categories,
+      GROUP_CONCAT(DISTINCT c.category_name || ':' || co.option_name) AS categories,
       time.created_at, time.played_at, time.updated_at
   FROM
       games AS g
@@ -87,12 +87,7 @@ function getTags() {
 
 function getStatus() {
   return db('status')
-    .orderByRaw(`
-        CASE
-          WHEN status_name GLOB '[^a-zA-Z0-9]*' THEN 0
-          ELSE 1
-        END, status_name ASC
-      `)
+    .orderBy('status_priority')
 }
 
 function getCategories() {

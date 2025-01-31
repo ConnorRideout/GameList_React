@@ -18,6 +18,8 @@ exports.up = (knex) => {
     .createTable('status', (tbl) => {
       tbl.increments('status_id')
       tbl.string('status_name').unique().notNullable()
+      tbl.integer('status_priority').unsigned().unique().notNullable()
+      tbl.string('status_color').notNullable()
     })
     .createTable('tags', (tbl) => {
       tbl.increments('tag_id')

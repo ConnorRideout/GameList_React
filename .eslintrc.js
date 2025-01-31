@@ -18,6 +18,7 @@ module.exports = {
     'no-plusplus': 'off',
     'no-else-return': 'off',
     'no-nested-ternary': 'off',
+    'promise/no-nesting': 'off',
   },
   parserOptions: {
     ecmaVersion: 2022,

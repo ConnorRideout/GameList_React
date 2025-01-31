@@ -74,10 +74,13 @@ interface CategoryEntry {
 interface StatusEntry {
   /*
   "status_id": 1,
-  "status_name": "Abandoned"
+  "status_name": "Abandoned",
+  "status_priority": 1
   */
   status_id: number;
   status_name: string;
+  status_priority: number;
+  status_color: string;
 }
 interface TagEntry {
   /*

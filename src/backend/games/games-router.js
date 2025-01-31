@@ -1,3 +1,4 @@
+/* eslint-disable promise/no-callback-in-promise */
 /* eslint-disable promise/always-return */
 const express = require('express')
 const sassVars = require('get-sass-vars')

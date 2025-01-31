@@ -7,8 +7,14 @@ const VersionFieldset = styled.fieldset`
   max-width: 90px;
 `
 
-export default function Version({game_id, version, timestamps}) {
-  const parseTimestamp = time => {
+interface Props {
+  game_id: number,
+  version: string,
+  timestamps: string[],
+  status_color: string,
+}
+export default function Version({game_id, version, timestamps, status_color}: Props) {
+  const parseTimestamp = (time: string) => {
     let timetag = time.replace('_', ' ')
     if (timetag.includes('create')) timetag = `${timetag.slice(0, 1).toUpperCase()}${timetag.slice(1)}`
     else timetag = `Last ${timetag.slice(0, -3)}`
@@ -18,12 +24,14 @@ export default function Version({game_id, version, timestamps}) {
   return (
     <VersionFieldset>
       <legend>Version</legend>
-      <p id={`version${game_id}`}>
+      <p id={`version-${game_id}`} style={{color: status_color}}>
         {version}
       </p>
-      <Tooltip anchorSelect={`#version${game_id}`}>
+      <Tooltip anchorSelect={`#version-${game_id}`}>
         {Object.entries(timestamps).map(([time, timestamp]) => (
-          timestamp == null ? '' : <p key={timestamp}>{`${parseTimestamp(time)}: ${timestamp.slice(0, -3)}`}</p>
+          timestamp == null
+            ? ''
+            : <p key={timestamp}>{`${parseTimestamp(time)}: ${timestamp.slice(0, -3)}`}</p>
         ))}
       </Tooltip>
     </VersionFieldset>

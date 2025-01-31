@@ -27,17 +27,10 @@ interface Props {
   game_id: number,
   title: string,
   img: string,
-  status: string[],
+  status_color: string,
 }
-export default function Title({game_id, title, img, status}: Props) {
+export default function Title({game_id, title, img, status_color}: Props) {
 
-
-  const categoryHierarchy = ['Favorite', 'Abandoned', 'Watching']
-  const orderCats = (arr: string[]) => {
-    return arr.sort((a, b) => {
-      return categoryHierarchy.indexOf(a) - categoryHierarchy.indexOf(b)
-    })
-  }
 
   const imgPath = img.replaceAll(' ', '_')
 
@@ -57,7 +50,7 @@ export default function Title({game_id, title, img, status}: Props) {
       </Tooltip>
       <legend>Title</legend>
       <img className='preview' src={`load-image://${imgPath}`} alt="Dynamic Local Resource" />
-      <TitleP className={`title-${(orderCats(status)[0] || 'default').toLowerCase()}`}>{title}</TitleP>
+      <TitleP style={{color: status_color}}>{title}</TitleP>
     </TitleFieldset>
   )
 }

@@ -175,26 +175,6 @@ div.tooltip-image {
   }
 }
 
-.title-default {
-  color: $titleDefault;
-}
-
-.title-completed {
-  color: $titleCompleted;
-}
-
-.title-favorite {
-  color: $titleFavorite;
-}
-
-.title-abandoned {
-  color: $titleAbandoned;
-}
-
-.title-watching {
-  color: $titleWatching;
-}
-
 .horizontal-container {
   display: flex;
 }
@@ -217,7 +197,7 @@ div.tooltip-image {
 .game-scroll {
   @extend .vertical-scroll-container;
   outline: 2px ridge $fgDark;
-  max-width: fit-content;
+  max-width: max-content;
   overflow-x: hidden;
   padding: 0 calc($spacing * 3) 0 $spacing;
   border-right: $spacing solid transparent;
