@@ -10,6 +10,8 @@ const Games = require('./games-model')
 const router = express.Router()
 
 function parseRawGameData(game) {
+  // format program_path
+  game.program_path = JSON.parse(game.program_path)
   // format tags
   game.tags = typeof game.tags === 'string' ? game.tags.split(',') : []
   // format categories
@@ -99,32 +101,10 @@ router.get('/styles', (req, res) => {
 })
 
 router.post('/new', (req, res, next) => {
-  // TODO: testing purposes
-  const game = {
-    path: "general-practitioner-pc",
-    title: "General Practitioner",
-    url: "https://f95zone.to/threads/2863/",
-    image: "General Practitioner.jpg",
-    version: "1.8.1",
-    description: "Live the everyday life of a General Practitioner: go to the clinic every day and meet new patients, develop your skills through study, and manage your clinic and your staff. With dozens of items to buy and an always short budget will you be able to treat your patients in the best way?",
-    program_path: "General_Practitioner.exe",
-    protagonist: "Male",
-    tags: [
-      "Gay",
-      "Incest"
-    ],
-    status: [
-      "Abandoned",
-      "Favorite"
-    ],
-    categories: {
-      "art": "3D",
-      "engine": "Ren'Py",
-      "genre": "Visual Novel",
-      "play-status": "New"
-    }
-  }
-  // const game = req.body
+  const game = req.body
+  game.protagonist = game.categories.protagonist
+  delete game.categories.protagonist
+  game.program_path = JSON.stringify(game.program_path)
   Games.insertNewGame(game)
     .then(newGame => {
       parseRawGameData(newGame)

@@ -165,13 +165,14 @@ div.tooltip {
 }
 
 div.tooltip-image {
-  max-width: calc(100vw - $spacing);
+  max-width: 75vw;
   max-height: calc(100vh - $spacing);
-  width: auto;
+  width: max-content;
   padding: $spacing $spacing 0 $spacing;
 
   img {
-    padding: 0
+    padding: 0;
+    width: 100%;
   }
 }
 

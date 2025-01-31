@@ -6,13 +6,13 @@ exports.up = (knex) => {
   return knex.schema
     .createTable('games', (tbl) => {
       tbl.increments('game_id')
-      tbl.string('path', 2048).unique().notNullable()
+      tbl.string('path', 2048).notNullable()
       tbl.string('title').unique().notNullable()
-      tbl.string('url').unique().notNullable()
-      tbl.string('image').unique()
-      tbl.string('version').unique().notNullable()
-      tbl.string('description', 2048).unique().notNullable()
-      tbl.string('program_path').unique().notNullable()
+      tbl.string('url').notNullable()
+      tbl.string('image')
+      tbl.string('version').notNullable()
+      tbl.string('description', 2048).notNullable()
+      tbl.string('program_path').notNullable()
       tbl.string('protagonist').notNullable()
     })
     .createTable('status', (tbl) => {

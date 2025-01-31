@@ -39,7 +39,7 @@ export default function Title({game_id, title, img, status_color}: Props) {
       <Tooltip
         float
         className='tooltip-image'
-        place='bottom'
+        place='right'
         opacity='1'
         anchorSelect={`#title-${game_id}`}
       >

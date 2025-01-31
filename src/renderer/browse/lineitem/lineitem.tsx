@@ -12,8 +12,8 @@ import Description from './description'
 import { RootState } from '../../../data/store/store'
 
 const LineitemDiv = styled.div`
-  min-height: 135px;
-  max-height: 135px;
+  min-height: 140px;
+  max-height: 140px;
   padding: 0;
 
   fieldset {
@@ -45,7 +45,7 @@ export default function Lineitem({lineData}) {
   const status_color = getStatusColor(status)
 
   return (
-    <LineitemDiv className='horizontal-container'>
+    <LineitemDiv className='horizontal-container' data-name={title}> {/* data-name is for the scroll-to-letter function */}
       <Tools
         game_id={game_id}
         path={path}

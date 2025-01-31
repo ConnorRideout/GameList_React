@@ -17,7 +17,7 @@ interface GameEntry {
   "image": "Moody Ichigo - Those Kids At the Game Center.jpg",
   "version": "1.05_MOD1",
   "description": "Everything changed when the mysterious 'Love Cupid' arrived on the scene, transforming the fiery girl who loved to fight into a charming sweetheart! As we continued our playful dates at the game center, the sparks flew, and things only grew more intense. The game includes 4 base animated scenes.",
-  "program_path": "Player.exe",
+  "program_path": "Player.exe", <<< CAN BE AN OBJECT
   "tags": [
       "Animated",
       "Eroge",
@@ -49,7 +49,7 @@ interface GameEntry {
   image: string;
   version: string;
   description: string;
-  program_path: string;
+  program_path: StringMap;
   tags: string[];
   status: string[];
   categories: StringMap;

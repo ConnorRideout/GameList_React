@@ -157,6 +157,7 @@ function getCategoryOptionsByCategoryId(category_id) {
 
 async function insertNewGame(game) {
   const { path, title, url, image, version, description, program_path, protagonist, tags, status, categories } = game;
+  const timestamps = game.timestamps || {}
 
   // insert into games
   const [game_id] = await db('games')
@@ -183,7 +184,7 @@ async function insertNewGame(game) {
   }));
 
   // insert into timestamps
-  await db('timestamps').insert({ game_id });
+  await db('timestamps').insert({ game_id, ...timestamps });
 
   // return the new game
   const newGame = await getById(game_id);
