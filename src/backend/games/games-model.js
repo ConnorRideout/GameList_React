@@ -1,3 +1,5 @@
+/* eslint-disable no-await-in-loop */
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable promise/always-return */
 const db = require('../../data/db-config')
 
@@ -156,39 +158,53 @@ function getCategoryOptionsByCategoryId(category_id) {
 }
 
 async function insertNewGame(game) {
-  const { path, title, url, image, version, description, program_path, protagonist, tags, status, categories } = game;
+  const { path, title, url, image, version, description, program_path, protagonist, tags, status, categories } = game
   const timestamps = game.timestamps || {}
 
-  // insert into games
-  const [game_id] = await db('games')
-    .insert({ path, title, url, image, version, description, program_path, protagonist });
+  // Fetch all necessary IDs before starting the transaction
+  const tagIds = await Promise.all(tags.map(tag => getTagByName(tag)))
+  const statusIds = await Promise.all(status.map(stat => getStatusByName(stat)))
+  const categoryIds = await Promise.all(Object.entries(categories).map(async ([cat, val]) => {
+    const { category_id } = await getCategoryByName(cat)
+    const catOpts = await getCategoryOptionsByCategoryId(category_id)
+    const {option_id} = catOpts.find(({ option_name }) => option_name === val)
+    return { category_id, option_id }
+  }))
 
-  // handle tags
-  await Promise.all(tags.map(async tag => {
-    const { tag_id } = await getTagByName(tag);
-    await db('games_tags').insert({ game_id, tag_id });
-  }));
+  const trx = await db.transaction()
 
-  // handle status
-  await Promise.all(status.map(async stat => {
-    const { status_id } = await getStatusByName(stat);
-    await db('games_status').insert({ game_id, status_id });
-  }));
+  try {
+    // Insert into games
+    const [game_id] = await trx('games')
+      .insert({ path, title, url, image, version, description, program_path, protagonist })
 
-  // handle categories
-  await Promise.all(Object.entries(categories).map(async ([cat, val]) => {
-    const { category_id } = await getCategoryByName(cat);
-    const catOpts = await getCategoryOptionsByCategoryId(category_id);
-    const { option_id } = catOpts.find(({ option_name }) => option_name === val);
-    await db('games_category_options').insert({ game_id, option_id });
-  }));
+    // Insert tags
+    for (const { tag_id } of tagIds) {
+      await trx('games_tags').insert({ game_id, tag_id })
+    }
 
-  // insert into timestamps
-  await db('timestamps').insert({ game_id, ...timestamps });
+    // Insert status
+    for (const { status_id } of statusIds) {
+      await trx('games_status').insert({ game_id, status_id })
+    }
 
-  // return the new game
-  const newGame = await getById(game_id);
-  return newGame;
+    // Insert categories
+    for (const { option_id } of categoryIds) {
+      await trx('games_category_options').insert({ game_id, option_id })
+    }
+
+    // Insert into timestamps
+    await trx('timestamps').insert({ game_id, ...timestamps })
+
+    // Commit and return the new game
+    await trx.commit()
+    const newGame = await getById(game_id)
+    return newGame
+  } catch (error) {
+    await trx.rollback()
+    console.error('Transaction failed:', error)
+    return { title, error }
+  }
 }
 
 async function deleteGame(game_id) {

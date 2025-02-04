@@ -107,8 +107,12 @@ router.post('/new', (req, res, next) => {
   game.program_path = JSON.stringify(game.program_path)
   Games.insertNewGame(game)
     .then(newGame => {
-      parseRawGameData(newGame)
-      res.status(200).json(newGame)
+      if (newGame.error) {
+        res.status(500).json(newGame)
+      } else {
+        parseRawGameData(newGame)
+        res.status(201).json(newGame)
+      }
     })
     .catch(next)
 })
