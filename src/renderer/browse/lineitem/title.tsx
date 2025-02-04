@@ -1,5 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
+import { useSelector } from 'react-redux'
 
 import Tooltip from '../../shared/tooltip'
 
@@ -9,18 +10,21 @@ const TitleFieldset = styled.fieldset`
   max-width: 205px;
 
   img.preview {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     opacity: 0.6;
     height: 100%;
     width: 100%;
-    padding: 0;
+    padding: 1px;
   }
 `
 const TitleP = styled.p`
-  position: absolute;
-  top: 0px;
-  left: 0px;
-
+  position: relative;
   text-shadow: -1px -1px 2px black, 1px 1px 2px black, -1px 1px 2px black, 1px -1px 2px black;
+  filter: drop-shadow(0 0 1px #0005)
 `
 
 interface Props {
@@ -30,6 +34,7 @@ interface Props {
   status_color: string,
 }
 export default function Title({game_id, title, img, status_color}: Props) {
+
 
 
   const imgPath = img.replaceAll(' ', '_')

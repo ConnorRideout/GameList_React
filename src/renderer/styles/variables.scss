@@ -30,3 +30,8 @@ $titleShadow: 3px;
   // color % = color starts at %.
   // color1, %, color2 = midpoint of the gradient between color1 and color2 is at %
 }
+
+@function percent-encode($color) {
+  $strColor: "#{$color}";
+  @return "%23#{str-slice($strColor, 2)}";
+}

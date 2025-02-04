@@ -20,6 +20,7 @@ module.exports = {
     'no-nested-ternary': 'off',
     'promise/no-nesting': 'off',
     'promise/always-return': 'off',
+    'react/require-default-props': 'off',
   },
   parserOptions: {
     ecmaVersion: 2022,

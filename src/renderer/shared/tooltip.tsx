@@ -5,6 +5,8 @@ import { Tooltip as RTooltip } from "react-tooltip"
 import {ITooltip} from 'react-tooltip/dist/react-tooltip'
 import { RootState } from "../../data/store/store"
 
+
+// docs: https://react-tooltip.com/docs/examples/basic-examples
 interface TooltipProps extends ITooltip {
   children: React.ReactNode
 }

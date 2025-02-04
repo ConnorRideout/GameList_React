@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import { getData } from '../../data/store/gamelibrary'
 import Picker from '../shared/picker'
 import Lineitem from './lineitem/lineitem'
+import BrowseNav from './browseNav'
 
 const BrowseDiv = styled.div`
   align-items: center;
@@ -26,7 +27,7 @@ const SearchButtonDiv = styled.div`
 export default function Browse() {
   const dispatch = useDispatch()
 
-  const gamelib = useSelector((state) => state.data.gamelib)
+  const gamelib = useSelector((state) => state.data.sortedGamelib)
   const status = useSelector((state) => state.data.status)
   const error = useSelector((state) => state.data.error)
 
@@ -36,13 +37,6 @@ export default function Browse() {
     }
   }, [status, dispatch])
 
-  const scrollToLetter = letter => {
-    const item = document.querySelector(`div[data-name^="${letter}"`)
-    if (item) {
-      item.scrollIntoView({behavior: 'smooth', block: 'start'})
-    }
-  }
-
   return (
     <BrowseDiv className='vertical-container'>
       <SearchFieldset className='vertical-container'>
@@ -50,13 +44,14 @@ export default function Browse() {
         <Picker isBrowse/>
         <SearchButtonDiv className='horizontal-container'>
           <button type='button'>Clear</button>
+          {/* TODO: implement text bar search */}
           <button type='button'>Search</button>
         </SearchButtonDiv>
       </SearchFieldset>
-      <button type='button' onClick={() => scrollToLetter('F')}>test</button>
+      <BrowseNav />
       <div className='game-scroll'>
-        {status === 'loading' && <p>Loading...</p>}
-        {status === 'succeeded' && gamelib.map(gamedata => (
+        {['loading', 'updating'].includes(status) && <div className='loading' />}
+        {['succeeded', 'updating'].includes(status) && gamelib.map(gamedata => (
           <Lineitem
             key={gamedata.game_id}
             lineData={gamedata}

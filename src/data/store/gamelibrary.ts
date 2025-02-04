@@ -1,7 +1,8 @@
+// TODO: update to use RTK query
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import axios from "axios"
 
-import { GamelibState } from "../types/types-gamelibrary"
+import { GamelibState, GameEntry } from "../types/types-gamelibrary"
 
 function url(append = '') {
   const path = append.slice(0,1) === '/' ? append.slice(1) : append
@@ -20,21 +21,64 @@ export const getData = createAsyncThunk(
   }
 )
 
+function sortGamelib(gamelib: GameEntry[], sortOrder: string) {
+  switch (sortOrder) {
+    case 'recentlyPlayed':
+
+      return gamelib
+        .filter(g => g.timestamps.played_at)
+        .sort((a, b) => {
+          const dateA = new Date(a.timestamps.played_at.replace(' ', 'T')).getTime()
+          const dateB = new Date(b.timestamps.played_at.replace(' ', 'T')).getTime()
+          return dateB - dateA
+        })
+    case 'recentlyAdded':
+      return [...gamelib]
+        .sort((a, b) => {
+          const dateA = new Date(a.timestamps.created_at.replace(' ', 'T')).getTime()
+          const dateB = new Date(b.timestamps.created_at.replace(' ', 'T')).getTime()
+          return dateB - dateA
+        })
+    case 'recentlyUpdated':
+      return gamelib
+        .filter(g => g.timestamps.updated_at)
+        .sort((a, b) => {
+          const dateA = new Date(a.timestamps.updated_at.replace(' ', 'T')).getTime()
+          const dateB = new Date(b.timestamps.updated_at.replace(' ', 'T')).getTime()
+          return dateB - dateA
+        })
+    case 'alphabetical':
+      return gamelib
+    default:
+      return gamelib
+  }
+}
+
 const initialState: GamelibState = {
   gamelib: [],
+  sortedGamelib: [],
+  sortOrder: 'recentlyPlayed',
   categories: [],
   statuses: [],
   tags: [],
   styleVars: {},
   // application status
-  status: 'idle',
+  status: 'idle', // loading succeeded failed idle updating
   error: undefined,
 }
 
 const slice = createSlice({
   name: 'gamelib',
   initialState,
-  reducers: {},
+  reducers: {
+    setStatus: (state, action) => {
+      state.status = action.payload
+    },
+    setSortOrder: (state, action) => {
+      state.sortOrder = action.payload
+      state.sortedGamelib = sortGamelib(state.gamelib, action.payload)
+    }
+  },
   extraReducers: (builder) => {
     builder
       // GET DATA
@@ -47,6 +91,7 @@ const slice = createSlice({
         keys.forEach(k => {
           state[k] = action.payload[k]
         })
+        state.sortedGamelib = sortGamelib(state.gamelib, state.sortOrder)
       })
       .addCase(getData.rejected, (state, action) => {
         state.status = 'failed'
@@ -55,5 +100,7 @@ const slice = createSlice({
   }
 })
 
+
 export default slice.reducer
 
+export const { setSortOrder, setStatus } = slice.actions

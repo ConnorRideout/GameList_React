@@ -8,7 +8,7 @@ interface Timestamps {
   updated_at: string | null;
   played_at: string | null;
 }
-interface GameEntry {
+export interface GameEntry {
   /*
   "game_id": 2,
   "path": "Kidsatthegamecenter1.05_MOD1",
@@ -92,6 +92,8 @@ interface TagEntry {
 }
 export interface GamelibState {
   gamelib: GameEntry[];
+  sortedGamelib: GameEntry[];
+  sortOrder: string;
   categories: CategoryEntry[];
   statuses: StatusEntry[];
   tags: TagEntry[];
