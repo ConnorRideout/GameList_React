@@ -40,9 +40,9 @@ function generateGame(idx, titleStartswith) {
   }
 }
 
-const alpha = '[1ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
+const alpha = '[1ABCDEFGHIJKLMPQRSTUVWXYZ'.split('')
 const letters = [...alpha]
-for (let i = 0; i < 100; i++) {
+for (let i = 0; i < 102; i++) {
   const randomIdx = Math.floor(Math.random() * alpha.length)
   letters.push(alpha[randomIdx])
 }

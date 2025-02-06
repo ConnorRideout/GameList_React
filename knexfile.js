@@ -37,7 +37,16 @@ module.exports = {
   },
 
   showcasing: {
-    ...sharedConfig
+    ...sharedConfig,
+    connection: {
+      filename: './src/data/showcase/gameslist.db3'
+    },
+    migrations: {
+      directory: './src/data/showcase/migrations'
+    },
+    seeds: {
+      directory: './src/data/showcase/seeds',
+    },
   },
 
   staging: {
