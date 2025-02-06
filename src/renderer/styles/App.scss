@@ -42,7 +42,8 @@ button {
   @include bgGradient();
   min-width: 75px;
   padding: 2px;
-  border: 1px solid $fgDark;
+  padding-top: 0;
+  border: 1px solid darken($fgNormal, 10);
   cursor: pointer;
 
   &:hover {
@@ -185,6 +186,7 @@ div.tooltip-image {
   img {
     padding: 0;
     width: 100%;
+    max-height: 70vh;
   }
 }
 

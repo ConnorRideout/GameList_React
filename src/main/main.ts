@@ -8,6 +8,7 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
+import 'dotenv/config'
 import path from 'path'
 import { app, BrowserWindow, shell, ipcMain, net, protocol } from 'electron'
 import { autoUpdater } from 'electron-updater'
@@ -20,8 +21,11 @@ import { promises as fs } from 'fs'
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 
-// TODO: fix the imgDir reference
-const imgDir = 'E:/Porn/Games/__GameList/lib/images'
+const imgDir = path.join(
+  __dirname,
+  '../../src/data',
+  process.env.KNEX_ENV === 'development' ? 'private/gameImages' : 'gameImages'
+)
 
 const getSassVars = async () => {
   const css = await fs.readFile('./src/renderer/styles/variables.scss', 'utf-8')
@@ -147,7 +151,7 @@ app
   .whenReady()
   .then(() => {
     installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS])
-      .then(([redux, react]) => console.log(`Added Extensions:  ${redux.name}, ${react.name}`))
+      .then(res => console.log(`Added Extensions:  ${res}`))
       .catch((err) => console.log('An error occurred: ', err));
     protocol.handle('load-image', async (request) => {
       let imgPath = request.url
