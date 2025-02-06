@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import React from 'react'
+import React, { CSSProperties } from 'react'
 import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 
@@ -10,11 +10,13 @@ import Categories from './categories'
 import Tags from './tags'
 import Description from './description'
 import { RootState } from '../../../data/store/store'
+import { GameEntry } from '../../../data/types/types-gamelibrary'
 
 const LineitemDiv = styled.div`
   min-height: 140px;
   max-height: 140px;
   padding: 0;
+  padding-right: 3px;
 
   fieldset {
     margin: 0 1px;
@@ -22,11 +24,15 @@ const LineitemDiv = styled.div`
   }
 `
 
-
-export default function Lineitem({lineData}) {
+interface Props {
+  lineData: GameEntry,
+  style: CSSProperties
+}
+export default function Lineitem({lineData, style}: Props) {
   const {game_id, path, title, url, image, version, description, program_path, tags, status, categories, timestamps} = lineData
 
   const statuses = useSelector((state: RootState) => state.data.statuses)
+  const styleVars = useSelector((state: RootState) => state.data.styleVars)
 
   const getStatusColor = (arr: string[]) => {
     if (arr.length) {
@@ -45,7 +51,7 @@ export default function Lineitem({lineData}) {
   const status_color = getStatusColor(status)
 
   return (
-    <LineitemDiv className='horizontal-container' data-name={title}> {/* data-name is for the scroll-to-letter function */}
+    <LineitemDiv style={{background: styleVars.$bgNormal, ...style}} className='horizontal-container'>
       <Tools
         game_id={game_id}
         path={path}

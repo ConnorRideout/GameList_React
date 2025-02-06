@@ -1,54 +1,28 @@
 // TODO: update to use RTK query
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
-import axios from "axios"
+import {
+  createSlice,
+  PayloadAction,
+} from "@reduxjs/toolkit"
 
 import { GamelibState, GameEntry } from "../types/types-gamelibrary"
+import { gamelibApi } from "./gamelibApi"
 
-function url(append = '') {
-  const path = append.slice(0,1) === '/' ? append.slice(1) : append
-  return `http://localhost:9000/${path}`
-}
 
-export const getData = createAsyncThunk(
-  'data/getData',
-  async () => {
-    const {data: gamelib} = await axios.get(url())
-    const {data: categories} = await axios.get(url('categories'))
-    const {data: statuses} = await axios.get(url('status'))
-    const {data: tags} = await axios.get(url('tags'))
-    const {data: styleVars} = await axios.get(url('styles'))
-    return {gamelib, categories, statuses, tags, styleVars}
-  }
-)
-
-function sortGamelib(gamelib: GameEntry[], sortOrder: string) {
+function sortGamelib(gamelib: GameEntry[], sortOrder: string): GameEntry[] {
   switch (sortOrder) {
     case 'recentlyPlayed':
-
       return gamelib
         .filter(g => g.timestamps.played_at)
-        .sort((a, b) => {
-          const dateA = new Date(a.timestamps.played_at.replace(' ', 'T')).getTime()
-          const dateB = new Date(b.timestamps.played_at.replace(' ', 'T')).getTime()
-          return dateB - dateA
-        })
+        .sort((a, b) => b.timestamps_sec.played_at - a.timestamps_sec.played_at)
     case 'recentlyAdded':
       return [...gamelib]
-        .sort((a, b) => {
-          const dateA = new Date(a.timestamps.created_at.replace(' ', 'T')).getTime()
-          const dateB = new Date(b.timestamps.created_at.replace(' ', 'T')).getTime()
-          return dateB - dateA
-        })
+        .sort((a, b) => b.timestamps_sec.created_at - a.timestamps_sec.created_at)
     case 'recentlyUpdated':
       return gamelib
         .filter(g => g.timestamps.updated_at)
-        .sort((a, b) => {
-          const dateA = new Date(a.timestamps.updated_at.replace(' ', 'T')).getTime()
-          const dateB = new Date(b.timestamps.updated_at.replace(' ', 'T')).getTime()
-          return dateB - dateA
-        })
+        .sort((a, b) => b.timestamps_sec.updated_at - a.timestamps_sec.updated_at)
     case 'alphabetical':
-      return gamelib
+      return [...gamelib]
     default:
       return gamelib
   }
@@ -56,14 +30,21 @@ function sortGamelib(gamelib: GameEntry[], sortOrder: string) {
 
 const initialState: GamelibState = {
   gamelib: [],
-  sortedGamelib: [],
-  sortOrder: 'recentlyPlayed',
+  sortedGamelib: {
+    recentlyPlayed: [],
+    recentlyAdded: [],
+    recentlyUpdated: [],
+    alphabetical: [],
+  },
+  // sortedGamelib: [],
+  sortOrder: 'recentlyPlayed', // recentlyPlayed | recentlyAdded | recentlyUpdated | alphabetical
+  // sort states
   categories: [],
   statuses: [],
   tags: [],
   styleVars: {},
   // application status
-  status: 'idle', // loading succeeded failed idle updating
+  status: 'idle', // loading | succeeded | failed | idle | updating
   error: undefined,
 }
 
@@ -74,33 +55,70 @@ const slice = createSlice({
     setStatus: (state, action) => {
       state.status = action.payload
     },
+    setError: (state, action) => {
+      state.status = 'failed'
+      state.error = action.payload
+    },
     setSortOrder: (state, action) => {
       state.sortOrder = action.payload
-      state.sortedGamelib = sortGamelib(state.gamelib, action.payload)
+      // state.sortedGamelib = sortGamelib(state.gamelib, action.payload)
     }
   },
   extraReducers: (builder) => {
     builder
       // GET DATA
-      .addCase(getData.pending, (state) => {
-        state.status = 'loading'
-      })
-      .addCase(getData.fulfilled, (state, action) => {
-        state.status = 'succeeded'
-        const keys = ['gamelib', 'categories', 'statuses', 'tags', 'styleVars']
-        keys.forEach(k => {
-          state[k] = action.payload[k]
-        })
-        state.sortedGamelib = sortGamelib(state.gamelib, state.sortOrder)
-      })
-      .addCase(getData.rejected, (state, action) => {
-        state.status = 'failed'
-        state.error = action.error.message
-      })
+      .addMatcher(
+        gamelibApi.endpoints.getGames.matchPending,
+        (state) => {
+          state.status = 'loading'
+        }
+      )
+      .addMatcher(
+        gamelibApi.endpoints.getGames.matchFulfilled,
+        (state, action) => {
+          state.status = 'succeeded'
+          state.gamelib = action.payload
+          state.sortedGamelib.recentlyPlayed = sortGamelib(action.payload, 'recentlyPlayed')
+          state.sortedGamelib.recentlyAdded = sortGamelib(action.payload, 'recentlyAdded')
+          state.sortedGamelib.recentlyUpdated = sortGamelib(action.payload, 'recentlyUpdated')
+          state.sortedGamelib.alphabetical = sortGamelib(action.payload, 'alphabetical')
+        }
+      )
+      .addMatcher( // handle all errors
+        (action): action is { error: { message: string } } & PayloadAction => action.type.endsWith('/rejected'),
+        (state, action) => {
+          state.status = 'failed'
+          state.error = action.error.message
+        }
+      )
+      .addMatcher(
+        gamelibApi.endpoints.getCategories.matchFulfilled,
+        (state, action) => {
+          state.categories = action.payload
+        }
+      )
+      .addMatcher(
+        gamelibApi.endpoints.getStatuses.matchFulfilled,
+        (state, action) => {
+          state.statuses = action.payload
+        }
+      )
+      .addMatcher(
+        gamelibApi.endpoints.getTags.matchFulfilled,
+        (state, action) => {
+          state.tags = action.payload
+        }
+      )
+      .addMatcher(
+        gamelibApi.endpoints.getStyleVars.matchFulfilled,
+        (state, action) => {
+          state.styleVars = action.payload
+        }
+      )
   }
 })
 
 
 export default slice.reducer
 
-export const { setSortOrder, setStatus } = slice.actions
+export const { setSortOrder, setStatus, setError } = slice.actions

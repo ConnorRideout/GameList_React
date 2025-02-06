@@ -19,10 +19,8 @@
 }
 
 body {
-  position: relative;
   background-color: $bgNormal;
   color: $fgNormal;
-  height: 100vh;
 
   overflow-y: auto;
   display: flex;
@@ -32,6 +30,7 @@ body {
   max-width: 100%;
   min-height: calc(100vh - 7px);
   max-height: calc(100vh - 7px);
+  padding: $spacing;
 
   div {
     padding: 0;
@@ -44,6 +43,10 @@ button {
   padding: 2px;
   border: 1px solid $fgDark;
   cursor: pointer;
+
+  &:hover {
+    filter: brightness(1.2);
+  }
 }
 
 select {
@@ -209,10 +212,14 @@ div.tooltip-image {
 .game-scroll {
   @extend .vertical-scroll-container;
   outline: 2px ridge $fgDark;
-  max-width: max-content;
-  overflow-x: hidden;
-  padding: 0 calc($spacing * 3) 0 $spacing;
+  max-width: calc(100% - $spacing * 2);
+  min-width: calc(100% - $spacing * 2);
+  margin: $spacing;
+  margin-top: 0;
+  flex-grow: 1;
   border-right: $spacing solid transparent;
+  position: relative;
+  background: $bgNormal;
 }
 
 .game-scroll fieldset>legend {
@@ -379,5 +386,39 @@ button.tab-active:not(:disabled) {
 
   100% {
     transform: rotate(360deg);
+  }
+}
+
+.loading-lineitems {
+  @extend .vertical-container;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  opacity: 0.5;
+
+  &>div {
+    @extend .vertical-container;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+    min-width: calc(100% - $spacing * 2 - 18px);
+    border: 1px dashed $fgNormal;
+    margin: $spacing;
+    margin-right: calc($spacing + 18px);
+
+    &::after {
+      content: "";
+      width: 50px;
+      height: 50px;
+      border: 7px solid white;
+      border-bottom-color: transparent;
+      border-radius: 50%;
+      display: inline-block;
+      animation: rotation 1s ease infinite;
+    }
   }
 }

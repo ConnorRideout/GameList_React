@@ -31,9 +31,14 @@ function parseRawGameData(game) {
   delete game.updated_at
   delete game.played_at
   game.timestamps = {created_at, updated_at, played_at}
+  game.timestamps_sec = {
+    created_at: new Date(created_at.replace(' ', 'T')).getTime(),
+    updated_at: updated_at ? new Date(updated_at.replace(' ', 'T')).getTime() : -Infinity,
+    played_at: played_at ? new Date(played_at.replace(' ', 'T')).getTime() : -Infinity
+  }
 }
 
-router.get('/', (req, res, next) => {
+router.get('/games', (req, res, next) => {
   Games.getAll()
     .then(games => {
       games.forEach(game => {
@@ -52,7 +57,7 @@ router.get('/timestamps/:type', (req, res, next) => {
     .catch(next)
 })
 
-router.get('/game/:id', (req, res, next) => {
+router.get('/games/:id', (req, res, next) => {
   Games.getById(req.params.id)
     .then(game => {
       parseRawGameData(game)
@@ -69,7 +74,7 @@ router.get('/tags', (req, res, next) => {
     .catch(next)
 })
 
-router.get('/status', (req, res, next) => {
+router.get('/statuses', (req, res, next) => {
   Games.getStatus()
     .then(status => {
       res.status(200).json(status)

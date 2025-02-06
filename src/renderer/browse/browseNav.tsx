@@ -7,59 +7,54 @@ import TabularButton from "./tabularButton"
 import { RootState } from '../../data/store/store'
 import { setSortOrder, setStatus } from "../../data/store/gamelibrary"
 
+
 const NavDiv = styled.div`
-  justify-content: flex-start;
-  width: 100%;
-  margin-top: 6px;
+justify-content: flex-start;
+width: 100%;
+margin-top: 6px;
 `
 
-export default function BrowseNav() {
+export default function BrowseNav({scrollToItem}: {scrollToItem: (idx: number) => void}) {
   const dispatch = useDispatch()
 
   const gamelib = useSelector((state: RootState) => state.data.gamelib)
+  const sortedGamelib = useSelector((state: RootState) => state.data.sortedGamelib)
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
+  const status = useSelector((state: RootState) => state.data.status)
 
-  const checkAlphebetical = () => {
-    if (sortOrder !== 'alphabetical') {
+  const sortGamelib = (sortby: string) => {
+    if (sortOrder !== sortby) {
       dispatch(setStatus('updating'))
       return new Promise(resolve => {
         setTimeout(() => {
-          dispatch(setSortOrder('alphabetical'))
+          dispatch(setSortOrder(sortby))
           dispatch(setStatus('succeeded'))
           resolve('done')
-        }, 0)
+        }, 10)
       })
     }
     return 'done'
   }
-  const sortGamelib = (sortby: string) => {
-      if (sortOrder !== sortby) {
-        dispatch(setStatus('updating'))
-        setTimeout(() => {
-          dispatch(setSortOrder(sortby))
-          dispatch(setStatus('succeeded'))
-        }, 0)
-      }
-    }
 
   const scrollToTop = async (alpha=true) => {
-    if (alpha) await checkAlphebetical()
-    const browse = document.querySelector('div.game-scroll')
+    if (alpha) await sortGamelib('alphabetical')
+    const browse = document.querySelector('div.game-scroll-list')
     if (browse) {
       browse.scrollTo({top: 0, behavior: "smooth"})
     }
   }
   const scrollToLetter = async (letters: string) => {
-    await checkAlphebetical()
+    await sortGamelib('alphabetical')
     const letter_arr = letters.split('')
     for (const l of letter_arr) {
-        const item = document.querySelector(`div[data-name^="${l}"`)
-        if (item) {
-          item.scrollIntoView({behavior: 'smooth', block: 'start'})
-          break
-        }
+      const idx = sortedGamelib.alphabetical.findIndex(g => g.title.toUpperCase().startsWith(l))
+      if (idx) {
+        scrollToItem(idx)
+        break
+      }
     }
   }
+
 
   const letter_pairs = 'BC DE FG HI JK LM NO PQR ST UV WXYZ'.split(' ')
   const checkLetters = (letters: string) => {
@@ -100,12 +95,15 @@ export default function BrowseNav() {
       />
       {letter_pairs.map(letters => (
         <TabularButton
+          key={letters}
           text={letters}
           active={sortOrder === 'alphabetical'}
           clickHandler={() => scrollToLetter(letters)}
           disabled={!checkLetters(letters)}
         />
       ))}
+
+      <span style={{visibility: 'hidden'}}>{status}</span>
     </NavDiv>
   )
 }

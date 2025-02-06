@@ -2,6 +2,8 @@ import React from 'react'
 import styled from 'styled-components'
 import Tooltip from '../../shared/tooltip'
 
+import { Timestamps } from '../../../data/types/types-gamelibrary'
+
 const VersionFieldset = styled.fieldset`
   min-width: 90px;
   max-width: 90px;
@@ -10,7 +12,7 @@ const VersionFieldset = styled.fieldset`
 interface Props {
   game_id: number,
   version: string,
-  timestamps: string[],
+  timestamps: Timestamps,
   status_color: string,
 }
 export default function Version({game_id, version, timestamps, status_color}: Props) {

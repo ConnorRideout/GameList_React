@@ -32,7 +32,7 @@ const EditButton = styled.button`
 interface Props {
   game_id: number,
   path: string,
-  programPath: string,
+  programPath: {[key: string]: string},
   url: string
 }
 export default function Tools({game_id, path, programPath, url}: Props) {

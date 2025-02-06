@@ -3,10 +3,15 @@ interface StringMap {
   [key: string]: string;
 }
 
-interface Timestamps {
+export interface Timestamps {
   created_at: string;
   updated_at: string | null;
   played_at: string | null;
+}
+interface TimestampsSec {
+  created_at: number;
+  updated_at: number;
+  played_at: number;
 }
 export interface GameEntry {
   /*
@@ -54,7 +59,15 @@ export interface GameEntry {
   status: string[];
   categories: StringMap;
   timestamps: Timestamps;
+  timestamps_sec: TimestampsSec;
 }
+interface SortedGamelib {
+  recentlyPlayed: GameEntry[]
+  recentlyAdded: GameEntry[]
+  recentlyUpdated: GameEntry[]
+  alphabetical: GameEntry[]
+}
+type SortOrders = keyof SortedGamelib
 interface CategoryEntry {
   /*
   "category_id": 1,
@@ -92,8 +105,9 @@ interface TagEntry {
 }
 export interface GamelibState {
   gamelib: GameEntry[];
-  sortedGamelib: GameEntry[];
-  sortOrder: string;
+  sortedGamelib: SortedGamelib;
+  // sortedGamelib: GameEntry[];
+  sortOrder: SortOrders;
   categories: CategoryEntry[];
   statuses: StatusEntry[];
   tags: TagEntry[];
