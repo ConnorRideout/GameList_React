@@ -6,7 +6,7 @@ const TagsFieldset = styled.fieldset`
   max-width: 230px;
 `
 
-export default function Tags({tags}) {
+export default function Tags({tags}: {tags: string[]}) {
   return (
     <TagsFieldset>
       <legend>Tags</legend>

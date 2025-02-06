@@ -6,7 +6,7 @@ const DescriptionFieldset = styled.fieldset`
   padding: 3px;
 `
 
-export default function Description({description}) {
+export default function Description({description}: {description: string}) {
   return (
     <DescriptionFieldset>
       <legend>Description</legend>

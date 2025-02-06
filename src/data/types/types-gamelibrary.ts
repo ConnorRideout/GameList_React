@@ -3,7 +3,7 @@ interface StringMap {
   [key: string]: string;
 }
 
-export interface Timestamps {
+interface Timestamps {
   created_at: string;
   updated_at: string | null;
   played_at: string | null;
@@ -13,7 +13,7 @@ interface TimestampsSec {
   updated_at: number;
   played_at: number;
 }
-export interface GameEntry {
+interface GameEntry {
   /*
   "game_id": 2,
   "path": "Kidsatthegamecenter1.05_MOD1",
@@ -103,7 +103,7 @@ interface TagEntry {
  tag_id: number;
  tag_name: string;
 }
-export interface GamelibState {
+interface GamelibState {
   gamelib: GameEntry[];
   sortedGamelib: SortedGamelib;
   // sortedGamelib: GameEntry[];
@@ -114,4 +114,14 @@ export interface GamelibState {
   styleVars: StringMap;
   status: string;
   error: string | undefined;
+}
+
+export {
+  StringMap,
+  GamelibState,
+  GameEntry,
+  Timestamps,
+  CategoryEntry,
+  StatusEntry,
+  TagEntry,
 }

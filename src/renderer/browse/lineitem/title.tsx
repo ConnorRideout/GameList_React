@@ -1,6 +1,5 @@
 import React from 'react'
 import styled from 'styled-components'
-import { useSelector } from 'react-redux'
 
 import Tooltip from '../../shared/tooltip'
 
@@ -34,9 +33,6 @@ interface Props {
   status_color: string,
 }
 export default function Title({game_id, title, img, status_color}: Props) {
-
-
-
   const imgPath = img.replaceAll(' ', '_')
 
   return (

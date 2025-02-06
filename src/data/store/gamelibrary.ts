@@ -1,4 +1,3 @@
-// TODO: update to use RTK query
 import {
   createSlice,
   PayloadAction,

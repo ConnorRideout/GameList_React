@@ -39,7 +39,11 @@ export default function Tools({game_id, path, programPath, url}: Props) {
   return (
     <ToolsFieldset className='vertical-container'>
       <legend>Tools</legend>
-      <PlayButton type='button' className='circle-button'>
+      <PlayButton
+        type='button'
+        className='circle-button'
+        onClick={() => console.log(`${path}/${programPath}`)}
+      >
         <svg
           stroke='none'
           fill='black'

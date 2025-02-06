@@ -3,7 +3,7 @@ import React, {useState} from "react"
 interface Props {
   labelText: string,
   name: string,
-  style: Object,
+  style?: Object,
 }
 export default function TristateCheckbox({labelText, name, style}: Props) {
   const [checked, setChecked] = useState(false)
@@ -12,13 +12,13 @@ export default function TristateCheckbox({labelText, name, style}: Props) {
   const checkboxClicked = () => {
     if (indeterminate) {
       setIndeterminate(false)
-      setChecked(false)
+      setChecked(true)
     } else if (checked) {
       setChecked(false)
-      setIndeterminate(true)
-    } else {
-      setChecked(true)
       setIndeterminate(false)
+    } else {
+      setChecked(false)
+      setIndeterminate(true)
     }
   }
 

@@ -1,12 +1,13 @@
 import React from "react"
 import styled from "styled-components"
+import { StringMap } from "../../../data/types/types-gamelibrary"
 
 const CategoryFieldset = styled.fieldset`
   min-width: 170px;
   max-width: 170px;
 `
 
-export default function Categories({categories}) {
+export default function Categories({categories}: {categories: StringMap}) {
   return (
     <CategoryFieldset>
       <legend>Categories</legend>

@@ -1,18 +1,12 @@
+// TODO: Update to tsx
 import React from 'react'
 import styled from 'styled-components'
-import PropTypes from 'prop-types'
 import { useSelector } from 'react-redux'
 
 import TristateCheckbox from './tristateCheckbox'
+import { RootState, TagEntry } from '../../data/types/types'
 
 
-const TagColumn = styled.label`
-  flex: 1 0 12.5%;
-
-  input {
-    margin: 0 4px 0 0;
-  }
-`
 const PickerDiv = styled.div`
   min-width: 1000px;
   max-width: 1000px;
@@ -30,13 +24,13 @@ const CatFieldset = styled.fieldset`
   }
 `
 
-export default function Picker({isBrowse}) {
-  const categories = useSelector(state => state.data.categories)
-  const tags = useSelector(state => state.data.tags)
-  const statuses = useSelector(state => state.data.statuses)
+export default function Picker({isBrowse}: {isBrowse: boolean}) {
+  const categories = useSelector((state: RootState) => state.data.categories)
+  const tags = useSelector((state: RootState) => state.data.tags)
+  const statuses = useSelector((state: RootState) => state.data.statuses)
 
-  const subDivideTags = data => {
-    const tagsList = [...data]
+  const subDivideTags = () => {
+    const tagsList = [...tags]
     const numRows = Math.ceil(tagsList.length / 8)
     const rows = []
 
@@ -91,7 +85,7 @@ export default function Picker({isBrowse}) {
       </CatFieldset>
       <fieldset className='vertical-container'>
         <legend className='header'>Tags</legend>
-        {subDivideTags(tags).map((row, idx) => (
+        {subDivideTags().map((row, idx) => (
           // eslint-disable-next-line react/no-array-index-key
           <div key={`row${idx}`} className='horizontal-container'>
             {row.map(({tag_id, tag_name}) => (

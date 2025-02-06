@@ -50,7 +50,7 @@ export default function Browse() {
       <BrowseNav scrollToItem={scrollToItem}/>
       <div className='game-scroll'>
         {['loading', 'updating'].includes(status) && <div className='loading' />}
-        {status === 'succeeded' && (
+        {['succeeded', 'updating'].includes(status) && (
           <>
             <div className='loading-lineitems'>
               <div />
