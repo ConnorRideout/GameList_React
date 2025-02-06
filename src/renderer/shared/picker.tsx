@@ -1,10 +1,9 @@
-// TODO: Update to tsx
 import React from 'react'
 import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 
 import TristateCheckbox from './tristateCheckbox'
-import { RootState, TagEntry } from '../../data/types/types'
+import { RootState } from '../../data/types/types'
 
 
 const PickerDiv = styled.div`
