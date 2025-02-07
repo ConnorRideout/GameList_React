@@ -35,9 +35,20 @@ const initialState: GamelibState = {
     recentlyUpdated: [],
     alphabetical: [],
   },
-  // sortedGamelib: [],
   sortOrder: 'recentlyPlayed', // recentlyPlayed | recentlyAdded | recentlyUpdated | alphabetical
-  // sort states
+  searchRestraints: {
+    include: {
+      tags: [],
+      status: [],
+      categories: {}
+    },
+    exclude: {
+      tags: [],
+      status: [],
+      categories: {}
+    }
+  },
+  // sorting states
   categories: [],
   statuses: [],
   tags: [],
@@ -60,7 +71,9 @@ const slice = createSlice({
     },
     setSortOrder: (state, action) => {
       state.sortOrder = action.payload
-      // state.sortedGamelib = sortGamelib(state.gamelib, action.payload)
+    },
+    setSearchRestraints: (state, action) => {
+      state.searchRestraints = action.payload
     }
   },
   extraReducers: (builder) => {

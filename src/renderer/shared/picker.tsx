@@ -1,4 +1,5 @@
-import React from 'react'
+/* eslint-disable jsx-a11y/label-has-associated-control */
+import React, { useState, useEffect, ChangeEvent, useMemo } from 'react'
 import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 
@@ -28,6 +29,33 @@ export default function Picker({isBrowse}: {isBrowse: boolean}) {
   const tags = useSelector((state: RootState) => state.data.tags)
   const statuses = useSelector((state: RootState) => state.data.statuses)
 
+  const tagValues = useMemo(() => tags.map(({tag_name}) => tag_name), [tags])
+  const statusValues = useMemo(() => statuses.map(({status_name}) => status_name), [statuses])
+  const [formData, setFormData] = useState(() => ({
+      tags: {},
+      statuses: {},
+      categories: {},
+  }))
+
+  useEffect(() => {
+    const accumulator: {[key: string]: number | string} = {}
+    setFormData({
+      tags: tagValues.reduce((acc, cur) => {
+        acc[cur] = isBrowse ? -1 : 0
+        return acc
+      }, {...accumulator}),
+      statuses: statusValues.reduce((acc, cur) => {
+        acc[cur] = isBrowse ? -1 : 0
+        return acc
+      }, {...accumulator}),
+      categories: {...categories.reduce((acc, cur) => {
+        const {category_name} = cur
+        acc[category_name] = isBrowse ? 'Any' : ''
+        return acc
+      }, {...accumulator}), Protagonist: isBrowse ? 'Any' : ''},
+  })
+  }, [tagValues, statusValues, categories, isBrowse])
+
   const subDivideTags = () => {
     const tagsList = [...tags]
     const numRows = Math.ceil(tagsList.length / 8)
@@ -43,6 +71,20 @@ export default function Picker({isBrowse}: {isBrowse: boolean}) {
   }
   const protagonists = ['Male', 'Female', 'Futa/Trans', 'Multiple', 'Created', 'Unknown']
 
+  const handleFormChange = (evt: ChangeEvent<HTMLInputElement | HTMLSelectElement>, tristate: boolean = false) => {
+    const {name, type, value, checked} = (evt.target as HTMLInputElement)
+    let updated
+    if (type === 'checkbox') {
+      const val = {[name]: isBrowse ? (tristate ? -1 : Number(checked)) : Number(checked)}
+      if (tagValues.includes(name)) updated = {tags: {...formData.tags, ...val}}
+      else updated = {statuses: {...formData.statuses, ...val}}
+    } else {
+      // type is <select>
+      updated = {categories: {...formData.categories, [name]: value}}
+    }
+    setFormData({...formData, ...updated})
+  }
+
   return (
     <PickerDiv>
       <CatFieldset className='horizontal-container'>
@@ -50,7 +92,10 @@ export default function Picker({isBrowse}: {isBrowse: boolean}) {
         {categories.map(({category_id, category_name, options}) => (
           <fieldset key={`${category_id}${category_name}`}>
             <legend>{`${category_name.slice(0,1).toUpperCase()}${category_name.slice(1)}`}</legend>
-              <select name={category_name}>
+              <select
+                name={category_name}
+                onChange={handleFormChange}
+              >
                 {[isBrowse ? 'Any' : '', ...options].map(opt => (
                   <option key={`${category_id} ${opt}`} value={opt}>{opt}</option>
                 ))}
@@ -59,7 +104,10 @@ export default function Picker({isBrowse}: {isBrowse: boolean}) {
         ))}
         <fieldset>
           <legend>Protagonist</legend>
-          <select name="Protagonist">
+          <select
+            name="Protagonist"
+            onChange={handleFormChange}
+          >
             {[isBrowse ? 'Any' : '', ...protagonists].map(protag => (
               <option key={protag} value={protag}>{protag}</option>
             ))}
@@ -70,14 +118,17 @@ export default function Picker({isBrowse}: {isBrowse: boolean}) {
             <TristateCheckbox
               key={`${status_id}${status_name}`}
               labelText={status_name}
-              name={`status${status_id}`}
+              handleFormChange={handleFormChange}
             />
             :
             <label
               key={`${status_id}${status_name}`}
-              htmlFor={`status${status_id}`}
             >
-              <input type="checkbox" key={`status${status_id}`} name={`status${status_id}`} />
+              <input
+                type="checkbox"
+                name={status_name}
+                onChange={handleFormChange}
+              />
               {status_name}
             </label>
         ))}
@@ -92,15 +143,18 @@ export default function Picker({isBrowse}: {isBrowse: boolean}) {
                 <TristateCheckbox  style={{flex: '1 0 12.5%'}}
                   key={`${tag_id}${tag_name}`}
                   labelText={tag_name}
-                  name={`tag${tag_id}`}
+                  handleFormChange={handleFormChange}
                 />
                 :
                 <label
                   style={{flex: '1 0 12.5%'}}
                   key={`${tag_id}${tag_name}`}
-                  htmlFor={`tag${tag_id}`}
                 >
-                  <input type="checkbox" key={`tag${tag_id}`} name={`tag${tag_id}`} />
+                  <input
+                    type="checkbox"
+                    name={tag_name}
+                    onChange={handleFormChange}
+                  />
                   {tag_name}
                 </label>
             ))}

@@ -15,36 +15,51 @@ interface TimestampsSec {
 }
 interface GameEntry {
   /*
-  "game_id": 2,
-  "path": "Kidsatthegamecenter1.05_MOD1",
-  "title": "[Sakuragi Co] Moody Ichigo - Those Kids At the Game Center",
-  "url": "https://f95zone.to/threads/moody-ichigo-those-kids-at-the-game-center-1-05_mod1-sakuragi-company.223836/",
-  "image": "Moody Ichigo - Those Kids At the Game Center.jpg",
-  "version": "1.05_MOD1",
-  "description": "Everything changed when the mysterious 'Love Cupid' arrived on the scene, transforming the fiery girl who loved to fight into a charming sweetheart! As we continued our playful dates at the game center, the sparks flew, and things only grew more intense. The game includes 4 base animated scenes.",
-  "program_path": "Player.exe", <<< CAN BE AN OBJECT
+  "game_id": 1,
+  "path": "GamePath0",
+  "title": "[ad eiusmod 0",
+  "url": "https://itch.io",
+  "image": "game0.jpg",
+  "version": "81.60",
+  "description": "Nulla elit esse officia anim cupidatat ullamco exercitation dolore officia fugiat do fugiat ipsum minim. In voluptate duis aute quis adipisicing qui consequat laborum. Fugiat dolor cillum. Laborum commodo quis deserunt ullamco fugiat elit irure laboris excepteur eiusmod culpa magna cupidatat. Consectetur aute in adipisicing sit qui ad. Fugiat fugiat proident culpa ut irure id. Cillum deserunt fugiat adipisicing duis. Ad irure deserunt anim.",
+  "program_path": {
+      "": "game.exe"
+  },
   "tags": [
       "Animated",
-      "Eroge",
-      "Exhibitionism",
-      "Gross",
-      "Loli",
-      "Shota"
+      "Singleplayer",
+      "Multiplayer",
+      "Fantasy",
+      "Cute",
+      "Retro",
+      "PvP",
+      "Racing",
+      "Mystery",
+      "Horror",
+      "Magic",
+      "Building",
+      "Atmospheric",
+      "Turn-based"
   ],
   "status": [
-      "Completed"
+      "Abandoned"
   ],
   "categories": {
-    "protagonist": "Male",
-    "art": "Drawn",
-    "engine": "RPGM",
-    "genre": "Action",
-    "play-status": "New"
+      "protagonist": "Male",
+      "art": "3D",
+      "engine": "HTML",
+      "genre": "Platformer",
+      "play-status": "Playing"
   },
   "timestamps": {
-    "created_at": "2025-01-25 00:37:14",
-    "updated_at": null,
-    "played_at": null
+      "created_at": "2024-10-04 17:35:05",
+      "updated_at": null,
+      "played_at": null
+  },
+  "timestamps_sec": {
+      "created_at": 1728077705000,
+      "updated_at": null,
+      "played_at": null
   }
   */
   game_id: number;
@@ -62,10 +77,10 @@ interface GameEntry {
   timestamps_sec: TimestampsSec;
 }
 interface SortedGamelib {
-  recentlyPlayed: GameEntry[]
-  recentlyAdded: GameEntry[]
-  recentlyUpdated: GameEntry[]
-  alphabetical: GameEntry[]
+  recentlyPlayed: GameEntry[];
+  recentlyAdded: GameEntry[];
+  recentlyUpdated: GameEntry[];
+  alphabetical: GameEntry[];
 }
 type SortOrders = keyof SortedGamelib
 interface CategoryEntry {
@@ -103,11 +118,23 @@ interface TagEntry {
  tag_id: number;
  tag_name: string;
 }
+interface SearchRestraints {
+  include: {
+    tags: string[];
+    status: string[];
+    categories: StringMap;
+  };
+  exclude: {
+    tags: string[];
+    status: string[];
+    categories: StringMap;
+  }
+}
 interface GamelibState {
   gamelib: GameEntry[];
   sortedGamelib: SortedGamelib;
-  // sortedGamelib: GameEntry[];
   sortOrder: SortOrders;
+  searchRestraints: SearchRestraints;
   categories: CategoryEntry[];
   statuses: StatusEntry[];
   tags: TagEntry[];

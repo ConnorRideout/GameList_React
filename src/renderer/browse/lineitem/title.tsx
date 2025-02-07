@@ -34,7 +34,7 @@ interface Props {
 }
 export default function Title({game_id, title, img, status_color}: Props) {
   const imgPath = img.replaceAll(' ', '_')
-
+  // TODO: handle gifs in both (first frame for preview?)
   return (
     <TitleFieldset id={`title-${game_id}`}>
       <Tooltip
