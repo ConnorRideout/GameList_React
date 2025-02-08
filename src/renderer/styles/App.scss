@@ -1,27 +1,21 @@
-// TODO: split into different files
-@import 'variables';
+@use 'sass:color';
+@use 'variables';
+@use 'reusable';
+@use 'browse';
+
 
 * {
-  padding: $spacing;
+  padding: variables.$spacing;
   margin: 0;
   overflow-wrap: anywhere;
   box-sizing: border-box;
-  font-family: $fontFamily;
-  font-size: $fontDefault;
-}
-
-.header-max {
-  font-size: $fontMax;
-  font-weight: bold;
-}
-
-.header {
-  font-size: $fontHeader;
+  font-family: variables.$fontFamily;
+  font-size: variables.$fontDefault;
 }
 
 body {
-  background-color: $bgNormal;
-  color: $fgNormal;
+  background-color: variables.$bgNormal;
+  color: variables.$fgNormal;
 
   overflow-y: auto;
   display: flex;
@@ -31,7 +25,7 @@ body {
   max-width: 100%;
   min-height: calc(100vh - 7px);
   max-height: calc(100vh - 7px);
-  padding: $spacing;
+  padding: variables.$spacing;
 
   div {
     padding: 0;
@@ -39,25 +33,30 @@ body {
 }
 
 button {
-  @include bgGradient();
+  @include variables.bgGradient();
   min-width: 75px;
   padding: 2px;
   padding-top: 0;
-  border: 1px solid darken($fgNormal, 10);
-  cursor: pointer;
+  border: 1px solid color.adjust(variables.$fgNormal, $lightness: -10%);
 
-  &:hover {
+  &:hover:not(:disabled) {
+    cursor: pointer;
     filter: brightness(1.2);
+  }
+
+  &:disabled {
+    color: variables.$fgNormal;
+    filter: brightness(0.6);
   }
 }
 
 select {
-  @include bgGradient(to bottom,
-    linear-gradient(to right, transparent calc(100% - 21px), $bgDark, calc(100% - 19px), darken($fgNormal, 20%), calc(100% - 18px), transparent calc(100% - 18px)));
-  border: 1px solid darken($fgNormal, 20%);
+  @include variables.bgGradient(to bottom,
+    linear-gradient(to right, transparent calc(100% - 21px), variables.$bgDark, calc(100% - 19px), color.adjust(variables.$fgNormal, $lightness: -20%), calc(100% - 18px), transparent calc(100% - 18px)));
+  border: 1px solid color.adjust(variables.$fgNormal, $lightness: -20%);
   outline: 1px solid black;
   padding: 0 6px 2px 0;
-  margin: 0 $spacing $spacing;
+  margin: 0 variables.$spacing variables.$spacing;
 }
 
 fieldset {
@@ -65,12 +64,12 @@ fieldset {
 }
 
 fieldset>legend {
-  padding: 0 calc($spacing / 2);
-  margin-left: $spacing;
+  padding: 0 calc(variables.$spacing / 2);
+  margin-left: variables.$spacing;
 }
 
 fieldset p {
-  padding: 0 $spacing;
+  padding: 0 variables.$spacing;
 }
 
 svg,
@@ -97,7 +96,7 @@ label {
 }
 
 input[type=checkbox] {
-  @include bgGradient();
+  @include variables.bgGradient();
   appearance: none;
   font: inherit;
   color: currentColor;
@@ -129,7 +128,7 @@ input[type=checkbox] {
   }
 
   &:indeterminate {
-    background-image: linear-gradient(darkgoldenrod, 50%, darken(darkgoldenrod, 12) 50%);
+    background-image: linear-gradient(darkgoldenrod, 50%, color.adjust(darkgoldenrod, $lightness: -12%) 50%);
 
     &::before {
       transform: scale(1);
@@ -140,288 +139,30 @@ input[type=checkbox] {
 
 ::-webkit-scrollbar {
   // width: 15px;
-  background-image: linear-gradient(to right, darken($bgDark, 5), lighten($bgLight, 3));
+  background-image: linear-gradient(to right, color.adjust(variables.$bgDark, $lightness: -5%), color.adjust(variables.$bgLight, $lightness: 3%));
   -webkit-border-radius: 100px;
 }
 
 @mixin scrollbarGradient($color1, $color2) {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 0 18 11"><path d="M 1.5 4.8 C 1.1 4.8 0.8 5.1 0.8 5.5 C 0.8 5.9 1.1 6.3 1.5 6.3 V 4.8 Z M 13.5 6.3 C 13.9 6.3 14.3 5.9 14.3 5.5 C 14.3 5.1 13.9 4.8 13.5 4.8 V 6.3 Z M 1.5 8.8 C 1.1 8.8 0.8 9.1 0.8 9.5 C 0.8 9.9 1.1 10.3 1.5 10.3 V 8.8 Z M 13.5 10.3 C 13.9 10.3 14.3 9.9 14.3 9.5 C 14.3 9.1 13.9 8.8 13.5 8.8 V 10.3 Z M 1.5 0.8 C 1.1 0.8 0.8 1.1 0.8 1.5 C 0.8 1.9 1.1 2.3 1.5 2.3 V 0.8 Z M 13.5 2.3 C 13.9 2.3 14.3 1.9 14.3 1.5 C 14.3 1.1 13.9 0.8 13.5 0.8 V 2.3 Z M 1.5 6.3 H 13.5 V 4.8 H 1.5 V 6.3 Z M 1.5 10.3 H 13.5 V 8.8 H 1.5 V 10.3 Z M 1.5 2.3 H 13.5 V 0.8 H 1.5 V 2.3 Z" fill="#{percent-encode($fgNormal)}" /></svg>'),
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="-1 0 18 11"><path d="M 1.5 4.8 C 1.1 4.8 0.8 5.1 0.8 5.5 C 0.8 5.9 1.1 6.3 1.5 6.3 V 4.8 Z M 13.5 6.3 C 13.9 6.3 14.3 5.9 14.3 5.5 C 14.3 5.1 13.9 4.8 13.5 4.8 V 6.3 Z M 1.5 8.8 C 1.1 8.8 0.8 9.1 0.8 9.5 C 0.8 9.9 1.1 10.3 1.5 10.3 V 8.8 Z M 13.5 10.3 C 13.9 10.3 14.3 9.9 14.3 9.5 C 14.3 9.1 13.9 8.8 13.5 8.8 V 10.3 Z M 1.5 0.8 C 1.1 0.8 0.8 1.1 0.8 1.5 C 0.8 1.9 1.1 2.3 1.5 2.3 V 0.8 Z M 13.5 2.3 C 13.9 2.3 14.3 1.9 14.3 1.5 C 14.3 1.1 13.9 0.8 13.5 0.8 V 2.3 Z M 1.5 6.3 H 13.5 V 4.8 H 1.5 V 6.3 Z M 1.5 10.3 H 13.5 V 8.8 H 1.5 V 10.3 Z M 1.5 2.3 H 13.5 V 0.8 H 1.5 V 2.3 Z" fill="#{variables.percent-encode(variables.$fgNormal)}" /></svg>'),
     linear-gradient(to right, $color1, $color2);
 }
 
-// TODO: minimum thumb height?
 ::-webkit-scrollbar-thumb {
-  @include scrollbarGradient(lighten($bgLight, 5), darken($bgDark, 3));
+  @include scrollbarGradient(color.adjust(variables.$bgLight, $lightness: 5%), color.adjust(variables.$bgDark, $lightness: -3%));
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
-  border: 1px solid darken($fgNormal, 20);
+  border: 1px solid color.adjust(variables.$fgNormal, $lightness: -20%);
   outline: 1px solid black;
   border-radius: 100px;
+  min-height: 40px;
 
   &:hover {
-    @include scrollbarGradient(lighten($bgLight, 10), lighten($bgDark, 5));
+    @include scrollbarGradient(color.adjust(variables.$bgLight, $lightness: 10%), color.adjust(variables.$bgDark, $lightness: 5%));
   }
 
   &:active {
-    @include scrollbarGradient(darken($bgLight, 5), darken($bgDark, 5));
-  }
-}
-
-div.tooltip {
-  width: $tooltipWidth;
-  background: $bgDark;
-  color: $fgHighlightedText;
-  text-align: start;
-  padding: 5px;
-  z-index: 1000;
-}
-
-div.tooltip-image {
-  max-width: 77vw;
-  max-height: calc(100vh - $spacing);
-  width: max-content;
-  padding: $spacing $spacing 0 $spacing;
-
-  img {
-    padding: 0;
-    width: 100%;
-    max-height: 70vh;
-  }
-}
-
-.horizontal-container {
-  display: flex;
-}
-
-.vertical-container {
-  display: flex;
-  flex-direction: column;
-}
-
-.vertical-scroll-container {
-  @extend .vertical-container;
-  overflow-y: auto;
-}
-
-.description {
-  background-color: $bgLight;
-  min-height: 100%;
-  max-height: 100%;
-  overflow-y: auto;
-  margin: 0 $spacing;
-}
-
-.game-scroll {
-  @extend .vertical-scroll-container;
-  outline: 2px ridge $fgDark;
-  max-width: calc(100% - $spacing * 2);
-  min-width: calc(100% - $spacing * 2);
-  margin: $spacing;
-  margin-top: 0;
-  flex-grow: 1;
-  border-right: $spacing solid transparent;
-  position: relative;
-  background: $bgNormal;
-}
-
-.game-scroll fieldset>legend {
-  text-decoration: underline;
-  font-size: $fontSmall;
-}
-
-.circle-button {
-  border: 1px solid black;
-  border-radius: 50%;
-  max-width: 30px;
-  min-width: 30px;
-  max-height: 30px;
-  min-height: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 1px;
-  cursor: pointer;
-}
-
-.nav-button {
-  display: grid;
-  align-items: center;
-  min-width: max-content;
-
-  button {
-    cursor: pointer;
-    min-width: 2em;
-    min-height: 1.5em;
-    margin: 5px;
-    border: 1px solid $fgNormal;
-    border-bottom: none;
-    border-top-left-radius: 7px;
-    border-top-right-radius: 7px;
-    transform: perspective(10px) rotateX(10deg);
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  p {
-    min-width: 100%;
-    max-height: min-content;
-    padding-top: 8px;
-    grid-column: 1;
-    grid-row: 1;
-    z-index: 1;
-    text-align: center;
-    pointer-events: none;
-  }
-}
-
-.tab-btn-container {
-  @extend .horizontal-container;
-  margin-bottom: 2px;
-  padding: 0;
-  min-width: 0;
-  background: none;
-  border: none;
-
-  &:disabled {
-    color: $fgNormal;
-    filter: brightness(0.8);
-    cursor: default;
-  }
-
-  &:hover:not(:disabled) {
-    filter: brightness(1.2);
-  }
-}
-
-button.tab-active:not(:disabled) {
-  filter: brightness(1.4);
-
-  &:hover {
-    filter: brightness(1.5);
-  }
-}
-
-.tab-btn-sides {
-  border-top: 1px solid $bgNormal;
-  min-width: 14px;
-  min-height: 25px;
-  max-height: 25px;
-  position: relative;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-
-  &::after {
-    @include bgGradient();
-    border-top: 1px solid transparent;
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-  }
-}
-
-.tab-btn-left {
-  @extend .tab-btn-sides;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 22" ><path d="M1 23 8 6C9.2 4 9 1 16 1V23Z" stroke="#{percent-encode($fgNormal)}" stroke-width="2"/></svg>');
-
-  &::after {
-    mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 22" ><path d="M1 23 8 6C9.2 4 9 1 16 1V23Z"/></svg>');
-    mask-size: cover;
-    mask-position: center;
-    mask-repeat: no-repeat;
-  }
-}
-
-.tab-btn-center {
-  @include bgGradient();
-  border-top: 1px solid $fgNormal;
-  max-height: 24px;
-  min-height: 24px;
-  margin-top: 1px;
-  padding: 0;
-}
-
-.tab-btn-right {
-  @extend .tab-btn-sides;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 22" ><path d="M16 23 9 6C7.8 4 8 1 1 1V23Z" stroke="#{percent-encode($fgNormal)}" stroke-width="2"/></svg>');
-
-
-  &::after {
-    mask: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 18 22" ><path d="M16 23 9 6C7.8 4 8 1 1 1V23Z"/></svg>');
-    mask-size: cover;
-    mask-position: center;
-    mask-repeat: no-repeat;
-  }
-}
-
-.loading {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 100;
-  background: #00000044;
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 50px;
-    height: 50px;
-    border: 7px solid white;
-    border-bottom-color: transparent;
-    border-radius: 50%;
-    display: inline-block;
-    animation: rotation 1s ease infinite;
-  }
-}
-
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-.loading-lineitems {
-  @extend .vertical-container;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  opacity: 0.5;
-
-  &>div {
-    @extend .vertical-container;
-    justify-content: center;
-    align-items: center;
-    flex-grow: 1;
-    min-width: calc(100% - $spacing * 2 - 18px);
-    border: 1px dashed $fgNormal;
-    margin: $spacing;
-    margin-right: calc($spacing + 18px);
-
-    &::after {
-      content: "";
-      width: 50px;
-      height: 50px;
-      border: 7px solid white;
-      border-bottom-color: transparent;
-      border-radius: 50%;
-      display: inline-block;
-      animation: rotation 1s ease infinite;
-    }
+    @include scrollbarGradient(color.adjust(variables.$bgLight, $lightness: -5%), color.adjust(variables.$bgDark, $lightness: -5%));
   }
 }

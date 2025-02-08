@@ -1,9 +1,9 @@
 import React from 'react'
 import { FixedSizeList as List } from 'react-window'
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import styled from 'styled-components'
 
-import Picker from '../shared/picker'
+import Picker, { FormState } from '../shared/picker'
 import Lineitem from './lineitem/lineitem'
 import BrowseNav from './browseNav'
 import { RootState } from '../../data/store/store'
@@ -18,14 +18,9 @@ const BrowseDiv = styled.div`
 const SearchFieldset = styled.fieldset`
   padding: 0 7px;
 `
-const SearchButtonDiv = styled.div`
-  justify-content: space-evenly;
-  padding: 3px;
-  align-items: center;
-  margin: 3px;
-`
 
 export default function Browse() {
+  const dispatch = useDispatch()
   const sortedGamelib = useSelector((state: RootState) => state.data.sortedGamelib)
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
   const searchRestraints = useSelector((state: RootState) => state.data.searchRestraints)
@@ -35,6 +30,25 @@ export default function Browse() {
   const scrollToItem = (idx: number) => {
     const offset = idx * 140
     document.querySelector('div.game-scroll-list')?.scrollTo({top: offset, behavior: 'smooth'})
+  }
+
+  const searchHandler = (data: FormState) => {
+    /* SearchRestraints
+    include: {
+      tags: string[];
+      status: string[];
+      categories: StringMap;
+    };
+    exclude: {
+      tags: string[];
+      status: string[];
+      categories: StringMap;
+    }
+    */
+    console.log('search', data)
+  }
+  const clearHandler = () => {
+    console.log('clearing data')
   }
 
   const currentGamlib = sortedGamelib[sortOrder].filter(g => {
@@ -67,12 +81,18 @@ export default function Browse() {
     <BrowseDiv className='vertical-container'>
       <SearchFieldset className='vertical-container'>
         <legend className='header-max'>Search</legend>
-        <Picker isBrowse/>
-        <SearchButtonDiv className='horizontal-container'>
-          <button type='button'>Clear</button>
-          {/* TODO: implement text bar search */}
-          <button type='button'>Search</button>
-        </SearchButtonDiv>
+        <Picker
+          submitHandler={{
+            text: 'Search',
+            handler: searchHandler,
+          }}
+          cancelHandler={{
+            text: 'Clear',
+            handler: clearHandler,
+          }}
+          isBrowse
+        />
+        {/* TODO: implement text bar search */}
       </SearchFieldset>
       <BrowseNav scrollToItem={scrollToItem}/>
       <div className='game-scroll'>

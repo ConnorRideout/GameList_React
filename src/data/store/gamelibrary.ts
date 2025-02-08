@@ -28,6 +28,7 @@ function sortGamelib(gamelib: GameEntry[], sortOrder: string): GameEntry[] {
 }
 
 const initialState: GamelibState = {
+  // TODO: state for game info for edit
   gamelib: [],
   sortedGamelib: {
     recentlyPlayed: [],

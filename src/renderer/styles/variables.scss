@@ -1,3 +1,5 @@
+@use "sass:color";
+@use "sass:string";
 // colors
 $bgDark: #191b1f;
 $bgNormal: #202328;
@@ -7,6 +9,7 @@ $fgNormal: #849DB8;
 $fgLight: #9FE9FF;
 $fgHighlight: #004F80;
 $fgHighlightedText: #CBDFF3;
+$fgError: rgb(225, 0, 0);
 
 // sizes
 $tooltipWidth: 225px;
@@ -26,12 +29,12 @@ $titleShadow: 3px;
 @mixin bgGradient($direction: to bottom, $primaryGrad: none, $light: $bgLight, $dark: $bgDark) {
   background-image:
     $primaryGrad,
-    linear-gradient($direction, lighten($light, 10%), $light, 50%, lighten($dark, 5%) 50%, darken($dark, 5%));
+    linear-gradient($direction, color.adjust($light, $lightness: 10%), $light, 50%, color.adjust($dark, $lightness: 5%) 50%, color.adjust($dark, $lightness: -5%));
   // color % = color starts at %.
   // color1, %, color2 = midpoint of the gradient between color1 and color2 is at %
 }
 
 @function percent-encode($color) {
   $strColor: "#{$color}";
-  @return "%23#{str-slice($strColor, 2)}";
+  @return "%23#{string.slice($strColor, 2)}";
 }

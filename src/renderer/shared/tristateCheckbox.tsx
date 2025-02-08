@@ -1,30 +1,15 @@
-import React, {useState, ChangeEvent} from "react"
+import React, { ChangeEvent } from "react"
 
 interface Props {
   labelText: string,
   handleFormChange: (evt: ChangeEvent<HTMLInputElement | HTMLSelectElement>, tristate: boolean) => void,
+  checkState: number;
   style?: Object,
 }
-export default function TristateCheckbox({labelText, handleFormChange, style}: Props) {
-  const [checked, setChecked] = useState(false)
-  const [indeterminate, setIndeterminate] = useState(true)
+export default function TristateCheckbox({labelText, handleFormChange, checkState, style}: Props) {
 
   const checkboxClicked = (evt: ChangeEvent<HTMLInputElement>) => {
-    let tristate = false
-    if (indeterminate) {
-      // is indeterminate, change to true
-      setIndeterminate(false)
-      setChecked(true)
-    } else if (checked) {
-      // is checked, change to unchecked
-      setChecked(false)
-      setIndeterminate(false)
-    } else {
-      // is unchecked, change to indeterminate
-      setChecked(false)
-      setIndeterminate(true)
-      tristate = true
-    }
+    const tristate = checkState === 0
     handleFormChange(evt, tristate)
   }
 
@@ -34,10 +19,10 @@ export default function TristateCheckbox({labelText, handleFormChange, style}: P
       <input
         type="checkbox"
         name={labelText}
-        checked={checked}
+        checked={checkState === 1}
         onChange={checkboxClicked}
         ref={(el) => {
-          if (el) el.indeterminate = indeterminate
+          if (el) el.indeterminate = (checkState === -1)
         }}
       />
       {labelText}
