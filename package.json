@@ -54,7 +54,10 @@
     "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.preload.dev.ts",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
     "test": "jest",
-    "resetdb": "knex migrate:rollback && knex migrate:latest && knex seed:run"
+    "resetdb": "npx knex migrate:rollback && npx knex migrate:latest && npx knex seed:run",
+    "resetdb:showcase": "npx knex migrate:rollback --env 'showcasing' && npx knex migrate:latest --env 'showcasing' && npx knex seed:run --env 'showcasing'",
+    "setup": "npm run build:dll && npm run resetdb",
+    "setup:showcase": "npm run build:dll && npm run resetdb:showcase"
   },
   "browserslist": [
     "extends browserslist-config-erb"

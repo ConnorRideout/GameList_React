@@ -6,8 +6,8 @@ import { useSelector } from 'react-redux'
 import { reach as yup_reach, StringSchema } from 'yup'
 
 import CreateFormSchema from './picker_schema'
-import Categories from './categories'
-import Tags from './tags'
+import Categories from './pick_categories'
+import Tags from './pick_tags'
 
 import { RootState } from '../../../types'
 

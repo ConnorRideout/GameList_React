@@ -16,7 +16,7 @@ const PlayButton = styled.button`
   background: SpringGreen;
 
   &:hover {
-    background: LimeGreen;
+    background: Green;
   }
 `
 const WebButton = styled.button`

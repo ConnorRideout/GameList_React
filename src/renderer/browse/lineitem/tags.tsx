@@ -7,10 +7,12 @@ const TagsFieldset = styled.fieldset`
 `
 
 export default function Tags({tags}: {tags: string[]}) {
+  const sortedTags = [...tags].sort()
+
   return (
     <TagsFieldset>
       <legend>Tags</legend>
-      <p>{tags.join(', ')}</p>
+      <p>{sortedTags.join(', ')}</p>
     </TagsFieldset>
   )
 }

@@ -104,10 +104,10 @@ const slice = createSlice({
         }
       )
       .addMatcher( // handle all errors
-        (action): action is { error: { message: string } } & PayloadAction => action.type.endsWith('/rejected'),
+        (action): action is { payload: { data: { message: string } } } & PayloadAction => action.type.endsWith('/rejected'),
         (state, action) => {
           state.status = 'failed'
-          state.error = action.error.message
+          state.error = action.payload.data.message
         }
       )
       .addMatcher(

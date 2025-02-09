@@ -13,7 +13,7 @@ function parseRawGameData(game) {
   // format program_path
   game.program_path = JSON.parse(game.program_path)
   // format tags
-  game.tags = typeof game.tags === 'string' ? game.tags.split(',') : []
+  game.tags = typeof game.tags === 'string' ? game.tags.split(',').sort() : []
   // format categories
   const { categories, protagonist } = game
   delete game.protagonist

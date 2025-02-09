@@ -22,8 +22,8 @@ const BrowseDiv = styled.div`
 const SearchFieldset = styled.fieldset`
   padding: 0 7px;
 `
-
-export default function Browse() {
+// FIXME: dev dependency refetch
+export default function Browse({refetch}) {
   const dispatch = useDispatch()
   const sortedGamelib = useSelector((state: RootState) => state.data.sortedGamelib)
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
@@ -109,6 +109,7 @@ export default function Browse() {
 
   return (
     <BrowseDiv className='vertical-container'>
+      <button style={{position: 'fixed', left: 0}} type='button' onClick={() => refetch({force: true})}>Refetch Gamelib</button>
       <SearchFieldset className='vertical-container'>
         <legend className='header-max'>Search</legend>
         <Picker

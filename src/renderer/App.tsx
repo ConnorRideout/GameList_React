@@ -3,6 +3,8 @@ import './styles/App.scss'
 
 import Browse from './browse/browse'
 import Edit from './edit/edit'
+import Settings from './settings/settings'
+
 import {
   useGetGamesQuery,
   useGetCategoriesQuery,
@@ -17,13 +19,18 @@ export default function App() {
   useGetCategoriesQuery()
   useGetStatusesQuery()
   useGetTagsQuery()
-  useGetGamesQuery()
+  // FIXME: dev dependency refetch
+  const {refetch} = useGetGamesQuery()
+  // TODO: transitions between screens?
+  // TODO: resizeable?
+  // TODO: light mode?
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Browse />} />
+        <Route path="/" element={<Browse refetch={refetch} />} />
         <Route path="/edit" element={<Edit />}/>
+        <Route path="/settings" element={<Settings />} />
       </Routes>
     </Router>
   )
