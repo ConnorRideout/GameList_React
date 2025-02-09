@@ -2,6 +2,7 @@ import { MemoryRouter as Router, Routes, Route } from 'react-router-dom'
 import './styles/App.scss'
 
 import Browse from './browse/browse'
+import Edit from './edit/edit'
 import {
   useGetGamesQuery,
   useGetCategoriesQuery,
@@ -22,7 +23,7 @@ export default function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Browse />} />
-        {/* <Route path="/edit" element={}/> */}
+        <Route path="/edit" element={<Edit />}/>
       </Routes>
     </Router>
   )

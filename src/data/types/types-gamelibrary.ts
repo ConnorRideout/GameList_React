@@ -88,7 +88,6 @@ interface CategoryEntry {
   "category_id": 1,
   "category_name": "art",
   "options": [
-    "Real Porn",
     "Text",
     "Pixel",
     "3D",
@@ -118,7 +117,7 @@ interface TagEntry {
  tag_id: number;
  tag_name: string;
 }
-interface SearchRestraints {
+export interface SearchRestraints {
   include: {
     tags: string[];
     status: string[];
@@ -128,7 +127,7 @@ interface SearchRestraints {
     tags: string[];
     status: string[];
     categories: StringMap;
-  }
+  };
 }
 interface GamelibState {
   gamelib: GameEntry[];

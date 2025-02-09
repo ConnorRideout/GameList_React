@@ -2,14 +2,18 @@ import { configureStore } from "@reduxjs/toolkit"
 
 import dataReducer from './gamelibrary'
 import { gamelibApi } from "./gamelibApi"
+import { filesystemApi } from "./filesysteamApi"
 
 const store = configureStore({
   reducer: {
     data: dataReducer,
     [gamelibApi.reducerPath]: gamelibApi.reducer,
+    [filesystemApi.reducerPath]: filesystemApi.reducer,
   },
   middleware: getDefaultMiddleware =>
-    getDefaultMiddleware().concat(gamelibApi.middleware)
+    getDefaultMiddleware()
+      .concat(gamelibApi.middleware)
+      .concat(filesystemApi.middleware)
 })
 
 export type RootState = ReturnType<typeof store.getState>

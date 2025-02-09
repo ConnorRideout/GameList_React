@@ -1,12 +1,15 @@
+/* eslint-disable import/no-cycle */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import React, { useState, useEffect, ChangeEvent, useMemo, MouseEvent } from 'react'
 import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 import { reach as yup_reach, StringSchema } from 'yup'
 
-import TristateCheckbox from './tristateCheckbox'
 import CreateFormSchema from './picker_schema'
-import { RootState } from '../../data/types/types'
+import Categories from './categories'
+import Tags from './tags'
+
+import { RootState } from '../../../types'
 
 
 const PickerForm = styled.form`
@@ -23,28 +26,21 @@ const PickerForm = styled.form`
     margin: 3px;
   }
 `
-const CatFieldset = styled.fieldset`
-  align-items: center;
 
-  &>* {
-    margin: 0 3px;
-  }
-  &>label {
-    flex-grow: 1;
-  }
-`
 export interface FormState {
   categories: {[key: string]: string},
   statuses: {[key: string]: number},
   tags: {[key: string]: number},
 }
-interface BtnHandler {
-  text: string,
-  handler: (data: FormState) => void,
-}
 interface Props {
-  submitHandler: BtnHandler,
-  cancelHandler: BtnHandler,
+  submitHandler: {
+    text: string,
+    handler: (data: FormState) => void,
+  },
+  cancelHandler: {
+    text: string,
+    handler: () => void,
+  },
   isBrowse?: boolean,
   // TODO: use Edit Form State
   additionalFormState?: {
@@ -53,7 +49,7 @@ interface Props {
   } | null,
 }
 export default function Picker({submitHandler, cancelHandler, isBrowse=false, additionalFormState=null}: Props) {
-  const protagonists = ['Male', 'Female', 'Futa/Trans', 'Multiple', 'Created', 'Unknown']
+
   //    ___ _____ _ _____ ___
   //   / __|_   _/_\_   _| __|
   //   \__ \ | |/ _ \| | | _|
@@ -113,19 +109,7 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
   //   | |_| (_) | (_ || | (__
   //   |____\___/ \___|___\___|
   //
-  const subDivideTags = () => {
-    const tagsList = [...tags]
-    const numRows = Math.ceil(tagsList.length / 8)
-    const rows = []
 
-    const baseRowSize = Math.floor(tagsList.length / numRows)
-    const extraItems = tagsList.length % numRows
-    for (let idx = 0; idx < numRows; idx++) {
-      const currentRowSize = baseRowSize + (idx < extraItems ? 1 : 0)
-      rows.push(tagsList.splice(0, currentRowSize))
-    }
-    return rows
-  }
 
   const handleFormChange = (evt: ChangeEvent<HTMLInputElement | HTMLSelectElement>, tristate: boolean = false) => {
     const {name, type, value, checked} = (evt.target as HTMLInputElement)
@@ -151,93 +135,31 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
 
   const handleSubmit = (evt: MouseEvent<HTMLButtonElement>) => {
     evt.preventDefault()
+    submitHandler.handler(formData)
   }
   const handleReset = (evt: MouseEvent<HTMLButtonElement>) => {
     evt.preventDefault()
+    // run the parent's handler
+    cancelHandler.handler()
+    // TODO: flash the UI when it's cleared?
+    setFormData(defaultFormData)
   }
 
   return (
     <PickerForm>
-      <CatFieldset className='horizontal-container'>
-        <legend className='header'>Categories</legend>
-        {categories.map(({category_id, category_name, options}) => (
-          <fieldset key={`${category_id}${category_name}`}>
-            <legend>{`${category_name.slice(0,1).toUpperCase()}${category_name.slice(1)}`}</legend>
-              <select
-                name={category_name}
-                onChange={handleFormChange}
-                value={formData.categories[category_name]}
-              >
-                {[isBrowse ? 'Any' : '', ...options].map(opt => (
-                  <option key={`${category_id} ${opt}`} value={opt}>{opt}</option>
-                ))}
-              </select>
-          </fieldset>
-        ))}
-        <fieldset>
-          <legend>Protagonist</legend>
-          <select
-            name="protagonist"
-            onChange={handleFormChange}
-            value={formData.categories.protagonist}
-          >
-            {[isBrowse ? 'Any' : '', ...protagonists].map(protag => (
-              <option key={protag} value={protag}>{protag}</option>
-            ))}
-          </select>
-        </fieldset>
-        {statuses.map(({status_id, status_name}) => (
-          isBrowse ?
-            <TristateCheckbox
-              key={`${status_id}${status_name}`}
-              labelText={status_name}
-              handleFormChange={handleFormChange}
-              checkState={formData.statuses[status_name]}
-            />
-            :
-            <label
-              key={`${status_id}${status_name}`}
-            >
-              <input
-                type="checkbox"
-                name={status_name}
-                onChange={handleFormChange}
-                checked={!!formData.statuses[status_name]}
-              />
-              {status_name}
-            </label>
-        ))}
-      </CatFieldset>
-      <fieldset className='vertical-container'>
-        <legend className='header'>Tags</legend>
-        {subDivideTags().map((row, idx) => (
-          // eslint-disable-next-line react/no-array-index-key
-          <div key={`row${idx}`} className='horizontal-container'>
-            {row.map(({tag_id, tag_name}) => (
-              isBrowse ?
-                <TristateCheckbox  style={{flex: '1 0 12.5%'}}
-                  key={`${tag_id}${tag_name}`}
-                  labelText={tag_name}
-                  handleFormChange={handleFormChange}
-                  checkState={formData.tags[tag_name]}
-                />
-                :
-                <label
-                  style={{flex: '1 0 12.5%'}}
-                  key={`${tag_id}${tag_name}`}
-                >
-                  <input
-                    type="checkbox"
-                    name={tag_name}
-                    onChange={handleFormChange}
-                    checked={!!formData.tags[tag_name]}
-                  />
-                  {tag_name}
-                </label>
-            ))}
-          </div>
-        ))}
-      </fieldset>
+      <Categories
+        categories={categories}
+        statuses={statuses}
+        handleFormChange={handleFormChange}
+        isBrowse={isBrowse}
+        formData={formData}
+      />
+      <Tags
+        tags={tags}
+        isBrowse={isBrowse}
+        handleFormChange={handleFormChange}
+        formData={formData}
+      />
       {!isBrowse && Object.values(formErrors).find(s => s) && <p className='error'>{Object.values(formErrors).find(s => s)}</p>}
       <div className='horizontal-container'>
         {/* eslint-disable-next-line react/button-has-type */}

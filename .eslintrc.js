@@ -21,6 +21,7 @@ module.exports = {
     'promise/no-nesting': 'off',
     'promise/always-return': 'off',
     'react/require-default-props': 'off',
+    'radix': 'off',
   },
   parserOptions: {
     ecmaVersion: 2022,

@@ -153,7 +153,6 @@ button.tab-active:not(:disabled) {
 
 .loading-lineitems {
   @extend .vertical-container;
-  justify-content: center;
   align-items: center;
   position: absolute;
   left: 0;
@@ -161,13 +160,16 @@ button.tab-active:not(:disabled) {
   top: 0;
   bottom: 0;
   opacity: 0.5;
+  overflow-y: hidden;
+  margin-top: variables.$spacing;
 
   &>div {
     @extend .vertical-container;
     justify-content: center;
     align-items: center;
-    flex-grow: 1;
     min-width: calc(100% - variables.$spacing * 2 - 18px);
+    min-height: 134px;
+    height: 134px;
     border: 1px dashed variables.$fgNormal;
     margin: variables.$spacing;
     margin-right: calc(variables.$spacing + 18px);

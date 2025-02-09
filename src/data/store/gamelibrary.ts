@@ -27,8 +27,22 @@ function sortGamelib(gamelib: GameEntry[], sortOrder: string): GameEntry[] {
   }
 }
 
+const defaultSearchRestraints = {
+  include: {
+    tags: [],
+    status: [],
+    categories: {}
+  },
+  exclude: {
+    tags: [],
+    status: [],
+    categories: {}
+  }
+}
+
 const initialState: GamelibState = {
   // TODO: state for game info for edit
+  // TODO: state for user-editable settings (like location of games)
   gamelib: [],
   sortedGamelib: {
     recentlyPlayed: [],
@@ -37,18 +51,7 @@ const initialState: GamelibState = {
     alphabetical: [],
   },
   sortOrder: 'recentlyPlayed', // recentlyPlayed | recentlyAdded | recentlyUpdated | alphabetical
-  searchRestraints: {
-    include: {
-      tags: [],
-      status: [],
-      categories: {}
-    },
-    exclude: {
-      tags: [],
-      status: [],
-      categories: {}
-    }
-  },
+  searchRestraints: defaultSearchRestraints,
   // sorting states
   categories: [],
   statuses: [],
@@ -75,6 +78,9 @@ const slice = createSlice({
     },
     setSearchRestraints: (state, action) => {
       state.searchRestraints = action.payload
+    },
+    clearSearchRestraints: (state) => {
+      state.searchRestraints = defaultSearchRestraints
     }
   },
   extraReducers: (builder) => {
@@ -134,4 +140,4 @@ const slice = createSlice({
 
 export default slice.reducer
 
-export const { setSortOrder, setStatus, setError } = slice.actions
+export const { setSortOrder, setStatus, setError, setSearchRestraints, clearSearchRestraints } = slice.actions

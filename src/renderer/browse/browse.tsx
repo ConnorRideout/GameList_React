@@ -1,12 +1,16 @@
+/* eslint-disable react/no-array-index-key */
 import React from 'react'
 import { FixedSizeList as List } from 'react-window'
 import { useSelector, useDispatch } from 'react-redux'
 import styled from 'styled-components'
 
-import Picker, { FormState } from '../shared/picker'
+import { setSearchRestraints, clearSearchRestraints } from '../../data/store/gamelibrary'
+import Picker, { FormState } from '../shared/picker/picker'
 import Lineitem from './lineitem/lineitem'
 import BrowseNav from './browseNav'
-import { RootState } from '../../data/store/store'
+
+import { SearchRestraints, RootState } from '../../types'
+
 
 const BrowseDiv = styled.div`
   align-items: center;
@@ -32,23 +36,49 @@ export default function Browse() {
     document.querySelector('div.game-scroll-list')?.scrollTo({top: offset, behavior: 'smooth'})
   }
 
+  const getScrollOffset = () => {
+    const offset = parseInt(sessionStorage.getItem('scrollPosition') || '0')
+    sessionStorage.removeItem('scrollPosition')
+    return offset
+  }
+
   const searchHandler = (data: FormState) => {
-    /* SearchRestraints
-    include: {
-      tags: string[];
-      status: string[];
-      categories: StringMap;
-    };
-    exclude: {
-      tags: string[];
-      status: string[];
-      categories: StringMap;
-    }
+    /*
+    SearchRestraints
+      include: {
+        tags: string[];
+        status: string[];
+        categories: StringMap;
+      };
+      exclude: {
+        tags: string[];
+        status: string[];
+        categories: StringMap;
+      }
+    data
+      number: -1=indeterminate, 0=exclude, 1=include
+      string: 'any'=indeterminate, otherwise include
+        categories: {[key: string]: string},
+        statuses: {[key: string]: number},
+        tags: {[key: string]: number},
     */
-    console.log('search', data)
+    const {categories, statuses, tags} = data
+    const restraints: SearchRestraints = {include:{tags: [], status: [], categories: {}}, exclude:{tags: [], status: [], categories: {}}}
+    Object.entries(tags).forEach(([tagName, val]) => {
+      if (val === 0) restraints.exclude.tags.push(tagName)
+      else if (val === 1) restraints.include.tags.push(tagName)
+    })
+    Object.entries(statuses).forEach(([statusName, val]) => {
+      if (val === 0) restraints.exclude.status.push(statusName)
+      else if (val === 1) restraints.include.status.push(statusName)
+    })
+    Object.entries(categories).forEach(([catName, val]) => {
+      if (val !== 'Any') restraints.include.categories[catName] = val
+    })
+    dispatch(setSearchRestraints(restraints))
   }
   const clearHandler = () => {
-    console.log('clearing data')
+    dispatch(clearSearchRestraints())
   }
 
   const currentGamlib = sortedGamelib[sortOrder].filter(g => {
@@ -97,15 +127,12 @@ export default function Browse() {
       <BrowseNav scrollToItem={scrollToItem}/>
       <div className='game-scroll'>
         {['loading', 'updating'].includes(status) && <div className='loading' />}
-        {['succeeded', 'updating'].includes(status) && (
+        {status === 'failed' && <p className='error'>Error: {error}</p>}
+        {status !== 'idle' && (
           <>
             <div className='loading-lineitems'>
-              <div />
-              <div />
-              <div />
-              <div />
-              <div />
-              <div />
+              {Array(Math.min(currentGamlib.length, 10)).fill(null).map((_, i) => <div key={`placeholder${i}`} />)}
+              <p>-- end --</p>
             </div>
             <List
               height={ document.querySelector('div.game-scroll')?.getBoundingClientRect().height || 865 }
@@ -114,6 +141,7 @@ export default function Browse() {
               itemSize={140}
               overscanCount={10}
               className='game-scroll-list'
+              initialScrollOffset={getScrollOffset()}
             >
               {({index, style}) => (
                 <Lineitem
@@ -125,7 +153,6 @@ export default function Browse() {
             </List>
           </>
         )}
-        {status === 'failed' && <p>Error: {error}</p>}
       </div>
     </BrowseDiv>
   )

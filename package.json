@@ -45,7 +45,7 @@
     "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never && npm run build:dll",
     "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
     "prestart": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.main.dev.ts",
-    "server": "start \"Server\" powershell -NoExit -Command node ./src/backend/server.js",
+    "server": "node ./src/backend/server.js",
     "server:dev": "start \"Server\" powershell -NoExit -Command nodemon ./src/backend/server.js",
     "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run prestart && npm run start:renderer",
     "start:all": "concurrently --names \"Electron,Backend\" \"npm start\" \"npm run server\"",

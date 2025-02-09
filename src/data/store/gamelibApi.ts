@@ -28,7 +28,7 @@ export const gamelibApi = createApi({
     }),
     getStyleVars: builder.query<any, void>({
       query: () => 'styles'
-    }),
+    })
   })
 })
 

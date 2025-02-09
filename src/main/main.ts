@@ -115,6 +115,7 @@ const createWindow = async () => {
     } else {
       mainWindow.show();
     }
+    mainWindow.webContents.executeJavaScript(`window.processEnv = ${JSON.stringify(process.env)}`)
   });
 
   mainWindow.on('closed', () => {

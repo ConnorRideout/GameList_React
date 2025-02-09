@@ -1,5 +1,5 @@
 import * as yup from 'yup'
-import { TagEntry, StatusEntry, CategoryEntry } from '../../data/types/types'
+import { TagEntry, StatusEntry, CategoryEntry } from '../../../types'
 
 
 export default function CreateFormSchema(categories: CategoryEntry[] | {category_name: string}[], statuses: StatusEntry[], rawtags: TagEntry[]) {
