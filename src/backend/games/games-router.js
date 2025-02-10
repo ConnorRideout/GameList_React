@@ -93,16 +93,16 @@ router.get('/categories', (req, res, next) => {
     .catch(next)
 })
 
-router.get('/styles', (req, res) => {
+router.get('/styles', (req, res, next) => {
   fs.readFile('./src/renderer/styles/variables.scss', 'utf-8')
     .then(css => {
       sassVars(css)
         .then(json => {
           res.status(200).json(json)
         })
-        .catch(err => console.error(err))
+        .catch(next)
     })
-    .catch(err => console.error(err))
+    .catch(next)
 })
 
 router.post('/new', (req, res, next) => {

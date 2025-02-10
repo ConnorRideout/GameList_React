@@ -131,6 +131,7 @@ export interface SearchRestraints {
 }
 interface GamelibState {
   gamelib: GameEntry[];
+  editGame: GameEntry | null;
   sortedGamelib: SortedGamelib;
   sortOrder: SortOrders;
   searchRestraints: SearchRestraints;
@@ -138,6 +139,7 @@ interface GamelibState {
   statuses: StatusEntry[];
   tags: TagEntry[];
   styleVars: StringMap;
+  config: StringMap;
   status: string;
   error: string | undefined;
 }

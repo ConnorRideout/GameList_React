@@ -12,18 +12,20 @@ import {
   useGetTagsQuery,
   useGetStyleVarsQuery,
 } from '../data/store/gamelibApi'
-
+import { useGetConfigQuery } from '../data/store/filesysteamApi'
 
 export default function App() {
   useGetStyleVarsQuery()
   useGetCategoriesQuery()
   useGetStatusesQuery()
   useGetTagsQuery()
+  useGetConfigQuery()
   // FIXME: dev dependency refetch
   const {refetch} = useGetGamesQuery()
   // TODO: transitions between screens?
   // TODO: resizeable?
   // TODO: light mode?
+  // TODO: create an ini file if it doesn't exist, prompting user for the defaults
 
   return (
     <Router>

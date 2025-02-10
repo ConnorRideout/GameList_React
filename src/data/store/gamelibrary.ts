@@ -5,6 +5,7 @@ import {
 
 import { GamelibState, GameEntry } from "../types/types-gamelibrary"
 import { gamelibApi } from "./gamelibApi"
+import { filesystemApi } from "./filesysteamApi"
 
 
 function sortGamelib(gamelib: GameEntry[], sortOrder: string): GameEntry[] {
@@ -42,8 +43,10 @@ const defaultSearchRestraints = {
 
 const initialState: GamelibState = {
   // TODO: state for game info for edit
-  // TODO: state for user-editable settings (like location of games)
+  // gamelib states
   gamelib: [],
+  editGame: null,
+  // sorting states
   sortedGamelib: {
     recentlyPlayed: [],
     recentlyAdded: [],
@@ -52,11 +55,13 @@ const initialState: GamelibState = {
   },
   sortOrder: 'recentlyPlayed', // recentlyPlayed | recentlyAdded | recentlyUpdated | alphabetical
   searchRestraints: defaultSearchRestraints,
-  // sorting states
+  // picker states
   categories: [],
   statuses: [],
   tags: [],
+  // variable states
   styleVars: {},
+  config: {},
   // application status
   status: 'idle', // loading | succeeded | failed | idle | updating
   error: undefined,
@@ -81,7 +86,10 @@ const slice = createSlice({
     },
     clearSearchRestraints: (state) => {
       state.searchRestraints = defaultSearchRestraints
-    }
+    },
+    setEditGame: (state, action) => {
+      state.editGame = action.payload
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -128,10 +136,17 @@ const slice = createSlice({
           state.tags = action.payload
         }
       )
+      // VARIABLES
       .addMatcher(
         gamelibApi.endpoints.getStyleVars.matchFulfilled,
         (state, action) => {
           state.styleVars = action.payload
+        }
+      )
+      .addMatcher(
+        filesystemApi.endpoints.getConfig.matchFulfilled,
+        (state, action) => {
+          state.config = action.payload
         }
       )
   }
@@ -140,4 +155,11 @@ const slice = createSlice({
 
 export default slice.reducer
 
-export const { setSortOrder, setStatus, setError, setSearchRestraints, clearSearchRestraints } = slice.actions
+export const {
+  setSortOrder,
+  setStatus,
+  setError,
+  setSearchRestraints,
+  clearSearchRestraints,
+  setEditGame,
+} = slice.actions

@@ -1,10 +1,12 @@
-// TODO: Button functionality
 import React from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 
 import Tooltip from '../../shared/tooltip'
-import { usePlayGameMutation } from '../../../data/store/filesysteamApi'
+import {
+  usePlayGameMutation,
+  useOpenUrlMutation
+} from '../../../data/store/filesysteamApi'
 
 const ToolsFieldset = styled.fieldset`
   min-width: max-content;
@@ -42,18 +44,19 @@ interface Props {
 }
 export default function Tools({game_id, path, programPath, url}: Props) {
   const [playGame] = usePlayGameMutation()
+  const [openUrl] = useOpenUrlMutation()
   const navigate = useNavigate()
-  // TODO: get parent from state
-  const gamepathParent = window.processEnv.GAMES_PATH || ''
 
   const playButtonHandler = () => {
     // TODO: handle multiple programpaths
     // TODO: update recently played timestamp
     const progPath = Object.values(programPath)[0]
-    const filepath = gamepathParent ? [gamepathParent, path, progPath].join('/') : 'notepad'
+    const filepath = [path, progPath].join('/')
     playGame(filepath)
   }
-  // TODO: web button handler
+  const webBtnHandler = () => {
+    openUrl(url)
+  }
   const editBtnHandler = () => {
     // TODO: edit button handler
     sessionStorage.setItem('scrollPosition', String(document.querySelector('.game-scroll-list')?.scrollTop || 0))
@@ -83,6 +86,7 @@ export default function Tools({game_id, path, programPath, url}: Props) {
         type='button'
         className='circle-button'
         id={`web-btn-${game_id}`}
+        onClick={webBtnHandler}
       >
         <Tooltip anchorSelect={`#web-btn-${game_id}`}>
           {url}

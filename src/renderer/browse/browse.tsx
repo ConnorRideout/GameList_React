@@ -8,6 +8,7 @@ import { setSearchRestraints, clearSearchRestraints } from '../../data/store/gam
 import Picker, { FormState } from '../shared/picker/picker'
 import Lineitem from './lineitem/lineitem'
 import BrowseNav from './browseNav'
+// import { useUpdateConfigMutation } from '../../data/store/filesysteamApi'
 
 import { SearchRestraints, RootState } from '../../types'
 
@@ -23,7 +24,7 @@ const SearchFieldset = styled.fieldset`
   padding: 0 7px;
 `
 // FIXME: dev dependency refetch
-export default function Browse({refetch}) {
+export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) => void}) {
   const dispatch = useDispatch()
   const sortedGamelib = useSelector((state: RootState) => state.data.sortedGamelib)
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
@@ -63,7 +64,10 @@ export default function Browse({refetch}) {
         tags: {[key: string]: number},
     */
     const {categories, statuses, tags} = data
-    const restraints: SearchRestraints = {include:{tags: [], status: [], categories: {}}, exclude:{tags: [], status: [], categories: {}}}
+    const restraints: SearchRestraints = {
+      include:{tags: [], status: [], categories: {}},
+      exclude:{tags: [], status: [], categories: {}}
+    }
     Object.entries(tags).forEach(([tagName, val]) => {
       if (val === 0) restraints.exclude.tags.push(tagName)
       else if (val === 1) restraints.include.tags.push(tagName)
@@ -107,9 +111,12 @@ export default function Browse({refetch}) {
     return true
   })
 
+  // const [updateConfig] = useUpdateConfigMutation()
+
   return (
     <BrowseDiv className='vertical-container'>
       <button style={{position: 'fixed', left: 0}} type='button' onClick={() => refetch({force: true})}>Refetch Gamelib</button>
+      {/* <button style={{position: 'fixed', left: 0, top: 40}} type='button' onClick={() => updateConfig({locale_emulator: 'testing'})}>Test</button> */}
       <SearchFieldset className='vertical-container'>
         <legend className='header-max'>Search</legend>
         <Picker
