@@ -87,9 +87,9 @@ const slice = createSlice({
     clearSearchRestraints: (state) => {
       state.searchRestraints = defaultSearchRestraints
     },
-    setEditGame: (state, action) => {
-      state.editGame = action.payload
-    },
+    clearEditGame: (state) => {
+      state.editGame = null
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -149,6 +149,13 @@ const slice = createSlice({
           state.config = action.payload
         }
       )
+      // GET GAME FOR EDIT
+      .addMatcher(
+        gamelibApi.endpoints.editGame.matchFulfilled,
+        (state, action) => {
+          state.editGame = action.payload
+        }
+      )
   }
 })
 
@@ -161,5 +168,5 @@ export const {
   setError,
   setSearchRestraints,
   clearSearchRestraints,
-  setEditGame,
+  clearEditGame,
 } = slice.actions

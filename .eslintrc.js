@@ -22,6 +22,9 @@ module.exports = {
     'promise/always-return': 'off',
     'react/require-default-props': 'off',
     'radix': 'off',
+    'jsx-a11y/label-has-associated-control': [2, {
+      'assert': 'either',
+    }]
   },
   parserOptions: {
     ecmaVersion: 2022,

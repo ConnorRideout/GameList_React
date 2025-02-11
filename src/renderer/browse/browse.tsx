@@ -13,13 +13,6 @@ import BrowseNav from './browseNav'
 import { SearchRestraints, RootState } from '../../types'
 
 
-const BrowseDiv = styled.div`
-  align-items: center;
-  max-height: calc(100vh - 5px);
-  min-height: calc(100vh - 5px);
-  min-width: calc(100vw - 5px);
-  z-index: 1;
-`
 const SearchFieldset = styled.fieldset`
   padding: 0 7px;
 `
@@ -114,7 +107,7 @@ export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) 
   // const [updateConfig] = useUpdateConfigMutation()
 
   return (
-    <BrowseDiv className='vertical-container'>
+    <div className='main-container'>
       <button style={{position: 'fixed', left: 0}} type='button' onClick={() => refetch({force: true})}>Refetch Gamelib</button>
       {/* <button style={{position: 'fixed', left: 0, top: 40}} type='button' onClick={() => updateConfig({locale_emulator: 'testing'})}>Test</button> */}
       <SearchFieldset className='vertical-container'>
@@ -162,6 +155,6 @@ export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) 
           </>
         )}
       </div>
-    </BrowseDiv>
+    </div>
   )
 }

@@ -41,9 +41,22 @@ div.tooltip-image {
   flex-direction: column;
 }
 
+.main-container {
+  @extend .vertical-container;
+  align-items: center;
+  max-height: calc(100vh - 2 * variables.$spacing);
+  min-height: calc(100vh - 2 * variables.$spacing);
+  min-width: calc(100vw - 2 * variables.$spacing);
+  z-index: 1;
+}
+
 .vertical-scroll-container {
   @extend .vertical-container;
   overflow-y: auto;
+}
+
+.grow-1 {
+  flex-grow: 1;
 }
 
 .loading {

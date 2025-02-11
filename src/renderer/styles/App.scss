@@ -2,6 +2,7 @@
 @use 'variables';
 @use 'reusable';
 @use 'browse';
+@use 'edit';
 
 
 * {
@@ -15,6 +16,11 @@
 }
 
 body {
+  --font-small: #{variables.$fontSmall};
+  --font-title: #{variables.$fontTitle};
+  --font-header: #{variables.$fontHeader};
+  --font-max: #{variables.$fontMax};
+
   background-color: variables.$bgNormal;
   color: variables.$fgNormal;
 
@@ -135,6 +141,18 @@ input[type=checkbox] {
       transform: scale(1);
       clip-path: inset(0.15em 0.03em round 15%);
     }
+  }
+}
+
+input[type=text] {
+  background-color: variables.$bgLight;
+  border: 1px solid black;
+  margin: 0 variables.$spacing;
+  transition: border 200ms;
+
+  &:focus {
+    outline: none;
+    border: 1px solid variables.$highlightActive;
   }
 }
 

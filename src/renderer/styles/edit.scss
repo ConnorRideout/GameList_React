@@ -1,0 +1,91 @@
+@use 'variables';
+
+.svg-button {
+  display: flex;
+  padding: 0;
+  justify-content: center;
+  min-width: 60px;
+  max-width: 60px;
+  height: min-content;
+  margin: 0 variables.$spacing;
+}
+
+.info-container {
+  display: grid;
+
+  &>img {
+    border: 1px solid variables.$fgDark;
+  }
+
+  & textarea {
+    overflow-y: auto;
+    resize: none;
+    width: 100%;
+    line-height: 1.1em;
+    height: calc(5 * 1.1em + variables.$spacing * 3);
+    background-color: variables.$bgLight;
+    border: none;
+    outline: 1px solid transparent;
+    transition: outline ease-in-out 200ms;
+
+    &:focus {
+      outline: 1px solid variables.$highlightActive;
+    }
+  }
+}
+
+.info-column-1 {
+  grid-column: 1;
+}
+
+.info-column-2 {
+  grid-column: 2;
+}
+
+.info-column-3 {
+  grid-column: 3;
+}
+
+.info-column-4 {
+  grid-column: 4;
+}
+
+.info-column-span-2 {
+  grid-column-end: span 2;
+}
+
+.info-column-span-3 {
+  grid-column-end: span 3;
+}
+
+.info-row-1 {
+  grid-row: 1;
+}
+
+.info-row-2 {
+  grid-row: 2;
+}
+
+.info-row-3 {
+  grid-row: 3;
+}
+
+.info-row-4 {
+  grid-row: 4;
+}
+
+.info-row-5 {
+  grid-row: 5;
+}
+
+.info-row-6 {
+  grid-row: 6;
+}
+
+.info-row-7 {
+  grid-row: 7;
+}
+
+.info-row-span-4 {
+  grid-row-end: span 4;
+}

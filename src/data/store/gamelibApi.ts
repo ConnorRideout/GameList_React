@@ -28,7 +28,10 @@ export const gamelibApi = createApi({
     }),
     getStyleVars: builder.query<any, void>({
       query: () => 'styles'
-    })
+    }),
+    editGame: builder.query<any, number>({
+      query: (game_id: number) => `games/${game_id}`
+    }),
   })
 })
 
@@ -38,4 +41,5 @@ export const {
   useGetStatusesQuery,
   useGetTagsQuery,
   useGetStyleVarsQuery,
+  useLazyEditGameQuery,
 } = gamelibApi
