@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import { useNavigate } from 'react-router-dom'
 
@@ -46,10 +46,15 @@ export default function Tools({game_id, path, programPath, url}: Props) {
   const [playGame] = usePlayGameMutation()
   const [openUrl] = useOpenUrlMutation()
   const navigate = useNavigate()
+  const [showPlay, setShowPlay] = useState(false)
 
   const playButtonHandler = () => {
     // TODO: handle multiple programpaths
     // TODO: update recently played timestamp
+    setShowPlay(true)
+    setTimeout(() => {
+      setShowPlay(false)
+    }, 2000)
     const progPath = Object.values(programPath)[0]
     const filepath = [path, progPath].join('/')
     playGame(filepath)
@@ -66,6 +71,12 @@ export default function Tools({game_id, path, programPath, url}: Props) {
   return (
     <ToolsFieldset className='vertical-container'>
       <legend>Tools</legend>
+      {showPlay &&
+        <div className='starting-game'>
+          <span>Starting Game...</span>
+          <div className='loading' />
+        </div>
+      }
       <PlayButton
         type='button'
         className='circle-button'
