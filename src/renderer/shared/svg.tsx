@@ -93,7 +93,7 @@ export function EditSvg({color='black', size=32}: Props) {
   )
 }
 
-export function PlusSvg({color='currentColor', size=25}: Props) {
+export function PlusSvg({color='currentColor', size=22}: Props) {
   return (
     <Svg
       fill={color}
@@ -103,7 +103,7 @@ export function PlusSvg({color='currentColor', size=25}: Props) {
   )
 }
 
-export function FileSearchSvg({color='currentColor', size=25}: Props) {
+export function FileSearchSvg({color='currentColor', size=22}: Props) {
   return (
     <Svg
       fill={color}
@@ -113,7 +113,7 @@ export function FileSearchSvg({color='currentColor', size=25}: Props) {
   )
 }
 
-export function MinusSvg({color='currentColor', size=25}: Props) {
+export function MinusSvg({color='currentColor', size=22}: Props) {
   return (
     <Svg
       fill={color}

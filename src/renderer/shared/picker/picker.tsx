@@ -44,7 +44,7 @@ interface Props {
   isBrowse?: boolean,
   // TODO: use Edit Form State
   additionalFormData?: {
-    defaults: GameEntry,
+    defaults: Pick<GameEntry, 'tags' | 'status' | 'categories'>,
     disabledState: boolean,
     formError: {[key: string]: string}
   } | null,
@@ -76,15 +76,15 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
   const defaultFormData = useMemo(() => ({
     categories: categories.reduce((acc: FormState['categories'], cur) => {
       const {category_name} = cur
-      acc[category_name] = isBrowse ? 'Any' : (additionalFormData ? additionalFormData.defaults.categories[category_name] : '')
+      acc[category_name] = isBrowse ? 'Any' : (additionalFormData ? additionalFormData.defaults?.categories[category_name] || '' : '')
       return acc
-    }, {protagonist: isBrowse ? 'Any' : (additionalFormData ? additionalFormData.defaults.categories.protagonist : '')}),
+    }, {protagonist: isBrowse ? 'Any' : (additionalFormData ? additionalFormData.defaults?.categories.protagonist || '' : '')}),
     statuses: statusValues.reduce((acc: FormState['statuses'], cur) => {
-      acc[cur] = isBrowse ? -1 : (additionalFormData ? Number(additionalFormData.defaults.status.includes(cur)) : 0)
+      acc[cur] = isBrowse ? -1 : (additionalFormData ? Number(additionalFormData.defaults?.status.includes(cur)) || 0 : 0)
       return acc
     }, {}),
     tags: tagValues.reduce((acc: FormState['tags'], cur) => {
-      acc[cur] = isBrowse ? -1 : (additionalFormData ? Number(additionalFormData.defaults.tags.includes(cur)) : 0)
+      acc[cur] = isBrowse ? -1 : (additionalFormData ? Number(additionalFormData.defaults?.tags.includes(cur)) || 0 : 0)
       return acc
     }, {}),
   }), [tagValues, statusValues, categories, isBrowse, additionalFormData])
@@ -110,7 +110,6 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
   //   | |_| (_) | (_ || | (__
   //   |____\___/ \___|___\___|
   //
-
 
   const handleFormChange = (evt: ChangeEvent<HTMLInputElement | HTMLSelectElement>, tristate: boolean = false) => {
     const {name, type, value, checked} = (evt.target as HTMLInputElement)

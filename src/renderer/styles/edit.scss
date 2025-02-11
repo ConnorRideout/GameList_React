@@ -1,20 +1,32 @@
+@use 'reusable';
 @use 'variables';
 
 .svg-button {
   display: flex;
-  padding: 0;
   justify-content: center;
+  align-items: center;
+  padding: 0 variables.$spacing;
   min-width: 60px;
-  max-width: 60px;
   height: min-content;
   margin: 0 variables.$spacing;
+
+  &.with-margin {
+    margin: variables.$spacing calc(variables.$spacing * 2);
+  }
 }
 
 .info-container {
   display: grid;
+  justify-items: center;
+  align-items: start;
+  grid-template-columns: max-content 1fr min-content min-content;
 
   &>img {
     border: 1px solid variables.$fgDark;
+    min-width: 197px;
+    max-width: 197px;
+    min-height: 117px;
+    max-height: 117px;
   }
 
   & textarea {
@@ -30,6 +42,16 @@
 
     &:focus {
       outline: 1px solid variables.$highlightActive;
+    }
+  }
+
+  & button {
+    font-size: variables.$fontSmall;
+    text-align: center;
+    padding: variables.$spacing;
+
+    &.svg-button {
+      @extend .svg-button;
     }
   }
 }
@@ -88,4 +110,36 @@
 
 .info-row-span-4 {
   grid-row-end: span 4;
+}
+
+.info-justify-stretch {
+  justify-self: stretch;
+}
+
+.info-prog-paths-container {
+  @extend .vertical-container;
+  justify-content: start;
+  align-items: start;
+  border: 1px solid black;
+  justify-self: stretch;
+  padding: variables.$spacing;
+  min-height: 15vh;
+  margin-bottom: calc(variables.$spacing * 2);
+
+  & .svg-button {
+    min-width: min-content;
+    padding: 0;
+  }
+
+  & input {
+    font-size: variables.$fontSmall;
+    height: 2em;
+  }
+}
+
+.info-prog-path-horizontal-container {
+  @extend .horizontal-container;
+  align-items: center;
+  min-width: 100%;
+  margin: variables.$spacing;
 }

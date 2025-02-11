@@ -1,5 +1,5 @@
 // TODO: make edit window
-import React, { useState } from "react"
+import React, { ChangeEvent, useState } from "react"
 import styled from "styled-components"
 import { useNavigate } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux"
@@ -13,7 +13,7 @@ import {
   WebSvg,
 } from "../shared/svg"
 
-import { RootState } from "../../types"
+import { GameEntry, RootState } from "../../types"
 
 
 const EditDiv = styled.div`
@@ -31,6 +31,9 @@ const EditDiv = styled.div`
 const PathP = styled.p`
   font-size: var(--font-header);
 `
+export interface EditFormState {
+
+}
 export default function Edit() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -38,8 +41,29 @@ export default function Edit() {
   const emptyFormErrors: {[key: string]: string} = {}
   const [formErrors, setFormErrors] = useState(emptyFormErrors)
 
-  const game_data = useSelector((state: RootState) => state.data.editGame)!
-  const {path, title, url, image, version, description, program_path, tags, status, categories} = game_data
+  const game_data = useSelector((state: RootState) => state.data.editGame)
+  const {path, title, url, image, version, description, program_path: prog_obj, tags, status, categories}: Omit<GameEntry, 'game_id' | 'timestamps' | 'timestamps_sec'> = game_data || {
+    path: '',
+    title: '',
+    url: '',
+    image: '',
+    version: '',
+    description: '',
+    program_path: {"":""},
+    tags: [],
+    status: [],
+    categories: {}
+  }
+  const program_path = Object.entries(prog_obj)
+  const [formData, setFormData] = useState({path, title, url, image, version, description, program_path})
+
+  const handleFormChange = (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | {target: {name: string, value: string | [string, string][]}}) => {
+    const {name, value} = evt.target
+    setFormData({
+      ...formData,
+      [name]: value
+    })
+  }
 
   const closeEdit = () => {
     dispatch(clearEditGame())
@@ -51,7 +75,7 @@ export default function Edit() {
   }
 
   const additionalFormData = {
-    defaults: game_data,
+    defaults: {tags, status, categories},
     disabledState: submitDisabled,
     formError: formErrors
   }
@@ -61,7 +85,7 @@ export default function Edit() {
 
       <fieldset className="horizontal-container">
         <legend>Top Path</legend>
-        <PathP className="grow-1">{path}</PathP>
+        <PathP className="grow-1">{formData.path}</PathP>
         <button type="button" className="svg-button">
           <FolderOpenSvg color="currentColor" size={25} />
         </button>
@@ -75,13 +99,22 @@ export default function Edit() {
         <input
           type="text"
           className="grow-1"
+          name="url"
+          onChange={handleFormChange}
+          value={formData.url}
         />
-        <button type='button' className="svg-button">
+        <button
+          type='button'
+          className="svg-button"
+        >
           <WebSvg color="currentColor" size={25} />
         </button>
       </fieldset>
 
-      <Info />
+      <Info
+        handleFormChange={handleFormChange}
+        formData={formData}
+      />
 
 
       <Picker
