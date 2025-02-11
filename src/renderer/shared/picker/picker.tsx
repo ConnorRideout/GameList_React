@@ -9,7 +9,7 @@ import CreateFormSchema from './picker_schema'
 import Categories from './pick_categories'
 import Tags from './pick_tags'
 
-import { RootState } from '../../../types'
+import { RootState, GameEntry } from '../../../types'
 
 
 const PickerForm = styled.form`
@@ -43,12 +43,13 @@ interface Props {
   },
   isBrowse?: boolean,
   // TODO: use Edit Form State
-  additionalFormState?: {
+  additionalFormData?: {
+    defaults: GameEntry,
     disabledState: boolean,
     formError: {[key: string]: string}
   } | null,
 }
-export default function Picker({submitHandler, cancelHandler, isBrowse=false, additionalFormState=null}: Props) {
+export default function Picker({submitHandler, cancelHandler, isBrowse=false, additionalFormData=null}: Props) {
 
   //    ___ _____ _ _____ ___
   //   / __|_   _/_\_   _| __|
@@ -75,18 +76,18 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
   const defaultFormData = useMemo(() => ({
     categories: categories.reduce((acc: FormState['categories'], cur) => {
       const {category_name} = cur
-      acc[category_name] = isBrowse ? 'Any' : ''
+      acc[category_name] = isBrowse ? 'Any' : (additionalFormData ? additionalFormData.defaults.categories[category_name] : '')
       return acc
-    }, {protagonist: isBrowse ? 'Any' : ''}),
+    }, {protagonist: isBrowse ? 'Any' : (additionalFormData ? additionalFormData.defaults.categories.protagonist : '')}),
     statuses: statusValues.reduce((acc: FormState['statuses'], cur) => {
-      acc[cur] = isBrowse ? -1 : 0
+      acc[cur] = isBrowse ? -1 : (additionalFormData ? Number(additionalFormData.defaults.status.includes(cur)) : 0)
       return acc
     }, {}),
     tags: tagValues.reduce((acc: FormState['tags'], cur) => {
-      acc[cur] = isBrowse ? -1 : 0
+      acc[cur] = isBrowse ? -1 : (additionalFormData ? Number(additionalFormData.defaults.tags.includes(cur)) : 0)
       return acc
     }, {}),
-  }), [tagValues, statusValues, categories, isBrowse])
+  }), [tagValues, statusValues, categories, isBrowse, additionalFormData])
 
   useEffect(() => {
     setFormData(defaultFormData)
@@ -100,8 +101,8 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
   useEffect(() => {
     // eslint-disable-next-line promise/catch-or-return
     formSchema.isValid(formData)
-      .then((isValid) => {
-        setSubmitDisabled(!isValid)
+      .then(isPickerValid => {
+        setSubmitDisabled(!isPickerValid)
       })
   }, [formData, formSchema])
   //    _    ___   ___ ___ ___
@@ -170,7 +171,7 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
         <button
           type='submit'
           onClick={handleSubmit}
-          disabled={isBrowse ? false : (submitDisabled || additionalFormState?.disabledState)}
+          disabled={isBrowse ? false : (submitDisabled || additionalFormData?.disabledState)}
         >{submitHandler.text}</button>
       </div>
     </PickerForm>
