@@ -1,8 +1,9 @@
-// TODO: make edit window
-import React, { ChangeEvent, useState } from "react"
+/* eslint-disable promise/catch-or-return */
+import React, { ChangeEvent, useEffect, useState } from "react"
 import styled from "styled-components"
 import { useNavigate } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux"
+import { StringSchema, reach as yup_reach } from "yup"
 
 import Picker, { FormState } from "../shared/picker/picker"
 import Info from "./info"
@@ -14,6 +15,7 @@ import {
 } from "../shared/svg"
 
 import { GameEntry, RootState } from "../../types"
+import CreateEditFormSchema from "./edit_schema"
 
 
 const EditDiv = styled.div`
@@ -38,7 +40,15 @@ export default function Edit() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [submitDisabled, setSubmitDisabled] = useState(true)
-  const emptyFormErrors: {[key: string]: string} = {}
+  const emptyFormErrors = {
+    path: '',
+    title: '',
+    url: '',
+    image: '',
+    version: '',
+    description: '',
+    program_path: '',
+  }
   const [formErrors, setFormErrors] = useState(emptyFormErrors)
 
   const game_data = useSelector((state: RootState) => state.data.editGame)
@@ -57,8 +67,24 @@ export default function Edit() {
   const program_path = Object.entries(prog_obj)
   const [formData, setFormData] = useState({path, title, url, image, version, description, program_path})
 
+  const formSchema = CreateEditFormSchema()
+  useEffect(() => {
+    formSchema.isValid(formData)
+      .then(isEditValid => {
+        setSubmitDisabled(!isEditValid)
+      })
+  }, [formData, formSchema])
+
   const handleFormChange = (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | {target: {name: string, value: string | [string, string][]}}) => {
     const {name, value} = evt.target
+    const schema = yup_reach(formSchema, name) as StringSchema
+    schema.validate(value)
+      .then(() => {
+        setFormErrors({...formErrors, [name]: ''})
+      })
+      .catch(({errors}) => {
+        setFormErrors({...formErrors, [name]: errors[0]})
+      })
     setFormData({
       ...formData,
       [name]: value
@@ -77,7 +103,7 @@ export default function Edit() {
   const additionalFormData = {
     defaults: {tags, status, categories},
     disabledState: submitDisabled,
-    formError: formErrors
+    formErrors
   }
 
   return (

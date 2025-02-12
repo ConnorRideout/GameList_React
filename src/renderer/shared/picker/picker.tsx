@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 import { reach as yup_reach, StringSchema } from 'yup'
 
-import CreateFormSchema from './picker_schema'
+import CreatePickerFormSchema from './picker_schema'
 import Categories from './pick_categories'
 import Tags from './pick_tags'
 
@@ -46,7 +46,7 @@ interface Props {
   additionalFormData?: {
     defaults: Pick<GameEntry, 'tags' | 'status' | 'categories'>,
     disabledState: boolean,
-    formError: {[key: string]: string}
+    formErrors: {[key: string]: string}
   } | null,
 }
 export default function Picker({submitHandler, cancelHandler, isBrowse=false, additionalFormData=null}: Props) {
@@ -97,7 +97,7 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
     }, {}))
   }, [defaultFormData])
 
-  const formSchema = CreateFormSchema([...categories, {category_name: 'protagonist'}], statuses, tags)
+  const formSchema = CreatePickerFormSchema([...categories, {category_name: 'protagonist'}], statuses, tags)
   useEffect(() => {
     // eslint-disable-next-line promise/catch-or-return
     formSchema.isValid(formData)
@@ -160,7 +160,12 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
         handleFormChange={handleFormChange}
         formData={formData}
       />
-      {!isBrowse && Object.values(formErrors).find(s => s) && <p className='error'>{Object.values(formErrors).find(s => s)}</p>}
+      {!isBrowse && (Object.values(formErrors).find(s => s) || Object.values(additionalFormData!.formErrors).find(s => s)) && (
+        <>
+          <p className='error'>{Object.values(additionalFormData!.formErrors).find(s => s)}</p>
+          <p className='error'>{Object.values(formErrors).find(s => s)}</p>
+        </>
+      )}
       <div className='horizontal-container'>
         {/* eslint-disable-next-line react/button-has-type */}
         <button

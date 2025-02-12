@@ -2,7 +2,7 @@ import * as yup from 'yup'
 import { TagEntry, StatusEntry, CategoryEntry } from '../../../types'
 
 
-export default function CreateFormSchema(categories: CategoryEntry[] | {category_name: string}[], statuses: StatusEntry[], rawtags: TagEntry[]) {
+export default function CreatePickerFormSchema(categories: CategoryEntry[] | {category_name: string}[], statuses: StatusEntry[], rawtags: TagEntry[]) {
   const cats = categories.map(c => c.category_name)
   const stats = statuses.map(s => s.status_name)
   const tags = rawtags.map(t => t.tag_name)
