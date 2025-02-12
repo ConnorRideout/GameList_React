@@ -1,5 +1,6 @@
 /* eslint-disable react/no-array-index-key */
-import React, { ChangeEvent } from "react"
+// TODO: drag-n-drop lines
+import React, { useEffect, ChangeEvent } from "react"
 
 import {
   PlusSvg,
@@ -10,6 +11,7 @@ import { Props } from "./info"
 
 
 export default function ProgramPaths({handleFormChange, formData}: Props) {
+
   const handleProgramChange = (evt: ChangeEvent<HTMLInputElement>, idx: number) => {
     const {name, value} = evt.target
     const progData = [...formData.program_path]
@@ -18,6 +20,40 @@ export default function ProgramPaths({handleFormChange, formData}: Props) {
     handleFormChange({target: {name: 'program_path', value: progData}})
   }
 
+  const handleAddRow = (idx: number) => {
+    const progData = [...formData.program_path]
+    if (idx === -1) {
+      progData.push(['', ''])
+    } else {
+      progData.splice(idx, 0, ['', ''])
+    }
+    handleFormChange({target: {name: 'program_path', value: progData}})
+  }
+
+  const handleRemoveRow = (idx: number) => {
+    const progData = [...formData.program_path]
+    progData.splice(idx, 1)
+    if (!progData.length) progData.push(['', ''])
+    handleFormChange({target: {name: 'program_path', value: progData}})
+  }
+
+  const handleFileSearch = (idx: number) => {
+    window.electron.openFileDialog({initialPath: formData.path, dataPassthrough: idx})
+  }
+  useEffect(() => {
+    window.electron.onFileSelected(([filePath], idx) => {
+      const regex = new RegExp(`^.+${formData.path}\\\\?`)
+      const relativePath = filePath.replace(regex, '')
+      const parsedPath = relativePath.trim()
+        .replace(/\.\w{2,}?$/, '') // remove extension
+        .replaceAll(/(?<=[a-z])(?=[A-Z])|_|(?<=\)|\])(?=[A-Za-z])|(?<=[A-Za-z])(?=\(|\[)/g, ' ') // insert spaces
+        .replaceAll(/(?<=^|\s|\(|\[|\d)([a-z])/g, match => match.toUpperCase()) // titlecase words
+      const progData = [...formData.program_path]
+      progData[idx] = [parsedPath, relativePath]
+      handleFormChange({target: {name: 'program_path', value: progData}})
+    })
+  }, [formData, handleFormChange])
+
   return(
     <div className="info-prog-paths-container info-column-2 info-row-6 info-column-span-3">
       {formData.program_path.map(([exe_name, exe_path], idx) => (
@@ -25,6 +61,7 @@ export default function ProgramPaths({handleFormChange, formData}: Props) {
           <button
             type="button"
             className="svg-button"
+            onClick={() => handleAddRow(idx)}
           >
             <PlusSvg />
           </button>
@@ -40,6 +77,7 @@ export default function ProgramPaths({handleFormChange, formData}: Props) {
           <button
             type="button"
             className="svg-button"
+            onClick={() => handleFileSearch(idx)}
           >
             <FileSearchSvg />
           </button>
@@ -55,6 +93,7 @@ export default function ProgramPaths({handleFormChange, formData}: Props) {
           <button
             type="button"
             className="svg-button"
+            onClick={() => handleRemoveRow(idx)}
           >
             <MinusSvg />
           </button>
@@ -63,6 +102,7 @@ export default function ProgramPaths({handleFormChange, formData}: Props) {
       <button
         type="button"
         className="svg-button with-margin"
+        onClick={() => handleAddRow(-1)}
       >
         <PlusSvg />
       </button>

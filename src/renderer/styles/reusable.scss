@@ -48,6 +48,10 @@ div.tooltip-image {
   min-height: calc(100vh - 2 * variables.$spacing);
   min-width: calc(100vw - 2 * variables.$spacing);
   z-index: 1;
+
+  &.vertical-center {
+    justify-content: center;
+  }
 }
 
 .vertical-scroll-container {

@@ -10,13 +10,14 @@
  */
 import 'dotenv/config'
 import path from 'path'
-import { app, BrowserWindow, shell, ipcMain, net, protocol } from 'electron'
-import { autoUpdater } from 'electron-updater'
-import log from 'electron-log'
+import { app, BrowserWindow, shell, ipcMain, net, protocol, dialog } from 'electron'
+// import { autoUpdater } from 'electron-updater'
+// import log from 'electron-log'
 import installExtension, {REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer'
 
 import sassVars from 'get-sass-vars'
-import { promises as fs } from 'fs'
+import { promises as fs, readFile } from 'fs'
+import { parse as iniparse } from 'ini'
 
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
@@ -24,7 +25,7 @@ import { resolveHtmlPath } from './util'
 const imgDir = path.join(
   __dirname,
   '../../src/data',
-  process.env.KNEX_ENV === 'development' ? 'private/gameImages' : 'gameImages'
+  process.env.SHOWCASING ? 'gameImages' : 'private/gameImages'
 )
 
 const getSassVars = async () => {
@@ -33,13 +34,13 @@ const getSassVars = async () => {
   return json
 }
 
-class AppUpdater {
-  constructor() {
-    log.transports.file.level = 'info';
-    autoUpdater.logger = log;
-    autoUpdater.checkForUpdatesAndNotify();
-  }
-}
+// class AppUpdater {
+//   constructor() {
+//     log.transports.file.level = 'info';
+//     autoUpdater.logger = log;
+//     autoUpdater.checkForUpdatesAndNotify();
+//   }
+// }
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -133,7 +134,7 @@ const createWindow = async () => {
 
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
-  new AppUpdater();
+  // new AppUpdater();
 };
 
 /**
@@ -153,7 +154,7 @@ app
   .then(() => {
     installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS])
       .then(res => console.log(`Added Extensions:  ${res}`))
-      .catch((err) => console.log('An error occurred: ', err));
+      .catch((err) => console.log('An error occurred: ', err))
     protocol.handle('load-image', async (request) => {
       let imgPath = request.url
         .replace('load-image://', '')
@@ -166,7 +167,31 @@ app
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
-      if (mainWindow === null) createWindow();
-    });
+      if (mainWindow === null) createWindow()
+    })
+
+    let games_folder = __dirname
+    readFile(path.join(__dirname, '../../config.ini'), 'utf-8', (err, data) => {
+      if (err) {
+        console.error(err)
+      } else {
+        games_folder = iniparse(data).DEFAULT.games_folder
+      }
+    })
+
+    ipcMain.on('open-file-dialog', (event, dialogType: 'openFile' | 'openDirectory' = 'openFile', initialPath: string = games_folder, dataPassthrough: any = null) => {
+      const defaultPath = /^[A-Z]:/.test(initialPath) ? initialPath : path.join(games_folder, initialPath)
+      dialog.showOpenDialog(mainWindow!, {
+        properties: [dialogType],
+        defaultPath
+      }).then(res => {
+        if (!res.canceled) {
+          event.reply('selected-file', res.filePaths, dataPassthrough)
+        }
+      }).catch(err => {
+        console.error(err)
+      })
+    })
+
   })
   .catch(console.log);

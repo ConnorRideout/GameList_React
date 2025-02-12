@@ -81,7 +81,7 @@ export default function Edit() {
   }
 
   return (
-    <EditDiv className="main-container">
+    <EditDiv className="main-container vertical-center">
 
       <fieldset className="horizontal-container">
         <legend>Top Path</legend>

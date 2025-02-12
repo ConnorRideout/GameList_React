@@ -22,4 +22,5 @@ server.use(errorHandler)
 
 server.listen(9000, () => {
   console.log('Server running on http://localhost:9000')
+  console.log('Environment is', process.env.SHOWCASING ? 'showcasing' : process.env.NODE_ENV || 'showcasing')
 })

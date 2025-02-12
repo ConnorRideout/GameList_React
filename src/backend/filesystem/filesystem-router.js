@@ -23,7 +23,7 @@ router.post('/open/:type', (req, res, next) => {
   if (type === 'game') {
     const { games_folder } = config
     console.log(config)
-    const filepath = process.env.NODE_ENV === 'showcasing' ?
+    const filepath = (process.env.SHOWCASING || process.env.NODE_ENV === 'showcasing') ?
       'notepad'
       : Path.join(games_folder, path)
     console.log(filepath)

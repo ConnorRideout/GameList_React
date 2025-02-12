@@ -124,7 +124,9 @@
   justify-self: stretch;
   padding: variables.$spacing;
   min-height: 15vh;
+  max-height: 15vh;
   margin-bottom: calc(variables.$spacing * 2);
+  overflow-y: auto;
 
   & .svg-button {
     min-width: min-content;
@@ -140,6 +142,6 @@
 .info-prog-path-horizontal-container {
   @extend .horizontal-container;
   align-items: center;
-  min-width: 100%;
+  width: calc(100% - variables.$spacing*2);
   margin: variables.$spacing;
 }

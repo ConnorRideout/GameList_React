@@ -22,8 +22,10 @@ const electronHandler = {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
     },
   },
+  openFileDialog: ({dialogType, initialPath, dataPassthrough}: {dialogType?: 'openFile' | 'openDirectory', initialPath?: string, dataPassthrough?: any}) => ipcRenderer.send('open-file-dialog', dialogType, initialPath, dataPassthrough),
+  onFileSelected: (callback: (filePaths: string[], dataPassthrough: any) => void) => ipcRenderer.on('selected-file', (event, filePaths, dataPassthrough) => callback(filePaths, dataPassthrough))
 };
 
-contextBridge.exposeInMainWorld('electron', electronHandler);
+contextBridge.exposeInMainWorld('electron', electronHandler)
 
 export type ElectronHandler = typeof electronHandler;
