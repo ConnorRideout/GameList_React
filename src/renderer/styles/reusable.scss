@@ -32,13 +32,26 @@ div.tooltip-image {
   }
 }
 
+.container-centered {
+  justify-content: center;
+  align-items: center;
+}
+
 .horizontal-container {
   display: flex;
+
+  &.horizontal-center {
+    justify-content: center;
+  }
 }
 
 .vertical-container {
   display: flex;
   flex-direction: column;
+
+  &.vertical-center {
+    justify-content: center;
+  }
 }
 
 .main-container {
@@ -48,10 +61,6 @@ div.tooltip-image {
   min-height: calc(100vh - 2 * variables.$spacing);
   min-width: calc(100vw - 2 * variables.$spacing);
   z-index: 1;
-
-  &.vertical-center {
-    justify-content: center;
-  }
 }
 
 .vertical-scroll-container {
@@ -108,4 +117,27 @@ div.tooltip-image {
 .error {
   text-align: center;
   color: variables.$fgError;
+}
+
+.error-container {
+  @extend .horizontal-container;
+  @extend .container-centered;
+
+  background-color: transparent;
+  width: 100%;
+  animation: flash 200ms ease-in-out forwards 2;
+}
+
+@keyframes flash {
+  0% {
+    background-color: transparent;
+  }
+
+  50% {
+    background-color: white;
+  }
+
+  100% {
+    background-color: transparent;
+  }
 }

@@ -6,13 +6,18 @@ import { useSelector, useDispatch } from "react-redux"
 import { StringSchema, reach as yup_reach } from "yup"
 
 import Picker, { FormState } from "../shared/picker/picker"
+import ErrorMessage from "../shared/errorMessage"
 import Info from "./info"
-import { clearEditGame } from "../../data/store/gamelibrary"
+import { clearEditGame, setError } from "../../data/store/gamelibrary"
 import {
   FolderOpenSvg,
   FolderEditSvg,
   WebSvg,
 } from "../shared/svg"
+import {
+  useOpenUrlMutation,
+  useOpenFolderMutation,
+} from "../../data/store/filesysteamApi"
 
 import { GameEntry, RootState } from "../../types"
 import CreateEditFormSchema from "./edit_schema"
@@ -39,6 +44,10 @@ export interface EditFormState {
 export default function Edit() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const [openUrl] = useOpenUrlMutation()
+  const [openFolder] = useOpenFolderMutation()
+  const game_dir = useSelector((state: RootState) => state.data.config.games_folder)
+
   const [submitDisabled, setSubmitDisabled] = useState(true)
   const emptyFormErrors = {
     path: '',
@@ -108,14 +117,24 @@ export default function Edit() {
 
   return (
     <EditDiv className="main-container vertical-center">
+      <h1>EDIT GAME</h1>
+      <button style={{position: 'fixed', left: 0, top: '30px'}} type='button' onClick={() => dispatch(setError('test error'))}>Test</button>
+      <ErrorMessage />
 
       <fieldset className="horizontal-container">
         <legend>Top Path</legend>
         <PathP className="grow-1">{formData.path}</PathP>
-        <button type="button" className="svg-button">
+        <button
+          type="button"
+          className="svg-button"
+          onClick={() => openFolder(`${game_dir}/${formData.path}`)}
+        >
           <FolderOpenSvg color="currentColor" size={25} />
         </button>
-        <button type="button" className="svg-button">
+        <button
+          type="button"
+          className="svg-button"
+        >
           <FolderEditSvg color="currentColor" size={25} />
         </button>
       </fieldset>
@@ -132,6 +151,7 @@ export default function Edit() {
         <button
           type='button'
           className="svg-button"
+          onClick={() => openUrl(formData.url)}
         >
           <WebSvg color="currentColor" size={25} />
         </button>

@@ -11,8 +11,8 @@ router.post('/open/:type', (req, res, next) => {
   const { type } = req.params
   const { path } = req.body
 
-  const run = itempath => {
-    exec(`start "" "${itempath}"`, (error) => {
+  const run = (itempath, args='') => {
+    exec(`start "" "${itempath}" ${args}`, (error) => {
       if (error) {
         next({message: `failed to start "${itempath}"`})
       }
@@ -35,10 +35,12 @@ router.post('/open/:type', (req, res, next) => {
   } else if (type === 'webpage') {
     run(path)
   } else if (type === 'folder') {
-    if (fs.existsSync(path)) run(`explorer.exe "${path}"`)
-    else run(`explorer.exe "${__dirname}"`)
+    const filepath = Path.resolve(path)
+    if (fs.existsSync(filepath)) run("explorer.exe", `"${filepath}"`)
+      else run(`explorer.exe "${__dirname}"`)
   } else if (type === 'openatfile') {
-    if (fs.existsSync(path)) run(`explorer.exe /select "${path}"`)
+    const filepath = Path.resolve(path)
+    if (fs.existsSync(filepath)) run("explorer.exe", `/select "${filepath}"`)
     else run(`explorer.exe "${__dirname}"`)
   }
 })

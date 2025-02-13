@@ -95,7 +95,7 @@ export default function Tools({game_id, path, programPath, url}: Props) {
         className='circle-button'
         onClick={playButtonHandler}
       >
-        <PlaySvg fill='black' />
+        <PlaySvg color='black' />
       </PlayButton>
       <WebButton
         type='button'
@@ -106,14 +106,14 @@ export default function Tools({game_id, path, programPath, url}: Props) {
         <Tooltip anchorSelect={`#web-btn-${game_id}`}>
           {url}
         </Tooltip>
-        <WebSvg fill='black' />
+        <WebSvg color='black' />
       </WebButton>
       <EditButton
         type='button'
         className='circle-button'
         onClick={editBtnHandler}
       >
-        <EditSvg fill='black' />
+        <EditSvg color='black' />
       </EditButton>
     </ToolsFieldset>
   )

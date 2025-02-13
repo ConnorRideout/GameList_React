@@ -45,7 +45,7 @@ export default function CreateEditFormSchema() {
             } else if (outerArrayLength > 1) {
               // if outerArray is longer that 1, both strings of innerArray must have length > 1
               if (value[0] === undefined || value[0].length <= 1 || value[1] === undefined || value[1].length <= 1) {
-                return createError({ path, message: `At path ${path}, both strings must have length > 1` });
+                return createError({ path, message: `At program path [${parseInt(path.slice(1, -1)) + 1}], both the exe path and viewable name must have a value` });
               }
             }
             return true; // Validation passed

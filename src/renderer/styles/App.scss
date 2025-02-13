@@ -39,6 +39,10 @@ body {
   }
 }
 
+h1 {
+  font-size: variables.$fontMax;
+}
+
 button {
   @include variables.bgGradient();
   min-width: 75px;

@@ -42,7 +42,6 @@ interface Props {
     handler: () => void,
   },
   isBrowse?: boolean,
-  // TODO: use Edit Form State
   additionalFormData?: {
     defaults: Pick<GameEntry, 'tags' | 'status' | 'categories'>,
     disabledState: boolean,

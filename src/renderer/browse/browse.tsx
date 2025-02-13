@@ -4,11 +4,15 @@ import { FixedSizeList as List } from 'react-window'
 import { useSelector, useDispatch } from 'react-redux'
 import styled from 'styled-components'
 
-import { setSearchRestraints, clearSearchRestraints } from '../../data/store/gamelibrary'
+import {
+  setSearchRestraints,
+  clearSearchRestraints,
+  setError // FIXME: Dev dependency
+} from '../../data/store/gamelibrary'
 import Picker, { FormState } from '../shared/picker/picker'
 import Lineitem from './lineitem/lineitem'
 import BrowseNav from './browseNav'
-// import { useUpdateConfigMutation } from '../../data/store/filesysteamApi'
+import ErrorMessage from '../shared/errorMessage'
 
 import { SearchRestraints, RootState } from '../../types'
 
@@ -16,6 +20,7 @@ import { SearchRestraints, RootState } from '../../types'
 const SearchFieldset = styled.fieldset`
   padding: 0 7px;
 `
+
 // FIXME: dev dependency refetch
 export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) => void}) {
   const dispatch = useDispatch()
@@ -23,7 +28,6 @@ export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) 
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
   const searchRestraints = useSelector((state: RootState) => state.data.searchRestraints)
   const status = useSelector((state: RootState) => state.data.status)
-  const error = useSelector((state: RootState) => state.data.error)
 
   const scrollToItem = (idx: number) => {
     const offset = idx * 140
@@ -78,6 +82,7 @@ export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) 
     dispatch(clearSearchRestraints())
   }
 
+
   const currentGamlib = sortedGamelib[sortOrder].filter(g => {
     // check inclusions
     const incl = searchRestraints.include
@@ -104,12 +109,11 @@ export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) 
     return true
   })
 
-  // const [updateConfig] = useUpdateConfigMutation()
 
   return (
     <div className='main-container'>
       <button style={{position: 'fixed', left: 0}} type='button' onClick={() => refetch({force: true})}>Refetch Gamelib</button>
-      {/* <button style={{position: 'fixed', left: 0, top: 40}} type='button' onClick={() => updateConfig({locale_emulator: 'testing'})}>Test</button> */}
+      <button style={{position: 'fixed', left: 0, top: '30px'}} type='button' onClick={() => dispatch(setError('test error'))}>Test</button>
       <SearchFieldset className='vertical-container'>
         <legend className='header-max'>Search</legend>
         <Picker
@@ -128,7 +132,7 @@ export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) 
       <BrowseNav scrollToItem={scrollToItem}/>
       <div className='game-scroll'>
         {['loading', 'updating'].includes(status) && <div className='loading' />}
-        {status === 'failed' && <p className='error'>Error: {error}</p>}
+        <ErrorMessage />
         {status !== 'idle' && (
           <>
             <div className='loading-lineitems'>

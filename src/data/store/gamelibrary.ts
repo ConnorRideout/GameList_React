@@ -42,7 +42,6 @@ const defaultSearchRestraints = {
 }
 
 const initialState: GamelibState = {
-  // TODO: state for game info for edit
   // gamelib states
   gamelib: [],
   editGame: null,
@@ -77,6 +76,10 @@ const slice = createSlice({
     setError: (state, action) => {
       state.status = 'failed'
       state.error = action.payload
+    },
+    clearError: (state) => {
+      state.status = 'succeeded'
+      state.error = undefined
     },
     setSortOrder: (state, action) => {
       state.sortOrder = action.payload
@@ -166,6 +169,7 @@ export const {
   setSortOrder,
   setStatus,
   setError,
+  clearError,
   setSearchRestraints,
   clearSearchRestraints,
   clearEditGame,
