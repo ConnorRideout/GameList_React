@@ -34,21 +34,24 @@ export default function Lineitem({lineData, style}: Props) {
   const statuses = useSelector((state: RootState) => state.data.statuses)
   const styleVars = useSelector((state: RootState) => state.data.styleVars)
 
-  const getStatusColor = (arr: string[]) => {
+  const getStatusColors = (arr: string[]) => {
     if (arr.length) {
-      // get a list of categories sorted by priority
-      const statusHierarchy = statuses.map(({status_name}) => status_name)
-      // sort the statuses of this lineitem
-      const sorted = [...arr].sort((a, b) => (
-        statusHierarchy.indexOf(a) - statusHierarchy.indexOf(b)
-      ))
-      return statuses.find(s => s.status_name === sorted[0])?.status_color || 'currentColor'
+      // split the statuses of this lineitem dependent on if they apply to title or version
+      const [[, titleColor], [, versionColor]] = arr.reduce((acc, cur) => {
+        // get the status entry that matches this lineitem's from the store
+        const {status_priority, status_color, status_color_applies_to} = statuses.find(s => s.status_name === cur)!
+        // put it in the correct slot if it's a higher priority than the one that's currently there
+        if (status_color_applies_to === 'title' && status_priority < acc[0][0]) acc[0] = [status_priority, status_color]
+        else if (status_color_applies_to === 'version' && status_priority < acc[1][0]) acc[1] = [status_priority, status_color]
+        return acc
+      }, [[100, 'currentColor'], [100, 'currentColor']])
+      return [titleColor, versionColor]
     } else {
-      return 'currentColor'
+      return ['currentColor', 'currentColor']
     }
   }
 
-  const status_color = getStatusColor(status)
+  const [status_color_title, status_color_version] = getStatusColors(status)
 
   return (
     <LineitemDiv style={{background: styleVars.$bgNormal, ...style}} className='horizontal-container'>
@@ -62,13 +65,13 @@ export default function Lineitem({lineData, style}: Props) {
         game_id={game_id}
         title={title}
         img={image}
-        status_color={status_color}
+        status_color={status_color_title}
       />
       <Version
         game_id={game_id}
         version={version}
         timestamps={timestamps}
-        status_color={status_color}
+        status_color={status_color_version}
       />
       <Categories
         categories={categories}

@@ -102,12 +102,15 @@ interface StatusEntry {
   /*
   "status_id": 1,
   "status_name": "Abandoned",
-  "status_priority": 1
+  "status_priority": 1,
+  "status_color": #000011,
+  "status_color_applies_to": "title"
   */
   status_id: number;
   status_name: string;
   status_priority: number;
   status_color: string;
+  status_color_applies_to: string;
 }
 interface TagEntry {
   /*

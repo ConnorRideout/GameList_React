@@ -38,10 +38,10 @@ const EditDiv = styled.div`
 const PathP = styled.p`
   font-size: var(--font-header);
 `
-export interface EditFormState {
-
+export interface Props {
+  isNew?: boolean,
 }
-export default function Edit() {
+export default function Edit({isNew=false}: Props) {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [openUrl] = useOpenUrlMutation()
@@ -106,6 +106,7 @@ export default function Edit() {
   }
 
   const submitHandler = (data: FormState) => {
+    // TODO: handle updating data or creating new
     console.log(data)
   }
 
@@ -117,7 +118,7 @@ export default function Edit() {
 
   return (
     <EditDiv className="main-container vertical-center">
-      <h1>EDIT GAME</h1>
+      <h1>{isNew ? 'ADD NEW' : 'EDIT'} GAME</h1>
       <button style={{position: 'fixed', left: 0, top: '30px'}} type='button' onClick={() => dispatch(setError('test error'))}>Test</button>
       <ErrorMessage />
 
@@ -173,7 +174,6 @@ export default function Edit() {
         }}
         additionalFormData={additionalFormData}
       />
-      <button type="button" onClick={closeEdit}>Return to browse</button>
     </EditDiv>
   )
 }
