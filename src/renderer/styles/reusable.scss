@@ -128,6 +128,10 @@ div.tooltip-image {
   animation: flash 200ms ease-in-out forwards 2;
 }
 
+.flash-once {
+  animation: flash 300ms ease-in-out forwards;
+}
+
 @keyframes flash {
   0% {
     background-color: transparent;

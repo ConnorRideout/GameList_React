@@ -13,6 +13,7 @@ import Picker, { FormState } from '../shared/picker/picker'
 import Lineitem from './lineitem/lineitem'
 import BrowseNav from './browseNav'
 import ErrorMessage from '../shared/errorMessage'
+import TextSearch from './textSearch'
 
 import { SearchRestraints, RootState } from '../../types'
 
@@ -127,8 +128,8 @@ export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) 
           }}
           isBrowse
         />
-        {/* TODO: implement text bar search */}
       </SearchFieldset>
+      <TextSearch scrollToItem={scrollToItem}/>
       <BrowseNav scrollToItem={scrollToItem}/>
       <div className='game-scroll'>
         {['loading', 'updating'].includes(status) && <div className='loading' />}

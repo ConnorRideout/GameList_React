@@ -236,3 +236,61 @@ button.tab-active:not(:disabled) {
     opacity: 0;
   }
 }
+
+.text-search {
+  @extend .horizontal-container;
+  align-items: center;
+  margin: variables.$spacing;
+  margin-top: calc(variables.$spacing * 2);
+
+  position: relative;
+  min-width: 50%;
+
+  &>input[type=text] {
+    flex-grow: 1;
+    font-size: variables.$fontTitle;
+    margin-right: 0;
+  }
+
+  &>.text-search-suggestions {
+    background-color: variables.$bgLight;
+    border: 1px solid variables.$fgNormal;
+    top: 100%;
+    left: 0;
+    z-index: 500;
+    list-style-type: none;
+    overflow-y: auto;
+    max-height: 30em;
+
+    & p {
+      cursor: pointer;
+      padding: 0 variables.$spacing;
+      white-space: nowrap;
+      overflow-x: hidden;
+      text-overflow: ellipsis;
+
+      &.highlighted {
+        background-color: variables.$bgHighlight;
+        color: variables.$fgHighlightedText;
+      }
+    }
+  }
+
+  &>button.clear {
+    position: absolute;
+    top: calc(0.5em - 3px);
+    right: 3em;
+    border: none;
+    min-width: fit-content;
+    min-height: fit-content;
+    padding: 3px;
+    font-family: arial;
+    background: transparent;
+    opacity: 0.7;
+  }
+
+  &>button {
+    min-width: 28px;
+    min-height: 28px;
+  }
+}

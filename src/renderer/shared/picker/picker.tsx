@@ -71,6 +71,7 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
   const [submitDisabled, setSubmitDisabled] = useState(true)
   const emptyFormErrors: {[key: string]: string} = {}
   const [formErrors, setFormErrors] = useState(emptyFormErrors)
+  const [flashClear, setFlashClear] = useState(false)
 
   const defaultFormData = useMemo(() => ({
     categories: categories.reduce((acc: FormState['categories'], cur) => {
@@ -140,12 +141,13 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
     evt.preventDefault()
     // run the parent's handler
     cancelHandler.handler()
-    // TODO: flash the UI when it's cleared?
+    setFlashClear(true)
+    setTimeout(() => setFlashClear(false), 350)
     setFormData(defaultFormData)
   }
 
   return (
-    <PickerForm>
+    <PickerForm className={flashClear ? 'flash-once' : ''}>
       <Categories
         categories={categories}
         statuses={statuses}
