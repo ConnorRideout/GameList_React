@@ -24,6 +24,10 @@ export default function TextSearch({scrollToItem}: Props) {
 
   const listRef = useRef<List>(null)
   const parentRef = useRef<HTMLDivElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const noMatch = '-- no matching games --'
+
 
   const debounceFilterSuggestions = debounce((value: string) => {
     if (value) {
@@ -35,27 +39,29 @@ export default function TextSearch({scrollToItem}: Props) {
 
       const filteredSuggestions = game_titles.filter(ttl => regex.test(ttl))
       const sortedSuggestions = filteredSuggestions.sort((a, b) => getMatchScore(a) - getMatchScore(b))
-      setSuggestions(sortedSuggestions.length ? sortedSuggestions : ['no matching games'])
+      setSuggestions(sortedSuggestions.length ? sortedSuggestions : [noMatch])
     } else {
       setSuggestions([])
     }
-  }, 300)
+  }, 500)
 
   // select the first suggestion while typing
   useEffect(() => {
     setSelectedIndex(0)
+    listRef.current?.scrollTo(0)
   }, [searchValue])
 
   const handleChange = (evt: ChangeEvent<HTMLInputElement>) => {
     const {value} = evt.target
     setSearchValue(value)
-
+    // only update the suggestion list every 300ms
     debounceFilterSuggestions(value)
   }
 
-  const handleReset = () => {
+  const handleReset = (refocus=true) => {
     setSearchValue('')
     setSuggestions([])
+    if (refocus) inputRef.current?.focus()
   }
 
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
@@ -74,13 +80,24 @@ export default function TextSearch({scrollToItem}: Props) {
   }
   const handleSubmit = async () => {
     if (game_titles.includes(searchValue)) {
-      handleReset()
+      const val = searchValue
+      handleReset(false)
       await sortGamelib('alphabetical')
-      const idx = game_titles.indexOf(searchValue)
+      const idx = game_titles.indexOf(val)
       scrollToItem(idx)
-      // TODO: flash item
+      let iteration = 0
+      const checkVisibility = setInterval(()=>{
+        const element = document.querySelector(`div.horizontal-container[data-title="${val}"]`)
+        if (element) {
+          clearInterval(checkVisibility)
+          element.classList.add('flash-twice-invert')
+          setTimeout(()=>element.classList.remove('flash-twice-invert'), 1000)
+        } else if (iteration > 100) {
+          clearInterval(checkVisibility)
+        }
+        iteration++
+      }, 100)
     }
-    // TODO: create an error handler for invalid games
   }
 
   const handleKeyDown = (evt: React.KeyboardEvent<HTMLInputElement>) => {
@@ -93,12 +110,14 @@ export default function TextSearch({scrollToItem}: Props) {
       const list = listRef.current
       list?.scrollToItem(selectedIndex-1)
     } else if (evt.key === 'Enter') {
-      if (suggestions.length) {
+      if (suggestions.length && suggestions[0] !== noMatch) {
         setSearchValue(suggestions[selectedIndex]);
         setSuggestions([]); // Clear suggestions after selection
-      } else {
+      } else if (game_titles.includes(searchValue)) {
         handleSubmit()
       }
+    } else if (evt.key === 'Escape') {
+      inputRef.current?.blur()
     }
   }
 
@@ -115,11 +134,11 @@ export default function TextSearch({scrollToItem}: Props) {
 
   const handleSuggestionClick = (idx:number) => {
     const newVal = suggestions[idx]
-    if (newVal !== 'no matching games') {
+    inputRef.current?.focus()
+    if (newVal !== noMatch) {
       setSearchValue(newVal)
       setSuggestions([])
     }
-    // TODO: error handler
   }
 
   const handleSuggestionHover = (index: number) => {
@@ -139,11 +158,13 @@ export default function TextSearch({scrollToItem}: Props) {
         onChange={handleChange}
         onKeyDown={handleKeyDown}
         placeholder="Search by title..."
+        ref={inputRef}
+        className={suggestions.length && suggestions[0] === noMatch ? 'error' : ''}
       />
       <button
         type="button"
         className="clear"
-        onClick={handleReset}
+        onClick={() => handleReset()}
       >X</button>
       {showSuggestions && suggestions.length > 0 && (
         <List
@@ -162,7 +183,7 @@ export default function TextSearch({scrollToItem}: Props) {
               style={style}
               onClick={() => handleSuggestionClick(index)}
               onMouseMove={() => handleSuggestionHover(index)}
-              className={index === selectedIndex ? 'highlighted' : ''}
+              className={suggestions[index] === noMatch ? 'error' : (index === selectedIndex ? 'highlighted' : '')}
               tabIndex={index+1}
             >
               {suggestions[index]}
@@ -173,7 +194,7 @@ export default function TextSearch({scrollToItem}: Props) {
       <button
         type="button"
         onClick={handleSubmit}
-        // TODO: disabled while searchValue is invalid
+        disabled={!searchValue || !game_titles.includes(searchValue)}
       >⨠</button>
     </div>
   )

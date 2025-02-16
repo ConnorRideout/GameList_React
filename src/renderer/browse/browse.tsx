@@ -128,8 +128,8 @@ export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) 
           }}
           isBrowse
         />
+        <TextSearch scrollToItem={scrollToItem}/>
       </SearchFieldset>
-      <TextSearch scrollToItem={scrollToItem}/>
       <BrowseNav scrollToItem={scrollToItem}/>
       <div className='game-scroll'>
         {['loading', 'updating'].includes(status) && <div className='loading' />}

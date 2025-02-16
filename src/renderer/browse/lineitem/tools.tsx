@@ -76,7 +76,6 @@ export default function Tools({game_id, path, programPath, url}: Props) {
     openUrl(url)
   }
   const editBtnHandler = () => {
-    // TODO: edit button handler
     sessionStorage.setItem('scrollPosition', String(document.querySelector('.game-scroll-list')?.scrollTop || 0))
     triggerEditGame(game_id)
   }

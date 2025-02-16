@@ -54,7 +54,7 @@ export default function Lineitem({lineData, style}: Props) {
   const [status_color_title, status_color_version] = getStatusColors(status)
 
   return (
-    <LineitemDiv style={{background: styleVars.$bgNormal, ...style}} className='horizontal-container'>
+    <LineitemDiv style={{background: styleVars.$bgNormal, ...style}} className='horizontal-container' data-title={title}>
       <Tools
         game_id={game_id}
         path={path}

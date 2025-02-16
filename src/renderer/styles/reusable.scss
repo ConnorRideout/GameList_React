@@ -115,33 +115,50 @@ div.tooltip-image {
 }
 
 .error {
-  text-align: center;
   color: variables.$fgError;
 }
 
 .error-container {
   @extend .horizontal-container;
   @extend .container-centered;
+  @extend .flash-twice;
 
   background-color: transparent;
   width: 100%;
-  animation: flash 200ms ease-in-out forwards 2;
 }
 
 .flash-once {
-  animation: flash 300ms ease-in-out forwards;
+  animation: flashTransparent 300ms ease-in-out forwards;
 }
 
-@keyframes flash {
-  0% {
+.flash-twice {
+  animation: flashTransparent 200ms ease-in-out forwards 2;
+}
+
+.flash-twice-invert {
+  animation: flashInvert 200ms ease-in-out forwards 2;
+}
+
+@keyframes flashTransparent {
+
+  0%,
+  100% {
     background-color: transparent;
   }
 
   50% {
     background-color: white;
   }
+}
 
+@keyframes flashInvert {
+
+  0%,
   100% {
-    background-color: transparent;
+    filter: none;
+  }
+
+  50% {
+    filter: invert(1);
   }
 }
