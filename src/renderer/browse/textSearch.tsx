@@ -54,7 +54,7 @@ export default function TextSearch({scrollToItem}: Props) {
   const handleChange = (evt: ChangeEvent<HTMLInputElement>) => {
     const {value} = evt.target
     setSearchValue(value)
-    // only update the suggestion list every 300ms
+    // only update the suggestion list every 500ms
     debounceFilterSuggestions(value)
   }
 
@@ -78,10 +78,11 @@ export default function TextSearch({scrollToItem}: Props) {
     }
     return 'done'
   }
-  const handleSubmit = async () => {
-    if (game_titles.includes(searchValue)) {
-      const val = searchValue
-      handleReset(false)
+  const handleSubmit = async (forceVal='') => {
+    if (forceVal || game_titles.includes(searchValue)) {
+      inputRef.current?.blur()
+      const val = forceVal || searchValue
+      // handleReset(false)
       await sortGamelib('alphabetical')
       const idx = game_titles.indexOf(val)
       scrollToItem(idx)
@@ -102,17 +103,21 @@ export default function TextSearch({scrollToItem}: Props) {
 
   const handleKeyDown = (evt: React.KeyboardEvent<HTMLInputElement>) => {
     if (evt.key === 'ArrowDown') {
-      setSelectedIndex((prevIndex) => Math.min(prevIndex + 1, suggestions.length - 1));
+      setSelectedIndex((prevIndex) => Math.min(prevIndex + 1, suggestions.length - 1))
       const list = listRef.current
       list?.scrollToItem(selectedIndex+1)
     } else if (evt.key === 'ArrowUp') {
-      setSelectedIndex((prevIndex) => Math.max(prevIndex - 1, 0));
+      setSelectedIndex((prevIndex) => Math.max(prevIndex - 1, 0))
       const list = listRef.current
       list?.scrollToItem(selectedIndex-1)
     } else if (evt.key === 'Enter') {
       if (suggestions.length && suggestions[0] !== noMatch) {
-        setSearchValue(suggestions[selectedIndex]);
-        setSuggestions([]); // Clear suggestions after selection
+        const newVal = suggestions[selectedIndex]
+        setSearchValue(newVal)
+        // Clear suggestions after selection
+        setSuggestions([])
+        // Search for item
+        handleSubmit(newVal)
       } else if (game_titles.includes(searchValue)) {
         handleSubmit()
       }
@@ -138,6 +143,7 @@ export default function TextSearch({scrollToItem}: Props) {
     if (newVal !== noMatch) {
       setSearchValue(newVal)
       setSuggestions([])
+      handleSubmit(newVal)
     }
   }
 
@@ -193,7 +199,7 @@ export default function TextSearch({scrollToItem}: Props) {
       )}
       <button
         type="button"
-        onClick={handleSubmit}
+        onClick={() => handleSubmit()}
         disabled={!searchValue || !game_titles.includes(searchValue)}
       >⨠</button>
     </div>

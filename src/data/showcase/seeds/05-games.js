@@ -23,7 +23,7 @@ function generateVersion() {
   return version.join('.')
 }
 function generateProtag() {
-  const protags = ['Male', 'Female', 'Other']
+  const protags = ['Male', 'Female', 'Unknown']
   return protags[randInt(2)]
 }
 
@@ -32,7 +32,7 @@ function generateGame(idx, titleStartswith) {
     path: `GamePath${idx}`,
     title: `${titleStartswith}${lorem.generateWords(2)} ${idx}`,
     url: 'https://itch.io',
-    image: `game${randInt(9)}.jpg`,
+    image: `game${randInt(15)}.jpg`,
     version: generateVersion(),
     description: lorem.generateParagraphs(1),
     program_path: '{"":"game.exe"}',
