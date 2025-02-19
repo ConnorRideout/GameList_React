@@ -3,7 +3,7 @@ import { useSelector } from "react-redux"
 import { Tooltip as RTooltip } from "react-tooltip"
 // types
 import {ITooltip} from 'react-tooltip/dist/react-tooltip'
-import { RootState } from "../../data/store/store"
+import { RootState } from "../../lib/store/store"
 
 
 // docs: https://react-tooltip.com/docs/examples/basic-examples

@@ -3,13 +3,13 @@
 const sharedConfig = {
   client: 'sqlite3',
   connection: {
-    filename: './src/data/gameslist.db3',
+    filename: './data/gameslist.db3',
   },
   migrations: {
-    directory: './src/data/migrations',
+    directory: './data/migrations',
   },
   seeds: {
-    directory: './src/data/seeds',
+    directory: './data/seeds',
   },
   pool: {
     afterCreate: (conn, done) => {
@@ -26,20 +26,20 @@ module.exports = {
   development: {
     ...sharedConfig,
     connection: {
-      filename: './src/data/private/gameslist.db3',
+      filename: './data/private/gameslist.db3',
     },
     seeds: {
-      directory: './src/data/private/seeds',
+      directory: './data/private/seeds',
     },
   },
 
   showcasing: {
     ...sharedConfig,
     connection: {
-      filename: './src/data/showcase/gameslist.db3'
+      filename: './data/showcase/gameslist.db3'
     },
     seeds: {
-      directory: './src/data/showcase/seeds',
+      directory: './data/showcase/seeds',
     },
   },
 

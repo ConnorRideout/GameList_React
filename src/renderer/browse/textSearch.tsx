@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from "react-redux"
 import { debounce } from 'lodash'
 import { FixedSizeList as List } from 'react-window'
 
-import { setSortOrder, setStatus } from "../../data/store/gamelibrary"
+import { setSortOrder, setStatus } from "../../lib/store/gamelibrary"
 
 import { RootState } from "../../types"
 

@@ -94,7 +94,7 @@ router.get('/categories', (req, res, next) => {
 })
 
 router.get('/styles', (req, res, next) => {
-  fs.readFile('./src/renderer/styles/variables.scss', 'utf-8')
+  fs.readFile('../renderer/styles/variables.scss', 'utf-8')
     .then(css => {
       sassVars(css)
         .then(json => {

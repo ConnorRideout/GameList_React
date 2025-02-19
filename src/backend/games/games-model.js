@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable promise/always-return */
-const db = require('../../data/db-config')
+const db = require('../data/db-config')
 
 
 function getAll() {

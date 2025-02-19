@@ -11,8 +11,8 @@ import {
   useGetStatusesQuery,
   useGetTagsQuery,
   useGetStyleVarsQuery,
-} from '../data/store/gamelibApi'
-import { useGetConfigQuery } from '../data/store/filesysteamApi'
+} from '../lib/store/gamelibApi'
+import { useGetConfigQuery } from '../lib/store/filesysteamApi'
 
 export default function App() {
   useGetStyleVarsQuery()

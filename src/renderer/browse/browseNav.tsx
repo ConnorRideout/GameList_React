@@ -4,8 +4,8 @@ import styled from "styled-components"
 import { useDispatch, useSelector } from "react-redux"
 
 import TabularButton from "./tabularButton"
-import { RootState } from '../../data/store/store'
-import { setSortOrder, setStatus } from "../../data/store/gamelibrary"
+import { RootState } from '../../lib/store/store'
+import { setSortOrder, setStatus } from "../../lib/store/gamelibrary"
 
 
 const NavDiv = styled.div`

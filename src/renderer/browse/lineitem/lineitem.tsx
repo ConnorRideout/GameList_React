@@ -9,8 +9,8 @@ import Version from './version'
 import Categories from './categories'
 import Tags from './tags'
 import Description from './description'
-import { RootState } from '../../../data/store/store'
-import { GameEntry } from '../../../data/types/types-gamelibrary'
+import { RootState } from '../../../lib/store/store'
+import { GameEntry } from '../../../lib/types/types-gamelibrary'
 
 const LineitemDiv = styled.div`
   min-height: 140px;

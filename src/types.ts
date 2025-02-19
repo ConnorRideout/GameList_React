@@ -1,4 +1,4 @@
-export { RootState } from "./data/store/store"
+export { RootState } from "./lib/store/store"
 export {
   StringMap,
   GamelibState,
@@ -8,5 +8,5 @@ export {
   StatusEntry,
   TagEntry,
   SearchRestraints,
-} from "./data/types/types-gamelibrary"
+} from "./lib/types/types-gamelibrary"
 

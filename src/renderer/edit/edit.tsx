@@ -8,7 +8,7 @@ import { StringSchema, reach as yup_reach } from "yup"
 import Picker, { FormState } from "../shared/picker/picker"
 import ErrorMessage from "../shared/errorMessage"
 import Info from "./info"
-import { clearEditGame, setError } from "../../data/store/gamelibrary"
+import { clearEditGame, setError } from "../../lib/store/gamelibrary"
 import {
   FolderOpenSvg,
   FolderEditSvg,
@@ -17,7 +17,7 @@ import {
 import {
   useOpenUrlMutation,
   useOpenFolderMutation,
-} from "../../data/store/filesysteamApi"
+} from "../../lib/store/filesysteamApi"
 
 import { GameEntry, RootState } from "../../types"
 import CreateEditFormSchema from "./edit_schema"

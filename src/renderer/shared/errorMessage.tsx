@@ -2,7 +2,7 @@ import React from "react"
 import { useSelector, useDispatch } from "react-redux"
 import styled from 'styled-components'
 
-import { clearError } from "../../data/store/gamelibrary"
+import { clearError } from "../../lib/store/gamelibrary"
 import { RootState } from "../../types"
 
 

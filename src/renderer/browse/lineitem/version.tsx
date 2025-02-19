@@ -3,7 +3,7 @@ import React from 'react'
 import styled from 'styled-components'
 import Tooltip from '../../shared/tooltip'
 
-import { Timestamps } from '../../../data/types/types-gamelibrary'
+import { Timestamps } from '../../../lib/types/types-gamelibrary'
 
 const VersionFieldset = styled.fieldset`
   min-width: 90px;

@@ -8,7 +8,7 @@ import {
   setSearchRestraints,
   clearSearchRestraints,
   setError // FIXME: Dev dependency
-} from '../../data/store/gamelibrary'
+} from '../../lib/store/gamelibrary'
 import Picker, { FormState } from '../shared/picker/picker'
 import Lineitem from './lineitem/lineitem'
 import BrowseNav from './browseNav'

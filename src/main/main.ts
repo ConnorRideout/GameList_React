@@ -24,7 +24,7 @@ import { resolveHtmlPath } from './util'
 
 const imgDir = path.join(
   __dirname,
-  '../../src/data',
+  '../../src/backend/data',
   process.env.SHOWCASING ? 'gameImages' : 'private/gameImages'
 )
 

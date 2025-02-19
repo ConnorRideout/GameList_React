@@ -1,6 +1,6 @@
 import React from "react"
 import styled from "styled-components"
-import { StringMap } from "../../../data/types/types-gamelibrary"
+import { StringMap } from "../../../lib/types/types-gamelibrary"
 
 const CategoryFieldset = styled.fieldset`
   min-width: 170px;

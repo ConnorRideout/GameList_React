@@ -9,8 +9,8 @@ import { PlaySvg, WebSvg, EditSvg } from '../../shared/svg'
 import {
   usePlayGameMutation,
   useOpenUrlMutation
-} from '../../../data/store/filesysteamApi'
-import { useLazyEditGameQuery } from '../../../data/store/gamelibApi'
+} from '../../../lib/store/filesysteamApi'
+import { useLazyEditGameQuery } from '../../../lib/store/gamelibApi'
 import { RootState } from '../../../types'
 
 const ToolsFieldset = styled.fieldset`
