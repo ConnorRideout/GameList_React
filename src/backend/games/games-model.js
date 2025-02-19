@@ -66,9 +66,9 @@ function getAll() {
 
 function getTimestamps(type) {
   return db('games as g')
-    .select('g.game_id', `t.${type}_at`)
+    .select('g.game_id', `t.${type}`)
     .leftJoin('timestamps as t', 'g.game_id', 't.game_id')
-    .orderBy(`t.${type}_at`, 'desc')
+    .orderBy(`t.${type}`, 'desc')
 }
 
 function getById(gameId) {
@@ -214,6 +214,18 @@ async function deleteGame(game_id) {
   return delGame
 }
 
+function updateTimestamp(game_id, type) {
+  const newData = {[type]: db.fn.now()}
+  return db('timestamps')
+    .where({game_id})
+    .update(newData)
+    .then(() => {
+      return getById(game_id)
+    })
+    .catch(err => {
+      console.error('Error updating timestamp', err)
+    })
+}
 
 
 module.exports = {
@@ -225,4 +237,5 @@ module.exports = {
   getCategories,
   insertNewGame,
   deleteGame,
+  updateTimestamp,
 }

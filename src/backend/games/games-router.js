@@ -50,7 +50,9 @@ router.get('/games', (req, res, next) => {
 })
 
 router.get('/timestamps/:type', (req, res, next) => {
-  Games.getTimestamps(req.params.type)
+  let timeType = req.params.type
+  if (!timeType.endsWith('_at')) timeType = `${timeType}_at`
+  Games.getTimestamps(timeType)
     .then(games => {
       res.status(200).json(games)
     })
@@ -128,6 +130,17 @@ router.delete('/:game_id', (req, res, next) => {
     .then(delGame => {
       parseRawGameData(delGame)
       res.status(200).json(delGame)
+    })
+    .catch(next)
+})
+
+router.put('/timestamps/:type/:game_id', (req, res, next) => {
+  const {type, game_id} = req.params
+  const timeType = type.endsWith('_at') ? type : `${type}_at`
+  Games.updateTimestamp(game_id, timeType)
+    .then(updatedGame => {
+      parseRawGameData(updatedGame)
+      res.status(200).json(updatedGame)
     })
     .catch(next)
 })
