@@ -26,10 +26,10 @@ module.exports = {
   development: {
     ...sharedConfig,
     connection: {
-      filename: './data/private/gameslist.db3',
+      filename: './data/development/gameslist.db3',
     },
     seeds: {
-      directory: './data/private/seeds',
+      directory: './data/development/seeds',
     },
   },
 

@@ -16,8 +16,8 @@ import { app, BrowserWindow, shell, ipcMain, net, protocol, dialog } from 'elect
 import installExtension, {REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer'
 
 import sassVars from 'get-sass-vars'
-import { promises as fs, readFile } from 'fs'
-import { parse as iniparse } from 'ini'
+import { promises as fs, readFile, existsSync, writeFileSync } from 'fs'
+import { parse as iniParse, stringify as iniStringify } from 'ini'
 
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
@@ -149,6 +149,22 @@ app.on('window-all-closed', () => {
   }
 });
 
+const iniFile = path.join(__dirname, '../../config.ini')
+if (!existsSync(iniFile)) {
+  // TODO: prompt user for config.ini defaults
+  // config.ini file doesn't exist. create it
+  console.log('"config.ini" does not exist. Creating it...')
+  const defaultConfig = {
+    DEFAULT: {
+      games_folder: __dirname,
+      locale_emulator: ''
+    },
+    Ignored_Exes: {'':''}
+  }
+  const iniString = iniStringify(defaultConfig)
+  writeFileSync(iniFile, iniString, 'utf-8')
+}
+
 app
   .whenReady()
   .then(() => {
@@ -171,11 +187,11 @@ app
     })
 
     let games_folder = __dirname
-    readFile(path.join(__dirname, '../../config.ini'), 'utf-8', (err, data) => {
+    readFile(iniFile, 'utf-8', (err, data) => {
       if (err) {
         console.error(err)
       } else {
-        games_folder = iniparse(data).DEFAULT.games_folder
+        games_folder = iniParse(data).DEFAULT.games_folder
       }
     })
 
