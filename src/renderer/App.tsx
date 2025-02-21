@@ -12,7 +12,7 @@ import {
   useGetTagsQuery,
   useGetStyleVarsQuery,
 } from '../lib/store/gamelibApi'
-import { useGetConfigQuery } from '../lib/store/filesysteamApi'
+import { useGetConfigQuery } from '../lib/store/filesystemApi'
 
 export default function App() {
   useGetStyleVarsQuery()

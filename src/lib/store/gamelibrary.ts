@@ -5,7 +5,7 @@ import {
 
 import { GamelibState, GameEntry } from "../types/types-gamelibrary"
 import { gamelibApi } from "./gamelibApi"
-import { filesystemApi } from "./filesysteamApi"
+import { filesystemApi } from "./filesystemApi"
 
 
 function sortGamelib(gamelib: GameEntry[], sortOrder: string): GameEntry[] {

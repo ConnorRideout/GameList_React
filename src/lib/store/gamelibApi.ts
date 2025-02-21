@@ -1,4 +1,5 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
+import { GameEntry } from '../types/types-gamelibrary'
 
 export const gamelibApi = createApi({
   reducerPath: 'gamelibApi',
@@ -32,6 +33,21 @@ export const gamelibApi = createApi({
     editGame: builder.query<any, number>({
       query: (game_id: number) => `games/${game_id}`
     }),
+    updateTimestamp: builder.mutation({
+      query: ({game_id, type='played_at'}: {game_id: number, type?: 'played_at' | 'updated_at'}) => ({
+        url: `timestamps/${type}/${game_id}`,
+        method: 'PUT',
+      }),
+      invalidatesTags: ['Games']
+    }),
+    updateGame: builder.mutation({
+      query: ({game_id, game}: {game_id: number, game: GameEntry}) => ({
+        url: `games/${game_id}`,
+        method: 'PUT',
+        body: game,
+      }),
+      invalidatesTags: ['Games']
+    })
   })
 })
 
@@ -42,4 +58,6 @@ export const {
   useGetTagsQuery,
   useGetStyleVarsQuery,
   useLazyEditGameQuery,
+  useUpdateTimestampMutation,
+  useUpdateGameMutation,
 } = gamelibApi

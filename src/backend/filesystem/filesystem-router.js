@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 const router = require('express').Router()
-const { exec } = require('child_process')
+const { spawn } = require('child_process')
 const fs = require('fs')
 const ini = require('ini')
 const Path = require('path')
@@ -9,26 +9,38 @@ let config = {}
 
 router.post('/open/:type', (req, res, next) => {
   const { type } = req.params
-  const { path } = req.body
+  const { path, useLE } = req.body
 
-  const run = (itempath, args='') => {
-    exec(`start "" "${itempath}" ${args}`, (error) => {
-      if (error) {
-        next({message: `failed to start "${itempath}"`})
-      }
-      else res.status(200).json({message: `started "${itempath}"`})
+  const run = (filepath, isEroge=false) => {
+    const workingdir = Path.dirname(filepath)
+    const relativePath = Path.relative(workingdir, filepath)
+    let command = ''
+    if (isEroge && /(swf|exe|jar)$/.test(relativePath)) {
+      command = `Start-Process \\"${config.locale_emulator}\\" -ArgumentList \\"${relativePath}\\"`
+    } else {
+      command = `Start-Process \\"${relativePath}\\"`
+    }
+    const process = spawn('powershell.exe', ['-command', command], {
+      detached: true,
+      stdio: 'ignore',
+      cwd: workingdir,
+      shell: true
     })
+    process.on('error', err => {
+      console.error(`Failed to start process "${filepath}": ${err}`)
+      next({message: `Failed to start process "${filepath}": ${err}`})
+    })
+    process.unref()
   }
 
   if (type === 'game') {
     const { games_folder } = config
-    console.log(config)
     const filepath = (process.env.SHOWCASING || process.env.NODE_ENV === 'showcasing') ?
       'notepad'
       : Path.join(games_folder, path)
     console.log(filepath)
     if (fs.existsSync(filepath) || filepath === 'notepad') {
-      run(filepath)
+      run(filepath, useLE)
     } else {
       next({status: 404, message: `file ${filepath} does not exist`})
     }

@@ -17,7 +17,7 @@ import {
 import {
   useOpenUrlMutation,
   useOpenFolderMutation,
-} from "../../lib/store/filesysteamApi"
+} from "../../lib/store/filesystemApi"
 
 import { GameEntry, RootState } from "../../types"
 import CreateEditFormSchema from "./edit_schema"

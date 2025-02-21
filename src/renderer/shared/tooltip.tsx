@@ -1,8 +1,9 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from "react"
 import { useSelector } from "react-redux"
 import { Tooltip as RTooltip } from "react-tooltip"
 // types
-import {ITooltip} from 'react-tooltip/dist/react-tooltip'
+import { ITooltip } from 'react-tooltip/dist/react-tooltip'
 import { RootState } from "../../lib/store/store"
 
 
@@ -20,7 +21,6 @@ export default function Tooltip({ children, ...props }: TooltipProps) {
   }
 
   return (
-    // eslint-disable-next-line react/jsx-props-no-spreading
     <RTooltip {...defaultProps}>
       {children}
     </RTooltip>

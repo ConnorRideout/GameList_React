@@ -19,10 +19,10 @@ export const filesystemApi = createApi({
       invalidatesTags: ['Config']
     }),
     playGame: builder.mutation({
-      query: (path: string) => ({
+      query: ({path, useLE=false}: {path: string, useLE: boolean}) => ({
         url: 'open/game',
         method: 'POST',
-        body: {path}
+        body: {path, useLE}
       })
     }),
     openUrl: builder.mutation({

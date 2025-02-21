@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import React from 'react'
+import React, { useState } from 'react'
 import { FixedSizeList as List } from 'react-window'
 import { useSelector, useDispatch } from 'react-redux'
 import styled from 'styled-components'
@@ -14,6 +14,7 @@ import Lineitem from './lineitem/lineitem'
 import BrowseNav from './browseNav'
 import ErrorMessage from '../shared/errorMessage'
 import TextSearch from './textSearch'
+import GamePicker from './gamePicker'
 
 import { SearchRestraints, RootState } from '../../types'
 
@@ -110,9 +111,20 @@ export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) 
     return true
   })
 
+  // game picker state
+  const [showGamePicker, setShowGamePicker] = useState(false)
+  const [gamePickerOptions, setGamePickerOptions] = useState<string[][]>([])
+  const [gamePickerClickHandler, setGamePickerClickHandler] = useState<{func: (progPath: string) => void}>({func: () => {}})
+  const gamePickerState = {setShowGamePicker, setGamePickerOptions, setGamePickerClickHandler}
 
   return (
     <div className='main-container'>
+      <GamePicker
+        isVisible={showGamePicker}
+        setIsVisible={setShowGamePicker}
+        programPaths={gamePickerOptions}
+        clickHandler={gamePickerClickHandler}
+      />
       <button style={{position: 'fixed', left: 0}} type='button' onClick={() => refetch({force: true})}>Refetch Gamelib</button>
       <button style={{position: 'fixed', left: 0, top: '30px'}} type='button' onClick={() => dispatch(setError('test error'))}>Test</button>
       <SearchFieldset className='vertical-container'>
@@ -152,6 +164,7 @@ export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) 
               {({index, style}) => (
                 <Lineitem
                   key={currentGamlib[index].game_id}
+                  gamePickerState={gamePickerState}
                   lineData={currentGamlib[index]}
                   style={style}
                 />

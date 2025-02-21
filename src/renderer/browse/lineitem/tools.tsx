@@ -8,10 +8,15 @@ import { PlaySvg, WebSvg, EditSvg } from '../../shared/svg'
 
 import {
   usePlayGameMutation,
-  useOpenUrlMutation
-} from '../../../lib/store/filesysteamApi'
-import { useLazyEditGameQuery } from '../../../lib/store/gamelibApi'
+  useOpenUrlMutation,
+} from '../../../lib/store/filesystemApi'
+import {
+  useLazyEditGameQuery,
+  useUpdateTimestampMutation,
+} from '../../../lib/store/gamelibApi'
+
 import { RootState } from '../../../types'
+import { GamePickerState } from './lineitem'
 
 const ToolsFieldset = styled.fieldset`
   min-width: max-content;
@@ -45,11 +50,14 @@ interface Props {
   game_id: number,
   path: string,
   programPath: {[key: string]: string},
-  url: string
+  url: string,
+  gamePickerState: GamePickerState,
+  isEroge: boolean
 }
-export default function Tools({game_id, path, programPath, url}: Props) {
+export default function Tools({game_id, path, programPath, url, gamePickerState, isEroge}: Props) {
   const [playGame] = usePlayGameMutation()
   const [openUrl] = useOpenUrlMutation()
+  const [updatePlayedTimestamp] = useUpdateTimestampMutation()
   const navigate = useNavigate()
   const [showPlay, setShowPlay] = useState(false)
   const [triggerEditGame] = useLazyEditGameQuery()
@@ -61,16 +69,34 @@ export default function Tools({game_id, path, programPath, url}: Props) {
     }
   }, [editGame, navigate])
 
-  const playButtonHandler = () => {
-    // TODO: handle multiple programpaths
-    // TODO: update recently played timestamp
+  const {setShowGamePicker, setGamePickerOptions, setGamePickerClickHandler} = gamePickerState
+
+  const playGameHandler = (progPath: string) => {
+    // hide the picker if necessary
+    setShowGamePicker(false)
+    // show the starting game message
+    // FIXME: graphic doesn't work when using game picker
     setShowPlay(true)
     setTimeout(() => {
       setShowPlay(false)
+      updatePlayedTimestamp({game_id})
     }, 2000)
-    const progPath = Object.values(programPath)[0]
+    // update recently played timestamp
+    // run game
+    // TODO: only update timestamp/showPlay if playGame succeeds?
     const filepath = [path, progPath].join('/')
-    playGame(filepath)
+    playGame({path: filepath, useLE: isEroge})
+  }
+  const playButtonHandler = () => {
+    const progPaths = Object.entries(programPath)
+    if (progPaths.length > 1) {
+      setGamePickerClickHandler({func: playGameHandler})
+      setGamePickerOptions(progPaths)
+      setShowGamePicker(true)
+    } else {
+      const progPath = Object.values(programPath)[0]
+      playGameHandler(progPath)
+    }
   }
   const webBtnHandler = () => {
     openUrl(url)

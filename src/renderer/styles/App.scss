@@ -43,6 +43,15 @@ h1 {
   font-size: variables.$fontMax;
 }
 
+h2 {
+  font-size: variables.$fontHeader;
+}
+
+h3 {
+  font-size: variables.$fontTitle;
+  font-weight: normal;
+}
+
 button {
   @include variables.bgGradient();
   min-width: 75px;

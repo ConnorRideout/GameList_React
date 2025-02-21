@@ -2,7 +2,7 @@ import { configureStore } from "@reduxjs/toolkit"
 
 import dataReducer from './gamelibrary'
 import { gamelibApi } from "./gamelibApi"
-import { filesystemApi } from "./filesysteamApi"
+import { filesystemApi } from "./filesystemApi"
 
 const store = configureStore({
   reducer: {

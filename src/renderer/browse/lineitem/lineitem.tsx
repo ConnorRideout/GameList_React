@@ -24,11 +24,17 @@ const LineitemDiv = styled.div`
   }
 `
 
+export interface GamePickerState {
+  setShowGamePicker: React.Dispatch<React.SetStateAction<boolean>>,
+  setGamePickerOptions: React.Dispatch<React.SetStateAction<string[][]>>,
+  setGamePickerClickHandler: React.Dispatch<React.SetStateAction<{func: (progPath: string) => void;}>>
+}
 interface Props {
+  gamePickerState: GamePickerState,
   lineData: GameEntry,
   style: CSSProperties
 }
-export default function Lineitem({lineData, style}: Props) {
+export default function Lineitem({gamePickerState, lineData, style}: Props) {
   const {game_id, path, title, url, image, version, description, program_path, tags, status, categories, timestamps} = lineData
 
   const statuses = useSelector((state: RootState) => state.data.statuses)
@@ -60,6 +66,8 @@ export default function Lineitem({lineData, style}: Props) {
         path={path}
         programPath={program_path}
         url={url}
+        gamePickerState={gamePickerState}
+        isEroge={tags.includes('Eroge')}
       />
       <Title
         game_id={game_id}
