@@ -4,7 +4,7 @@ const express = require('express')
 const sassVars = require('get-sass-vars')
 const { promises: fs} = require('fs')
 
-const Games = require('./games-model')
+const Games = require('./games-model.ts')
 
 
 const router = express.Router()
@@ -59,8 +59,8 @@ router.get('/timestamps/:type', (req, res, next) => {
     .catch(next)
 })
 
-router.get('/games/:id', (req, res, next) => {
-  Games.getById(req.params.id)
+router.get('/games/:game_id', (req, res, next) => {
+  Games.getById(req.params.game_id)
     .then(game => {
       parseRawGameData(game)
       res.status(200).json(game)
@@ -107,7 +107,7 @@ router.get('/styles', (req, res, next) => {
     .catch(next)
 })
 
-router.post('/new', (req, res, next) => {
+router.post('/games/new', (req, res, next) => {
   const game = req.body
   game.protagonist = game.categories.protagonist
   delete game.categories.protagonist
@@ -124,7 +124,7 @@ router.post('/new', (req, res, next) => {
     .catch(next)
 })
 
-router.delete('/:game_id', (req, res, next) => {
+router.delete('/games/:game_id', (req, res, next) => {
   const {game_id} = req.params
   Games.deleteGame(game_id)
     .then(delGame => {
@@ -141,6 +141,24 @@ router.put('/timestamps/:type/:game_id', (req, res, next) => {
     .then(updatedGame => {
       parseRawGameData(updatedGame)
       res.status(200).json(updatedGame)
+    })
+    .catch(next)
+})
+
+router.put('/games/:game_id', (req, res, next) => {
+  const {game_id} = req.params
+  const game = {...req.body, game_id}
+  game.protagonist = game.categories.protagonist
+  delete game.categories.protagonist
+  game.program_path = JSON.stringify(game.program_path)
+  Games.updateGame(game)
+    .then(updatedGame => {
+      if (updatedGame.error) {
+        res.status(500).json(updatedGame)
+      } else {
+        parseRawGameData(updatedGame)
+        res.status(200).json(updatedGame)
+      }
     })
     .catch(next)
 })

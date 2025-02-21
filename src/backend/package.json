@@ -5,7 +5,7 @@
   "scripts": {
     "postinstall": "mkdir \"./data/development\" & npm run resetdb & npm run resetdb:showcase",
     "start": "node server.js",
-    "start:dev": "nodemon server.js",
+    "start:dev": "nodemon --exec ts-node server.js",
     "resetdb": "npx knex migrate:rollback && npx knex migrate:latest && if exist \"./data/development/seeds\" npx knex seed:run",
     "resetdb:showcase": "npx knex migrate:rollback --env \"showcasing\" && npx knex migrate:latest --env \"showcasing\" && npx knex seed:run --env \"showcasing\""
   },

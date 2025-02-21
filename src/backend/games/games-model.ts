@@ -1,8 +1,27 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable promise/always-return */
-const db = require('../data/db-config')
+import db from '../data/db-config'
 
+
+interface RawGameEntry {
+  game_id: number,
+  path: string,
+  title: string,
+  url: string,
+  image: string,
+  version: string,
+  description: string,
+  program_path: string,
+  protagonist: string,
+  tags: string | null,
+  status: string | null,
+  categories: string,
+  created_at: string,
+  played_at: string | null,
+  updated_at: string | null,
+  [key: string]: number | string | null
+}
 
 function getAll() {
   /*
@@ -64,14 +83,14 @@ function getAll() {
       `)
 }
 
-function getTimestamps(type) {
+function getTimestamps(type: string) {
   return db('games as g')
     .select('g.game_id', `t.${type}`)
     .leftJoin('timestamps as t', 'g.game_id', 't.game_id')
     .orderBy(`t.${type}`, 'desc')
 }
 
-function getById(gameId) {
+function getById(gameId: number) {
   return getAll()
     .where({ 'g.game_id': gameId })
     .first()
@@ -114,7 +133,7 @@ function getCategories() {
     .orderBy('c.category_name', 'desc')
 }
 
-function getTagByName(tag_name) {
+function getTagByName(tag_name: string) {
   /*
   SELECT *
   FROM tags
@@ -125,7 +144,7 @@ function getTagByName(tag_name) {
     .first()
 }
 
-function getStatusByName(status_name) {
+function getStatusByName(status_name: string) {
   /*
   SELECT *
   FROM status
@@ -136,7 +155,7 @@ function getStatusByName(status_name) {
     .first()
 }
 
-function getCategoryByName(category_name) {
+function getCategoryByName(category_name: string) {
   /*
   SELECT *
   FROM categories
@@ -147,7 +166,7 @@ function getCategoryByName(category_name) {
     .first()
 }
 
-function getCategoryOptionsByCategoryId(category_id) {
+function getCategoryOptionsByCategoryId(category_id: number) {
   /*
   SELECT option_id, option_name
   FROM category_options
@@ -158,7 +177,20 @@ function getCategoryOptionsByCategoryId(category_id) {
     .where({ category_id })
 }
 
-async function insertNewGame(game) {
+async function insertNewGame(game: {
+  path: string,
+  title: string,
+  url: string,
+  image: string,
+  version: string,
+  description: string,
+  program_path: string,
+  protagonist: string,
+  tags: string[],
+  status: string[],
+  categories: {[key: string]: string},
+  timestamps?: {[key: string]: string}
+}) {
   const { path, title, url, image, version, description, program_path, protagonist, tags, status, categories } = game
   const timestamps = game.timestamps || {}
 
@@ -208,13 +240,13 @@ async function insertNewGame(game) {
   }
 }
 
-async function deleteGame(game_id) {
+async function deleteGame(game_id: number) {
   const delGame = await getById(game_id)
   await db('games').where({ game_id }).del()
   return delGame
 }
 
-function updateTimestamp(game_id, type) {
+function updateTimestamp(game_id: number, type: string) {
   const newData = {[type]: db.fn.now()}
   return db('timestamps')
     .where({game_id})
@@ -227,6 +259,105 @@ function updateTimestamp(game_id, type) {
     })
 }
 
+async function updateGame(game: {
+  game_id: number,
+  path: string,
+  title: string,
+  url: string,
+  image: string,
+  version: string,
+  description: string,
+  program_path: string,
+  protagonist: string,
+  tags: string[],
+  status: string[],
+  categories: {[key: string]: string},
+  timestamps: {[key: string]: string},
+  [key: string]: number | string | string[] | {[key: string]: string},
+ }) {
+  const { game_id, path, title, url, image, version, description, program_path, protagonist, tags, status, categories, timestamps } = game
+  // get old game data
+  const oldGame: RawGameEntry = await getById(game_id)
+
+  // Fetch all necessary IDs before starting the transaction
+  // figure out which tags need to be added and which need to be deleted
+  const newTagIds = await Promise.all(tags.map(tag => getTagByName(tag)))
+  const oldTagIds = await Promise.all((oldGame.tags || '').split(',').map(tag => getTagByName(tag)))
+  const addTagIds = newTagIds.filter(({tag_id}) => oldTagIds.findIndex(t => t.tag_id === tag_id) === -1)
+  const delTagIds = oldTagIds.filter(({tag_id}) => newTagIds.findIndex(t => t.tag_id === tag_id) === -1)
+  // figure out which statuses need to be added and which need to be deleted
+  const newStatusIds = await Promise.all(status.map(stat => getStatusByName(stat)))
+  const oldStatusIds = await Promise.all((oldGame.status || '').split(',').map(stat => getStatusByName(stat)))
+  const addStatusIds = newStatusIds.filter(({status_id}) => oldStatusIds.findIndex(s => s.status_id === status_id) === -1)
+  const delStatusIds = oldStatusIds.filter(({status_id}) => newStatusIds.findIndex(s => s.status_id === status_id) === -1)
+  // parse categories
+  const categoryIds = await Promise.all(Object.entries(categories).map(async ([cat, val]) => {
+    const { category_id } = await getCategoryByName(cat)
+    const catOpts = await getCategoryOptionsByCategoryId(category_id)
+    const {option_id} = catOpts.find(({ option_name }) => option_name === val)
+    return { category_id, option_id }
+  }))
+
+  const trx = await db.transaction()
+
+  try {
+    // Update games
+    await trx('games')
+      .where({ game_id })
+      .update({ path, title, url, image, version, description, program_path, protagonist })
+
+    // Update tags
+    if (delTagIds.length > 0) {
+      const delEntries = delTagIds.map(({tag_id}) => tag_id)
+      await trx('games_tags')
+        .where({game_id})
+        .whereIn('tag_id', delEntries)
+        .del()
+    }
+    if (addTagIds.length > 0) {
+      const newEntries = addTagIds.map(({tag_id}) => ({game_id, tag_id}))
+      await trx('games_tags')
+        .insert(newEntries)
+    }
+
+    // Update status
+    if (delStatusIds.length > 0) {
+      const delEntries = delStatusIds.map(({status_id}) => status_id)
+      await trx('games_status')
+        .where({ game_id })
+        .whereIn('status_id', delEntries)
+        .del()
+    }
+    if (addStatusIds.length > 0) {
+      const newEntries = addStatusIds.map(({status_id}) => ({game_id, status_id}))
+      await trx('games_status')
+        .insert(newEntries)
+    }
+
+    // Update categories
+    await trx('games_category_options')
+      .where({ game_id })
+      .del()
+    const updatedCats = categoryIds.map(({ option_id }) => ({ game_id, option_id }))
+    await trx('games_category_options')
+      .insert(updatedCats)
+
+    // Update into timestamps
+    const {updated_at, played_at} = timestamps
+    await trx('timestamps')
+      .where({ game_id })
+      .update({ updated_at, played_at })
+
+    // Commit and return the updated game
+    await trx.commit()
+    const newGame = await getById(game_id)
+    return newGame
+  } catch (error) {
+    await trx.rollback()
+    console.error('Update transaction failed:', error)
+    return { title, error }
+  }
+}
 
 module.exports = {
   getAll,
@@ -238,4 +369,5 @@ module.exports = {
   insertNewGame,
   deleteGame,
   updateTimestamp,
+  updateGame,
 }
