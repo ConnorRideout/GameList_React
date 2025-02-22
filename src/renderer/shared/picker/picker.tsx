@@ -11,6 +11,7 @@ import Tags from './pick_tags'
 
 import { RootState, GameEntry } from '../../../types'
 
+// FIXME: when editing and hitting submit, form resets to original values
 
 const PickerForm = styled.form`
   min-width: 1000px;
@@ -29,8 +30,8 @@ const PickerForm = styled.form`
 
 export interface FormState {
   categories: {[key: string]: string},
-  statuses: {[key: string]: number},
-  tags: {[key: string]: number},
+  statuses: {[key: string]: number}, // -1 if tristate, 0 if unchecked, 1 if checked
+  tags: {[key: string]: number}, // -1 if tristate, 0 if unchecked, 1 if checked
 }
 interface Props {
   submitHandler: {
@@ -141,9 +142,11 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
     evt.preventDefault()
     // run the parent's handler
     cancelHandler.handler()
-    setFlashClear(true)
-    setTimeout(() => setFlashClear(false), 350)
-    setFormData(defaultFormData)
+    if (isBrowse) {
+      setFlashClear(true)
+      setTimeout(() => setFlashClear(false), 350)
+      setFormData(defaultFormData)
+    }
   }
 
   return (

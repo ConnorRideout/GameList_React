@@ -47,6 +47,14 @@ export const gamelibApi = createApi({
         body: game,
       }),
       invalidatesTags: ['Games']
+    }),
+    newGame: builder.mutation({
+      query: (game) => ({
+        url: 'games/new',
+        method: 'POST',
+        body: game,
+      }),
+      invalidatesTags: ['Games']
     })
   })
 })
@@ -60,4 +68,5 @@ export const {
   useLazyEditGameQuery,
   useUpdateTimestampMutation,
   useUpdateGameMutation,
+  useNewGameMutation,
 } = gamelibApi

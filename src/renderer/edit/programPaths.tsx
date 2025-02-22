@@ -7,6 +7,8 @@ import {
   FileSearchSvg,
   MinusSvg
 } from "../shared/svg"
+
+// eslint-disable-next-line import/no-cycle
 import { Props } from "./info"
 
 

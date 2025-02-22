@@ -16,6 +16,7 @@ import {
 } from '../../../lib/store/gamelibApi'
 
 import { RootState } from '../../../types'
+// eslint-disable-next-line import/no-cycle
 import { GamePickerState } from './lineitem'
 
 const ToolsFieldset = styled.fieldset`

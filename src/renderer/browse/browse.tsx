@@ -113,7 +113,7 @@ export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) 
 
   // game picker state
   const [showGamePicker, setShowGamePicker] = useState(false)
-  const [gamePickerOptions, setGamePickerOptions] = useState<string[][]>([])
+  const [gamePickerOptions, setGamePickerOptions] = useState<[string, string][]>([])
   const [gamePickerClickHandler, setGamePickerClickHandler] = useState<{func: (progPath: string) => void}>({func: () => {}})
   const gamePickerState = {setShowGamePicker, setGamePickerOptions, setGamePickerClickHandler}
 

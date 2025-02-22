@@ -18,6 +18,10 @@ import {
   useOpenUrlMutation,
   useOpenFolderMutation,
 } from "../../lib/store/filesystemApi"
+import {
+  useUpdateGameMutation,
+  useUpdateTimestampMutation,
+} from "../../lib/store/gamelibApi"
 
 import { GameEntry, RootState } from "../../types"
 import CreateEditFormSchema from "./edit_schema"
@@ -46,7 +50,10 @@ export default function Edit({isNew=false}: Props) {
   const dispatch = useDispatch()
   const [openUrl] = useOpenUrlMutation()
   const [openFolder] = useOpenFolderMutation()
+  const [updateGame] = useUpdateGameMutation()
+  const [updateTimestamp] = useUpdateTimestampMutation()
   const game_dir = useSelector((state: RootState) => state.data.config.games_folder)
+  const [isLoading, setIsLoading] = useState(false)
 
   const [submitDisabled, setSubmitDisabled] = useState(true)
   const emptyFormErrors = {
@@ -61,7 +68,7 @@ export default function Edit({isNew=false}: Props) {
   const [formErrors, setFormErrors] = useState(emptyFormErrors)
 
   const game_data = useSelector((state: RootState) => state.data.editGame)
-  const {path, title, url, image, version, description, program_path: prog_obj, tags, status, categories}: Omit<GameEntry, 'game_id' | 'timestamps' | 'timestamps_sec'> = game_data || {
+  const emptyFormData = {
     path: '',
     title: '',
     url: '',
@@ -73,6 +80,7 @@ export default function Edit({isNew=false}: Props) {
     status: [],
     categories: {}
   }
+  const {path, title, url, image, version, description, program_path: prog_obj, tags, status, categories}: Omit<GameEntry, 'game_id' | 'timestamps' | 'timestamps_sec'> = game_data || emptyFormData
   const program_path = Object.entries(prog_obj)
   const [formData, setFormData] = useState({path, title, url, image, version, description, program_path})
 
@@ -105,9 +113,78 @@ export default function Edit({isNew=false}: Props) {
     navigate('/')
   }
 
-  const submitHandler = (data: FormState) => {
-    // TODO: handle updating data or creating new
-    console.log(data)
+  const submitHandler = async (data: FormState) => {
+    /*
+    data = {
+      categories: {[key: string]: string},
+      statuses: {[key: string]: number},  // 0 if unchecked, 1 if checked
+      tags: {[key: string]: number}, // 0 if unchecked, 1 if checked
+    }
+    formData = {
+      path: string,
+      title: string,
+      url: string,
+      image: string,
+      version: string,
+      description: string,
+      program_path: [string, string][]
+    }
+    needs to be: {
+      path: string,
+      title: string,
+      url: string,
+      image: string,
+      version: string,
+      description: string,
+      program_path: {[key: string]: string},
+      tags: string[],
+      status: string[],
+      categories: {[key: string]: string},
+      timestamps: {
+        created_at: string,
+        updated_at: string | null,
+        played_at: string | null,
+      }
+    },
+    */
+    setIsLoading(true)
+    // parse data
+    const { categories: updatedCategories, statuses: rawStatuses, tags: rawTags } = data
+    const updatedStatuses = Object.entries(rawStatuses).reduce((acc: string[], [stat, isChecked]) => {
+      if (isChecked) acc.push(stat)
+      return acc
+    }, [])
+    const updatedTags = Object.entries(rawTags).reduce((acc: string[], [tag, isChecked]) => {
+      if (isChecked) acc.push(tag)
+      return acc
+    }, [])
+    // parse formData
+    const updatedData = {
+      ...formData,
+      program_path: formData.program_path.reduce((acc: {[key: string]: string}, [progPath, progPathName]) => {
+        acc[progPath] = progPathName
+        return acc
+      }, {})
+    }
+    if (isNew) {
+      // TODO: handle creating new game entry
+    } else {
+      const { game_id, timestamps, timestamps_sec } = game_data!
+      const updatedGame: GameEntry = {
+        game_id,
+        ...updatedData,
+        tags: updatedTags,
+        status: updatedStatuses,
+        categories: updatedCategories,
+        timestamps,
+        timestamps_sec
+      }
+      // setFormData({...emptyFormData, program_path: [["", ""]]})
+      await updateGame({game_id, game: updatedGame})
+      if (version !== updatedData.version) await updateTimestamp({game_id, type: 'updated_at'})
+      setIsLoading(false)
+      closeEdit()
+    }
   }
 
   const additionalFormData = {
@@ -118,6 +195,7 @@ export default function Edit({isNew=false}: Props) {
 
   return (
     <EditDiv className="main-container vertical-center">
+      {isLoading && <div className='loading' />}
       <h1>{isNew ? 'ADD NEW' : 'EDIT'} GAME</h1>
       <button style={{position: 'fixed', left: 0, top: '30px'}} type='button' onClick={() => dispatch(setError('test error'))}>Test</button>
       <ErrorMessage />

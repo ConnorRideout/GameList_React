@@ -3,6 +3,7 @@ import React, { CSSProperties } from 'react'
 import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 
+// eslint-disable-next-line import/no-cycle
 import Tools from './tools'
 import Title from './title'
 import Version from './version'
@@ -26,7 +27,7 @@ const LineitemDiv = styled.div`
 
 export interface GamePickerState {
   setShowGamePicker: React.Dispatch<React.SetStateAction<boolean>>,
-  setGamePickerOptions: React.Dispatch<React.SetStateAction<string[][]>>,
+  setGamePickerOptions: React.Dispatch<React.SetStateAction<[string, string][]>>,
   setGamePickerClickHandler: React.Dispatch<React.SetStateAction<{func: (progPath: string) => void;}>>
 }
 interface Props {

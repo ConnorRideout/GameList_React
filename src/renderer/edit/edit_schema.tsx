@@ -29,23 +29,44 @@ export default function CreateEditFormSchema() {
         yup.array()
           .of(yup.string())
           .length(2)
-          .test('custom-test', 'If parent array has length 1, only the second string must have length', function (value) {
+          .test('custom-test', 'If parent array has length 1, only the exe path must have length. Otherwise, every exe path must be unique and every viewable name must be unique', function (value) {
+            // innerArray = [exe_name, exe_path]
             const {path, createError} = this
             const outerArrayLength = this.parent.length
+
 
             if (!value) {
               return createError({ path, message: `At path ${path}, the inner array must be defined` })
             }
 
+            const progPathIdx = parseInt(path.slice(1, -1)) + 1
             if (outerArrayLength === 1) {
               // if outerArray only has 1 item, only the second string of innerArray must have length > 0
               if (!value[1] || value[1].length === 0) {
-                return createError({ path, message: `At path ${path}, the second string must have length` });
+                return createError({ path, message: `At the [${progPathIdx}] program path, the Executable Path cannot be blank` });
               }
             } else if (outerArrayLength > 1) {
-              // if outerArray is longer that 1, both strings of innerArray must have length > 1
-              if (value[0] === undefined || value[0].length <= 1 || value[1] === undefined || value[1].length <= 1) {
-                return createError({ path, message: `At program path [${parseInt(path.slice(1, -1)) + 1}], both the exe path and viewable name must have a value` });
+              // There are more than 1 executable
+              // Check for uniqueness of first and second values of inner arrays
+              const viewableNames = this.parent.map((innerArray: [string, string]) => innerArray[0]);
+              const exePaths = this.parent.map((innerArray: [string, string]) => innerArray[1]);
+              // Sets remove duplicates, so if the array and the set have a different length, there was a duplicate
+              const hasDuplicateName = viewableNames.length !== new Set(viewableNames).size;
+              const hasDuplicatePath = exePaths.length !== new Set(exePaths).size;
+
+              if (hasDuplicateName) {
+                return createError({ path, message: `The Viewable Names must be unique` });
+              }
+
+              if (hasDuplicatePath) {
+                return createError({ path, message: `The Executabl Paths must be unique` });
+              }
+              // Both strings must have length
+              if (value[0] === undefined || value[0].length === 0) {
+                return createError({ path, message: `At the [${progPathIdx}] program path, the Viewable Name must not be blank` });
+              }
+              if (value[1] === undefined || value[1].length === 0) {
+                return createError({ path, message: `At the [${progPathIdx}] program path, the Executable Path must not be blank` });
               }
             }
             return true; // Validation passed
