@@ -129,7 +129,6 @@ export function FileAutoSearchSvg({color='currentColor', size=25}: Props) {
       fill={color}
       size={size}
       path='M 18.5 11.9 V 18.5 H 11.9 V 16 H 14.2 A 5.8 5.8 90 0 0 4.4 20.1 H 2 A 8.1 8.1 90 0 1 16 14.2 V 11.9 Z M 16 20.1 A 5.8 5.8 90 0 1 6.2 24.2 H 8.6 V 21.8 H 2 V 28.3 H 4.4 V 26 A 8.1 8.1 90 0 0 15.1 26.7 L 18.3 30 L 20.1 28.2 L 16.8 24.9 A 8.1 8.1 90 0 0 18.5 20.1 Z M 11.9 4.4 H 20.1 V 11.9 H 27.5 V 25.9 H 21.9 V 28.3 H 30 V 10.1 L 21.9 2 H 9.4 V 10.2 H 11.9 Z M 22.6 6.2 V 9.4 H 25.8 Z'
-      stroke="none"
       fillRule="evenodd"
     />
   )
@@ -151,7 +150,6 @@ export function FolderOpenSvg({color='currentColor', size=25}: Props) {
       fill={color}
       size={size}
       path='M 1.2 6.9 Q 1.2 3 5.1 3 H 11 Q 13.9 3 14.7 5.7 L 15.1 6.9 H 25.9 Q 28.5 6.9 28.5 9.5 V 12.1 Q 31.4 12.1 30.8 15.2 L 28.7 26.9 Q 28.2 29 26.1 29 H 3.8 Q 1.2 29 1.2 26.3 V 6.9 Z M 25.9 12.1 V 9.5 H 15.1 C 11.8 9.4 13.3 5.7 11 5.6 H 5.1 Q 3.8 5.6 3.8 6.9 V 16.4 L 4.3 14.2 Q 4.8 12.1 6.8 12.1 H 25.9 Z M 15.1 9.5 M 4.3 26.4 L 6.8 14.7 H 28.2 L 26.1 26.4 Z'
-      stroke="none"
       fillRule="evenodd"
     />
   )
@@ -177,3 +175,14 @@ export function ImageSearchSvg({color='currentColor', size=25}: Props) {
   )
 }
 
+export function RefreshSvg({color='currentColor', size=12}: Props) {
+  return (
+    <Svg
+      fill='none'
+      size={size}
+      stroke={color}
+      strokeWidth={2}
+      path='M 2 16 C 2 8.3 8.3 2 16 2 C 22.1 2 27.6 6 29.4 12 V 2 v 10 h -10 M 30 16 C 30 23.7 23.6 30 16 30 C 9.8 30 4.4 26 2.6 20 v 10 V 20 h 10'
+    />
+  )
+}

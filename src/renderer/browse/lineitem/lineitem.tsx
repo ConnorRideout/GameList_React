@@ -80,6 +80,7 @@ export default function Lineitem({gamePickerState, lineData, style}: Props) {
         game_id={game_id}
         version={version}
         timestamps={timestamps}
+        url={url}
         status_color={status_color_version}
       />
       <Categories

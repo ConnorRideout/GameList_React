@@ -3,6 +3,7 @@
 @use 'reusable';
 
 
+
 .description {
   background-color: variables.$bgLight;
   min-height: 100%;
@@ -188,29 +189,21 @@ button.tab-active:not(:disabled) {
   }
 }
 
-.starting-game {
-  @extend .vertical-container;
-  position: absolute;
-  left: 10px;
-  right: 10px;
-  top: 10px;
-  bottom: 10px;
-  background: variables.$fgDark;
-  opacity: 1;
-  justify-content: center;
-  overflow-x: hidden;
-  animation: fadeInOut 2s ease-in-out forwards;
+@mixin fade-in-out($fadeInPercentage, $duration) {
+  animation: fadeInOut $duration ease-in-out forwards;
 
-  &>span {
-    color: lime;
-    font-size: 40pt;
-    font-weight: 900;
-    -webkit-text-stroke: 1px black;
-    animation: pan 2s linear forwards;
-  }
+  @keyframes fadeInOut {
+    0% {
+      opacity: 0;
+    }
 
-  &>.loading {
-    background: transparent;
+    #{$fadeInPercentage} {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+    }
   }
 }
 
@@ -224,17 +217,30 @@ button.tab-active:not(:disabled) {
   }
 }
 
-@keyframes fadeInOut {
-  0% {
-    opacity: 0;
+.starting-game {
+  @extend .vertical-container;
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 10px;
+  bottom: 10px;
+  background: variables.$fgDark;
+  opacity: 1;
+  justify-content: center;
+  overflow-x: hidden;
+
+  @include fade-in-out(20%, 2s);
+
+  &>span {
+    color: lime;
+    font-size: 40pt;
+    font-weight: 900;
+    -webkit-text-stroke: 1px black;
+    animation: pan 2s linear forwards;
   }
 
-  20% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
+  &>.loading {
+    background: transparent;
   }
 }
 
@@ -377,5 +383,33 @@ button.tab-active:not(:disabled) {
       align-self: center;
       margin: calc(variables.$spacing * 2) 0;
     }
+  }
+}
+
+.version-container {
+  min-width: 90px;
+  max-width: 90px;
+
+  &>legend {
+    @extend .horizontal-container;
+    align-items: center;
+
+    &>button {
+      display: flex;
+      background: transparent;
+      border: none;
+      min-width: fit-content;
+      min-height: min-content;
+      padding: 0;
+      margin: 0 calc(variables.$spacing / 2) 0 variables.$spacing;
+    }
+  }
+
+  & .updated {
+    color: springgreen;
+  }
+
+  & .no-update {
+    color: variables.$fgError;
   }
 }

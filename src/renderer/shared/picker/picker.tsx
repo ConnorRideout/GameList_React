@@ -11,7 +11,6 @@ import Tags from './pick_tags'
 
 import { RootState, GameEntry } from '../../../types'
 
-// FIXME: when editing and hitting submit, form resets to original values
 
 const PickerForm = styled.form`
   min-width: 1000px;
@@ -36,7 +35,7 @@ export interface FormState {
 interface Props {
   submitHandler: {
     text: string,
-    handler: (data: FormState) => void,
+    handler: (data: FormState) => void | Promise<void>,
   },
   cancelHandler: {
     text: string,
@@ -73,6 +72,7 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
   const emptyFormErrors: {[key: string]: string} = {}
   const [formErrors, setFormErrors] = useState(emptyFormErrors)
   const [flashClear, setFlashClear] = useState(false)
+  const [allowSetDefault, setAllowSetDefault] = useState(true)
 
   const defaultFormData = useMemo(() => ({
     categories: categories.reduce((acc: FormState['categories'], cur) => {
@@ -91,12 +91,14 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
   }), [tagValues, statusValues, categories, isBrowse, additionalFormData])
 
   useEffect(() => {
-    setFormData(defaultFormData)
-    setFormErrors(Object.keys(defaultFormData.categories).reduce((acc: {[key: string]: string}, cur) => {
-      acc[cur] = ''
-      return acc
-    }, {}))
-  }, [defaultFormData])
+    if (allowSetDefault) {
+      setFormData(defaultFormData)
+      setFormErrors(Object.keys(defaultFormData.categories).reduce((acc: {[key: string]: string}, cur) => {
+        acc[cur] = ''
+        return acc
+      }, {}))
+    }
+  }, [defaultFormData, allowSetDefault])
 
   const formSchema = CreatePickerFormSchema([...categories, {category_name: 'protagonist'}], statuses, tags)
   useEffect(() => {
@@ -134,9 +136,11 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
     setFormData({...formData, ...updated})
   }
 
-  const handleSubmit = (evt: MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = async (evt: MouseEvent<HTMLButtonElement>) => {
     evt.preventDefault()
-    submitHandler.handler(formData)
+    setAllowSetDefault(false)
+    await submitHandler.handler(formData)
+    setAllowSetDefault(true)
   }
   const handleReset = (evt: MouseEvent<HTMLButtonElement>) => {
     evt.preventDefault()

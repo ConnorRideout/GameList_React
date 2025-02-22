@@ -81,7 +81,7 @@ export default function Tools({game_id, path, programPath, url, gamePickerState,
     setTimeout(() => {
       setShowPlay(false)
       updatePlayedTimestamp({game_id})
-    }, 2000)
+    }, 5000)
     // update recently played timestamp
     // run game
     // TODO: only update timestamp/showPlay if playGame succeeds?

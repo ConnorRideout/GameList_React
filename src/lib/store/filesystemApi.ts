@@ -39,6 +39,13 @@ export const filesystemApi = createApi({
         body: {path}
       })
     }),
+    checkUpdatedUrl: builder.mutation({
+      query: (checkUrl: string) => ({
+        url: 'urlupdates',
+        method: 'POST',
+        body: {checkUrl}
+      })
+    })
   })
 })
 
@@ -48,4 +55,5 @@ export const {
   usePlayGameMutation,
   useOpenUrlMutation,
   useOpenFolderMutation,
+  useCheckUpdatedUrlMutation,
 } = filesystemApi
