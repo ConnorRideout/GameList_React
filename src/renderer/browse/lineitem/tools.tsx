@@ -76,7 +76,7 @@ export default function Tools({game_id, path, programPath, url, gamePickerState,
     // hide the picker if necessary
     setShowGamePicker(false)
     // show the starting game message
-    // FIXME: graphic doesn't work when using game picker
+    // FIXME: "starting..." graphic doesn't work when using game picker
     setShowPlay(true)
     setTimeout(() => {
       setShowPlay(false)

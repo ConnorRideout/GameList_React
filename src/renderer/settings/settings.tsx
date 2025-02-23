@@ -1,4 +1,4 @@
-// TODO: implement this
+// TODO: implement settings component
 import React from 'react'
 
 

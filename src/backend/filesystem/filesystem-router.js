@@ -1,3 +1,4 @@
+/* eslint-disable promise/no-callback-in-promise */
 /* eslint-disable no-console */
 const router = require('express').Router()
 const { spawn, exec } = require('child_process')

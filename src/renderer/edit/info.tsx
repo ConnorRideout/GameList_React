@@ -18,8 +18,11 @@ export default function Info({handleFormChange, formData}: Props) {
   return (
     <fieldset className="info-container">
       <legend>Info</legend>
-
-      <button className="info-column-1 info-row-1" type="button">Auto-fill info from URL</button>
+      {/* TODO: implement auto-fill */}
+      <button
+        className="info-column-1 info-row-1"
+        type="button"
+      >Auto-fill info from URL</button>
 
       <Tooltip
         float
@@ -60,6 +63,7 @@ export default function Info({handleFormChange, formData}: Props) {
         value={formData.image}
       />
       <button type='button' className="info-column-3 info-row-3 svg-button">
+        {/* TODO: implement image search */}
         <ImageSearchSvg
           color="currentColor"
         />
@@ -80,6 +84,7 @@ export default function Info({handleFormChange, formData}: Props) {
         <u>Executable Path</u>
       </span>
       <span className="info-column-3 info-row-5 info-column-span-2"><u>Viewable Name</u></span>
+      {/* TODO: implement file auto search */}
       <button type='button' className="svg-button info-column-1 info-row-6">
         <FileAutoSearchSvg />
         Auto search

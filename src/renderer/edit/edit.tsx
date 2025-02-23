@@ -210,6 +210,7 @@ export default function Edit({isNew=false}: Props) {
         >
           <FolderOpenSvg color="currentColor" size={25} />
         </button>
+        {/* TODO: Implement changing folder */}
         <button
           type="button"
           className="svg-button"

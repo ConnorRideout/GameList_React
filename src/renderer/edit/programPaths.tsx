@@ -40,6 +40,7 @@ export default function ProgramPaths({handleFormChange, formData}: Props) {
   }
 
   const handleFileSearch = (idx: number) => {
+    // TODO: implement file search
     window.electron.openFileDialog({initialPath: formData.path, dataPassthrough: idx})
   }
   useEffect(() => {

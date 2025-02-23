@@ -401,7 +401,7 @@ button.tab-active:not(:disabled) {
       min-width: fit-content;
       min-height: min-content;
       padding: 0;
-      margin: 0 calc(variables.$spacing / 2) 0 variables.$spacing;
+      margin: 0 calc(variables.$spacing / 2) 0 calc(variables.$spacing * 1.5);
     }
   }
 
