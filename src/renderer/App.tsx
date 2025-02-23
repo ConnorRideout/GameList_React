@@ -22,9 +22,9 @@ export default function App() {
   useGetConfigQuery()
   // FIXME: dev dependency refetch
   const {refetch} = useGetGamesQuery()
-  // TODO: transitions between screens?
-  // TODO: resizeable?
-  // TODO: light mode?
+  // TODO? transitions between screens
+  // TODO? resizeable
+  // TODO? light mode
   // TODO: create an ini file if it doesn't exist, prompting user for the defaults
 
   return (

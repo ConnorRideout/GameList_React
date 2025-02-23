@@ -73,6 +73,7 @@ export default function Tools({game_id, path, programPath, url, gamePickerState,
   const {setShowGamePicker, setGamePickerOptions, setGamePickerClickHandler} = gamePickerState
 
   const playGameHandler = (progPath: string) => {
+    // TODO: update play status from 'new' to 'playing'
     // hide the picker if necessary
     setShowGamePicker(false)
     // show the starting game message
@@ -84,7 +85,7 @@ export default function Tools({game_id, path, programPath, url, gamePickerState,
     }, 5000)
     // update recently played timestamp
     // run game
-    // TODO: only update timestamp/showPlay if playGame succeeds?
+    // TODO? only update timestamp/showPlay if playGame succeeds
     const filepath = [path, progPath].join('/')
     playGame({path: filepath, useLE: isEroge})
   }

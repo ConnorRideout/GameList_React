@@ -1,5 +1,6 @@
-/* eslint-disable react/no-array-index-key */
 // TODO: drag-n-drop lines
+
+/* eslint-disable react/no-array-index-key */
 import React, { useEffect, ChangeEvent } from "react"
 
 import {

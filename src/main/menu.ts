@@ -1,3 +1,8 @@
+// TODO: open games folder
+// TODO: recheck for missing game folders, use same logic as browse
+// TODO: open settings
+// TODO: find new game folders
+
 import {
   app,
   Menu,

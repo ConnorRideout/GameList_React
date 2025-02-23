@@ -25,7 +25,7 @@ import { resolveHtmlPath } from './util'
 const imgDir = path.join(
   __dirname,
   '../../src/backend/data',
-  process.env.SHOWCASING ? 'gameImages' : 'development/gameImages'
+  process.env.SHOWCASING ? 'showcase/gameImages' : 'development/gameImages'
 )
 
 const getSassVars = async () => {

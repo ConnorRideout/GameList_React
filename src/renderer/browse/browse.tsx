@@ -1,3 +1,6 @@
+// TODO: add ability to mark games as 'not interested' and add a note as to why. Maybe access the notes from menu?
+// TODO: auto check for missing game folders on startup with fuzzy search - maybe a whole new Route that `main.ts` effects? A list of missing/changed games and options to edit them?
+
 /* eslint-disable react/no-array-index-key */
 import React, { useState } from 'react'
 import { FixedSizeList as List } from 'react-window'

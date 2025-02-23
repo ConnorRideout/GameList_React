@@ -1,3 +1,8 @@
+// TODO: when updating, auto fill info
+// TODO: when updating, show differences in tags/categories/etc and allow user to pick which ones to keep/change
+// TODO: add checkbox that will prevent the `updated_at` timestamp from updating even if version changes
+// TODO: drag n drop handler for urls and images
+
 /* eslint-disable promise/catch-or-return */
 import React, { ChangeEvent, useEffect, useState } from "react"
 import styled from "styled-components"
@@ -220,6 +225,8 @@ export default function Edit({isNew=false}: Props) {
       </fieldset>
 
       <fieldset className="horizontal-container">
+        {/* TODO: button to check for updated url */}
+        {/* TODO? warn if url is invalid */}
         <legend>URL</legend>
         <input
           type="text"
