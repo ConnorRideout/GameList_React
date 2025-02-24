@@ -1,3 +1,4 @@
+/* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable promise/no-callback-in-promise */
 /* eslint-disable no-console */
 const router = require('express').Router()
@@ -8,6 +9,30 @@ const Path = require('path')
 
 
 let config = {}
+function getConfig() {
+  return new Promise((resolve, reject) => {
+    fs.readFile(Path.join(__dirname, '../../../config.ini'), 'utf-8', (err, data) => {
+      if (err) {
+        reject({status: 404, message: err})
+      } else {
+        const rawConfig = ini.parse(data)
+        const ignored_exes = Object.keys(rawConfig.Ignored_Exes).map(k => k.trim())
+        resolve(Object.entries(rawConfig.DEFAULT).reduce((acc, [key, val]) => {
+          acc[key] = val.trim().replaceAll('\\', '/')
+          return acc
+        }, {ignored_exes}))
+      }
+    })
+  })
+}
+getConfig()
+  .then(cfg => {
+    config = cfg
+    // console.log(config)
+  })
+  .catch(err => {
+    console.error(err)
+  })
 
 router.post('/open/:type', (req, res, next) => {
   const { type } = req.params
@@ -67,18 +92,13 @@ router.post('/open/:type', (req, res, next) => {
 })
 
 router.get('/config', (req, res, next) => {
-  fs.readFile(Path.join(__dirname, '../../../config.ini'), 'utf-8', (err, data) => {
-    if (err) {
-      next({status: 404, message: err})
-    } else {
-      const rawConfig = ini.parse(data)
-      const ignored_exes = Object.keys(rawConfig.Ignored_Exes).map(k => k.trim())
-      config = Object.entries(rawConfig.DEFAULT).reduce((acc, [key, val]) => {
-        acc[key] = val.trim().replaceAll('\\', '/')
-        return acc
-      }, {ignored_exes})
-      res.status(200).json(config)
-    }
+  getConfig()
+  .then(cfg => {
+    config = cfg
+    res.status(200).json(config)
+  })
+  .catch(err => {
+    next(err)
   })
 })
 

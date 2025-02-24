@@ -79,15 +79,15 @@ export default function Tools({game_id, path, programPath, url, gamePickerState,
     // show the starting game message
     // FIXME: "starting..." graphic doesn't work when using game picker
     setShowPlay(true)
+    const filepath = [path, progPath].join('/')
+    // run game
+    playGame({path: filepath, useLE: isEroge})
     setTimeout(() => {
       setShowPlay(false)
+      // TODO? only update timestamp/showPlay if playGame succeeds
+      // update recently played timestamp
       updatePlayedTimestamp({game_id})
     }, 5000)
-    // update recently played timestamp
-    // run game
-    // TODO? only update timestamp/showPlay if playGame succeeds
-    const filepath = [path, progPath].join('/')
-    playGame({path: filepath, useLE: isEroge})
   }
   const playButtonHandler = () => {
     const progPaths = Object.entries(programPath)
