@@ -212,14 +212,17 @@ div.tooltip-image {
     background-color: variables.$bgNormal;
     padding: variables.$spacing calc(variables.$spacing * 3);
     min-height: 300px;
+    max-height: 60vh;
     min-width: 400px;
+    max-width: 70vw;
 
     &>h1 {
       // the title
       align-self: center;
-      padding-bottom: calc(variables.$spacing * 2);
       min-width: 75%;
+      padding-bottom: calc(variables.$spacing * 2);
       border-bottom: 1px solid variables.$fgDark;
+      margin-bottom: calc(variables.$spacing * 2);
       text-align: center;
     }
 
@@ -227,20 +230,24 @@ div.tooltip-image {
       @extend .vertical-container;
 
       flex-grow: 1;
-      margin: 0 20px 0 10px;
-      padding: calc(variables.$spacing * 2) 0;
+      margin: 0 15px 0 5px;
+      padding: 0 5px;
+      max-width: 100%;
+      max-height: 100%;
+      overflow: auto;
     }
 
     &>div.inputbox-buttons {
       @extend .horizontal-container;
 
+      margin-top: calc(variables.$spacing * 2);
       border-top: 1px solid variables.$fgDark;
+      padding: calc(variables.$spacing * 2) 0;
       min-width: 75%;
       width: fit-content;
       align-self: center;
       justify-content: space-evenly;
       align-items: center;
-      padding: calc(variables.$spacing * 2) 0;
     }
   }
 }

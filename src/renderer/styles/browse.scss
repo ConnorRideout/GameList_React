@@ -374,6 +374,7 @@ button.tab-active:not(:disabled) {
 
       &>h2 {
         padding: 0;
+        color: variables.$fgLight;
       }
 
       &>button {
