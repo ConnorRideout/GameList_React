@@ -1,26 +1,38 @@
+/* eslint-disable import/no-relative-packages */
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable promise/no-callback-in-promise */
 /* eslint-disable no-console */
-const router = require('express').Router()
-const { spawn, exec } = require('child_process')
-const fs = require('fs')
-const ini = require('ini')
-const Path = require('path')
+import { spawn, exec } from 'child_process'
+import fs from 'fs'
+import ini from 'ini'
+import Path from 'path'
+import { Router } from 'express'
+
+import { ConfigType, MissingGamesType, StringMap } from '../../types'
 
 
-let config = {}
+const router = Router()
+
+
+let config: ConfigType
+type FileTypesType = {[key: string]: string[]}
 function getConfig() {
-  return new Promise((resolve, reject) => {
+  return new Promise<ConfigType>((resolve, reject) => {
     fs.readFile(Path.join(__dirname, '../../../config.ini'), 'utf-8', (err, data) => {
       if (err) {
         reject({status: 404, message: err})
       } else {
-        const rawConfig = ini.parse(data)
+        const rawConfig: StringMap = ini.parse(data)
+        const file_types = Object.entries(rawConfig.File_Types).reduce((acc: FileTypesType, [key, val]) => {
+          acc[key] = val.split(',').map(v => v.trim())
+          return acc
+        }, {})
         const ignored_exes = Object.keys(rawConfig.Ignored_Exes).map(k => k.trim())
-        resolve(Object.entries(rawConfig.DEFAULT).reduce((acc, [key, val]) => {
+        const {games_folder, locale_emulator} = Object.entries(rawConfig.DEFAULT).reduce((acc: StringMap, [key, val]) => {
           acc[key] = val.trim().replaceAll('\\', '/')
           return acc
-        }, {ignored_exes}))
+        }, {})
+        resolve({games_folder, locale_emulator, file_types, ignored_exes})
       }
     })
   })
@@ -38,7 +50,7 @@ router.post('/open/:type', (req, res, next) => {
   const { type } = req.params
   const { path, useLE } = req.body
 
-  const run = (filepath, args=[]) => {
+  const run = (filepath: string, args: string[] = []) => {
     const workingdir = Path.dirname(filepath)
     const relativePath = Path.relative(workingdir, filepath)
     let command = ''
@@ -103,27 +115,33 @@ router.get('/config', (req, res, next) => {
 })
 
 router.put('/config', (req, res, next) => {
-  const {games_folder: new_gfol, locale_emulator: new_le, ignored_exes: new_ignexe} = req.body
-  const { games_folder, locale_emulator, ignored_exes } = config
+  const {games_folder: new_gfol, locale_emulator: new_le, ignored_exes: new_ignexe, file_types: new_filetypes}: {
+    games_folder: string
+    locale_emulator: string
+    ignored_exes: string[]
+    file_types: FileTypesType
+  } = req.body
+  const { games_folder, locale_emulator, ignored_exes, file_types } = config
 
   const DEFAULT = {
     games_folder: new_gfol || games_folder,
     locale_emulator: new_le || locale_emulator
   }
+  const File_Types = {...file_types, ...new_filetypes}
   let Ignored_Exes = {}
   if (new_ignexe) {
-    Ignored_Exes = new_ignexe.reduce((acc, cur) => {
+    Ignored_Exes = new_ignexe.reduce((acc: {[key: string]: boolean}, cur) => {
       acc[cur] = true
       return acc
     }, {})
   } else {
-    Ignored_Exes = ignored_exes.reduce((acc, cur) => {
+    Ignored_Exes = ignored_exes.reduce((acc: {[key: string]: boolean}, cur) => {
       acc[cur] = true
       return acc
     }, {})
   }
 
-  const iniString = ini.stringify({DEFAULT, Ignored_Exes}).replaceAll('=true', '')
+  const iniString = ini.stringify({DEFAULT, File_Types, Ignored_Exes}).replaceAll('=true', '')
 
   fs.writeFile(Path.join(__dirname, '../../../config.ini'), iniString, (err) => {
     if (err) {
@@ -135,7 +153,7 @@ router.put('/config', (req, res, next) => {
 })
 
 router.post('/urlupdates', (req, res, next) => {
-  async function getRedirectedUrl(url) {
+  async function getRedirectedUrl(url: string) {
     const response = await fetch(url, {
       method: 'HEAD', // Use HEAD to fetch headers only
       redirect: 'follow' // Follow redirects
@@ -162,7 +180,7 @@ router.post('/urlupdates', (req, res, next) => {
  * @property {string} path - The path to the game (relative)
  */
 router.post('/missinggames', (req, res) => {
-  const {games} = req.body
+  const {games}: {games: MissingGamesType} = req.body
   // check for missing games
   const missingGames = games.filter(({path}) => {
     const gamefol = Path.join(config.games_folder, path)

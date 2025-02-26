@@ -8,5 +8,7 @@ export {
   StatusEntry,
   TagEntry,
   SearchRestraints,
+  ConfigType,
+  MissingGamesType,
 } from "./lib/types/types-gamelibrary"
 

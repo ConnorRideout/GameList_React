@@ -4,7 +4,7 @@
 import db from '../data/db-config'
 
 
-interface RawGameEntry {
+export interface RawGameEntry {
   game_id: number,
   path: string,
   title: string,
@@ -90,7 +90,7 @@ function getTimestamps(type: string) {
     .orderBy(`t.${type}`, 'desc')
 }
 
-function getById(gameId: number) {
+function getById(gameId: number | string) {
   return getAll()
     .where({ 'g.game_id': gameId })
     .first()
@@ -166,7 +166,7 @@ function getCategoryByName(category_name: string) {
     .first()
 }
 
-function getCategoryOptionsByCategoryId(category_id: number) {
+function getCategoryOptionsByCategoryId(category_id: number | string) {
   /*
   SELECT option_id, option_name
   FROM category_options
@@ -240,13 +240,13 @@ async function insertNewGame(game: {
   }
 }
 
-async function deleteGame(game_id: number) {
+async function deleteGame(game_id: number | string) {
   const delGame = await getById(game_id)
   await db('games').where({ game_id }).del()
   return delGame
 }
 
-function updateTimestamp(game_id: number, type: string) {
+function updateTimestamp(game_id: number | string, type: string) {
   const newData = {[type]: db.fn.now()}
   return db('timestamps')
     .where({game_id})
@@ -360,7 +360,7 @@ async function updateGame(game: {
   }
 }
 
-module.exports = {
+export {
   getAll,
   getTimestamps,
   getById,

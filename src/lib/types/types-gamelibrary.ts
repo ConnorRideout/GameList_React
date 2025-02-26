@@ -120,7 +120,7 @@ interface TagEntry {
  tag_id: number;
  tag_name: string;
 }
-export interface SearchRestraints {
+interface SearchRestraints {
   include: {
     tags: string[];
     status: string[];
@@ -132,11 +132,18 @@ export interface SearchRestraints {
     categories: StringMap;
   };
 }
+interface ConfigType {
+  games_folder: string;
+  locale_emulator: string;
+  file_types: {[key: string]: string[]};
+  ignored_exes: string[];
+}
+type MissingGamesType = {game_id: number, title: string, path: string}[]
 interface GamelibState {
   gamelib: GameEntry[];
   editGame: GameEntry | null;
   editGameType: 'edit' | 'update' | 'new';
-  missingGames: {game_id: number, title: string, path: string}[];
+  missingGames: MissingGamesType;
   sortedGamelib: SortedGamelib;
   sortOrder: SortOrders;
   searchRestraints: SearchRestraints;
@@ -144,8 +151,7 @@ interface GamelibState {
   statuses: StatusEntry[];
   tags: TagEntry[];
   styleVars: StringMap;
-  // TODO: make the config type more accurate with actual key-values
-  config: StringMap;
+  config: ConfigType;
   status: string;
   error: string | undefined;
 }
@@ -158,4 +164,7 @@ export {
   CategoryEntry,
   StatusEntry,
   TagEntry,
+  SearchRestraints,
+  ConfigType,
+  MissingGamesType,
 }

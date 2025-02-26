@@ -1,41 +1,44 @@
+/* eslint-disable import/no-relative-packages */
 /* eslint-disable promise/no-callback-in-promise */
 /* eslint-disable promise/always-return */
-const express = require('express')
-const sassVars = require('get-sass-vars')
-const { promises: fs} = require('fs')
+import express from 'express'
+import sassVars from 'get-sass-vars'
+import { promises as fs } from 'fs'
 
-const Games = require('./games-model.ts')
+import * as Games from './games-model'
+import { GameEntry, StringMap } from '../../types'
 
 
 const router = express.Router()
 
-function parseRawGameData(game) {
+function parseRawGameData(game: Games.RawGameEntry) {
   // format program_path
-  game.program_path = JSON.parse(game.program_path)
+  game.program_path = JSON.parse(game.program_path);
   // format tags
-  game.tags = typeof game.tags === 'string' ? game.tags.split(',').sort() : []
+  (game as any).tags = typeof game.tags === 'string' ? game.tags.split(',').sort() : []
   // format categories
   const { categories, protagonist } = game
-  delete game.protagonist
-  const parsedCats = { protagonist }
+  delete (game as any).protagonist
+  const parsedCats: StringMap = { protagonist }
   categories.split(',').forEach(category => {
     const [cat, val] = category.split(':')
     parsedCats[cat] = val
-  })
-  game.categories = parsedCats
+  });
+  (game as any).categories = parsedCats;
   // format status
-  game.status = game.status !== null ? game.status.split(',') : []
+  (game as any).status = game.status !== null ? game.status.split(',') : []
   // format timestamps
   const {created_at, updated_at, played_at} = game
-  delete game.created_at
-  delete game.updated_at
-  delete game.played_at
-  game.timestamps = {created_at, updated_at, played_at}
-  game.timestamps_sec = {
+  delete (game as any).created_at
+  delete (game as any).updated_at
+  delete (game as any).played_at;
+  (game as any).timestamps = {created_at, updated_at, played_at};
+  (game as any).timestamps_sec = {
     created_at: new Date(created_at.replace(' ', 'T')).getTime(),
     updated_at: updated_at ? new Date(updated_at.replace(' ', 'T')).getTime() : -Infinity,
     played_at: played_at ? new Date(played_at.replace(' ', 'T')).getTime() : -Infinity
   }
+  Object.assign(game, game as unknown as GameEntry)
 }
 
 router.get('/games', (req, res, next) => {
@@ -150,7 +153,7 @@ router.put('/games/:game_id', async (req, res, next) => {
   // updatedGameData is a partial to complete GameEntry
   const updatedGameData = {...req.body, game_id}
   // get old game data
-  const oldGameData = await Games.getById(game_id)
+  const oldGameData = await Games.getById(parseInt(game_id))
   parseRawGameData(oldGameData)
   // overwrite oldGameData with updatedGameData
   const game = {...oldGameData, ...updatedGameData}

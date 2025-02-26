@@ -2,8 +2,8 @@ const express = require('express')
 const cors = require('cors')
 require('dotenv').config()
 
-const gameRoutes = require('./games/games-router')
-const filesystemRoutes = require('./filesystem/filesystem-router')
+const gameRoutes = require('./games/games-router.ts')
+const filesystemRoutes = require('./filesystem/filesystem-router.ts')
 
 const { logger, errorHandler } = require('./middleware/middleware')
 
