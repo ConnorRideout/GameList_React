@@ -11,7 +11,7 @@ const { logger, errorHandler } = require('./middleware/middleware')
 const server = express()
 
 server.use(cors())
-server.use(express.json())
+server.use(express.json({limit: '10mb'}))
 
 server.use(logger)
 

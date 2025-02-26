@@ -2,15 +2,16 @@
 // TODO: auto check for missing game folders on startup with fuzzy search - maybe a whole new Route that `main.ts` effects? A list of missing/changed games and options to edit them?
 
 /* eslint-disable react/no-array-index-key */
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { FixedSizeList as List } from 'react-window'
 import { useSelector, useDispatch } from 'react-redux'
+import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
 import {
   setSearchRestraints,
   clearSearchRestraints,
-  setError // FIXME: Dev dependency
+  setError, // FIXME: Dev dependency
 } from '../../lib/store/gamelibrary'
 import Picker, { FormState } from '../shared/picker/picker'
 import Lineitem from './lineitem/lineitem'
@@ -18,6 +19,7 @@ import BrowseNav from './browseNav'
 import ErrorMessage from '../shared/errorMessage'
 import TextSearch from './textSearch'
 import GamePicker from './gamePicker'
+import MissingGames from './missingGames'
 
 import { SearchRestraints, RootState } from '../../types'
 
@@ -26,13 +28,26 @@ const SearchFieldset = styled.fieldset`
   padding: 0 7px;
 `
 
-// FIXME: dev dependency refetch
-export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) => void}) {
+export default function Browse() {
   const dispatch = useDispatch()
   const sortedGamelib = useSelector((state: RootState) => state.data.sortedGamelib)
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
   const searchRestraints = useSelector((state: RootState) => state.data.searchRestraints)
   const status = useSelector((state: RootState) => state.data.status)
+  // missing games
+  const missingGames = useSelector((state: RootState) => state.data.missingGames)
+  const [handleMissingGames, setHandleMissingGames] = useState(false)
+  // const [triggerEditGame] = useLazyEditGameQuery()
+  // edit games handlers
+  const navigate = useNavigate()
+  const editGame = useSelector((state: RootState) => state.data.editGame)
+
+  useEffect(() => {
+    // navigate to /edit if editGame is updated
+    if (editGame !== null) {
+      navigate('/edit')
+    }
+  }, [editGame, navigate])
 
   const scrollToItem = (idx: number) => {
     const offset = idx * 140
@@ -87,7 +102,6 @@ export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) 
     dispatch(clearSearchRestraints())
   }
 
-
   const currentGamlib = sortedGamelib[sortOrder].filter(g => {
     // check inclusions
     const incl = searchRestraints.include
@@ -114,6 +128,11 @@ export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) 
     return true
   })
 
+  // ask about missing games
+  useEffect(() => {
+    setHandleMissingGames(missingGames.length > 0)
+  }, [missingGames])
+
   // game picker state
   const [showGamePicker, setShowGamePicker] = useState(false)
   const [gamePickerOptions, setGamePickerOptions] = useState<[string, string][]>([])
@@ -122,14 +141,16 @@ export default function Browse({refetch}: {refetch: ({force}: {force: boolean}) 
 
   return (
     <div className='main-container'>
+      {handleMissingGames && (
+        <MissingGames />
+      )}
       <GamePicker
         isVisible={showGamePicker}
         setIsVisible={setShowGamePicker}
         programPaths={gamePickerOptions}
         clickHandler={gamePickerClickHandler}
       />
-      <button style={{position: 'fixed', left: 0}} type='button' onClick={() => refetch({force: true})}>Refetch Gamelib</button>
-      <button style={{position: 'fixed', left: 0, top: '30px'}} type='button' onClick={() => dispatch(setError('test error'))}>Test</button>
+      <button style={{position: 'fixed', left: 0}} type='button' onClick={() => dispatch(setError('test error'))}>Test</button>
       <SearchFieldset className='vertical-container'>
         <legend className='header-max'>Search</legend>
         <Picker

@@ -1,5 +1,5 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
-import { StringMap } from '../types/types-gamelibrary'
+import { GamelibState, StringMap } from '../types/types-gamelibrary'
 
 export const filesystemApi = createApi({
   reducerPath: 'filesystemApi',
@@ -32,18 +32,25 @@ export const filesystemApi = createApi({
         body: {path}
       })
     }),
-    openFolder: builder.mutation({
+    openFolder: builder.mutation<void, string>({
       query: (path: string) => ({
         url: 'open/folder',
         method: 'POST',
         body: {path}
       })
     }),
-    checkUpdatedUrl: builder.mutation({
+    checkUpdatedUrl: builder.mutation<{message: string, redirectedUrl: string}, string>({
       query: (checkUrl: string) => ({
         url: 'urlupdates',
         method: 'POST',
         body: {checkUrl}
+      })
+    }),
+    checkMissingGames: builder.mutation<GamelibState['missingGames'], {game_id: number, path: string}[]>({
+      query: (games: {game_id: number, path: string}[]) => ({
+        url: 'missinggames',
+        method: 'POST',
+        body: {games}
       })
     })
   })
@@ -56,4 +63,5 @@ export const {
   useOpenUrlMutation,
   useOpenFolderMutation,
   useCheckUpdatedUrlMutation,
+  useCheckMissingGamesMutation,
 } = filesystemApi

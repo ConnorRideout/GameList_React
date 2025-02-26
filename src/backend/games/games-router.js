@@ -115,7 +115,7 @@ router.post('/games/new', (req, res, next) => {
   Games.insertNewGame(game)
     .then(newGame => {
       if (newGame.error) {
-        res.status(500).json(newGame)
+        next(newGame)
       } else {
         parseRawGameData(newGame)
         res.status(201).json(newGame)
@@ -145,16 +145,24 @@ router.put('/timestamps/:type/:game_id', (req, res, next) => {
     .catch(next)
 })
 
-router.put('/games/:game_id', (req, res, next) => {
+router.put('/games/:game_id', async (req, res, next) => {
   const {game_id} = req.params
-  const game = {...req.body, game_id}
+  // updatedGameData is a partial to complete GameEntry
+  const updatedGameData = {...req.body, game_id}
+  // get old game data
+  const oldGameData = await Games.getById(game_id)
+  parseRawGameData(oldGameData)
+  // overwrite oldGameData with updatedGameData
+  const game = {...oldGameData, ...updatedGameData}
+  // properly format the game data
   game.protagonist = game.categories.protagonist
   delete game.categories.protagonist
   game.program_path = JSON.stringify(game.program_path)
+  // update it
   Games.updateGame(game)
     .then(updatedGame => {
       if (updatedGame.error) {
-        res.status(500).json(updatedGame)
+        next(updatedGame)
       } else {
         parseRawGameData(updatedGame)
         res.status(200).json(updatedGame)

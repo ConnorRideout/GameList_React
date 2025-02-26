@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
-import { useNavigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 
 import Tooltip from '../../shared/tooltip'
 import { PlaySvg, WebSvg, EditSvg } from '../../shared/svg'
@@ -15,9 +14,9 @@ import {
   useUpdateTimestampMutation,
 } from '../../../lib/store/gamelibApi'
 
-import { RootState } from '../../../types'
 // eslint-disable-next-line import/no-cycle
 import { GamePickerState } from './lineitem'
+import { setEditType } from '../../../lib/store/gamelibrary'
 
 const ToolsFieldset = styled.fieldset`
   min-width: max-content;
@@ -56,19 +55,12 @@ interface Props {
   isEroge: boolean
 }
 export default function Tools({game_id, path, programPath, url, gamePickerState, isEroge}: Props) {
+  const dispatch = useDispatch()
   const [playGame] = usePlayGameMutation()
   const [openUrl] = useOpenUrlMutation()
   const [updatePlayedTimestamp] = useUpdateTimestampMutation()
-  const navigate = useNavigate()
   const [showPlay, setShowPlay] = useState(false)
   const [triggerEditGame] = useLazyEditGameQuery()
-  const editGame = useSelector((state: RootState) => state.data.editGame)
-
-  useEffect(() => {
-    if (editGame !== null) {
-      navigate('/edit')
-    }
-  }, [editGame, navigate])
 
   const {setShowGamePicker, setGamePickerOptions, setGamePickerClickHandler} = gamePickerState
 
@@ -104,7 +96,10 @@ export default function Tools({game_id, path, programPath, url, gamePickerState,
     openUrl(url)
   }
   const editBtnHandler = () => {
+    // save scroll position for when browse is reopened
     sessionStorage.setItem('scrollPosition', String(document.querySelector('.game-scroll-list')?.scrollTop || 0))
+    // trigger edit
+    dispatch(setEditType('edit'))
     triggerEditGame(game_id)
   }
 

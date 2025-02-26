@@ -310,80 +310,91 @@ button.tab-active:not(:disabled) {
 }
 
 .game-picker-container {
-  @extend .vertical-container;
+  & div.inputbox-content {
+    &>span {
+      @extend .horizontal-container;
+      align-items: center;
 
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  z-index: 1000;
-
-  justify-content: center;
-  align-items: center;
-  background-color: #00000055;
-
-  &>div {
-    @extend .vertical-container;
-
-    position: relative;
-    border: 2px ridge variables.$fgNormal;
-    background-color: variables.$bgNormal;
-    padding: variables.$spacing calc(variables.$spacing * 3);
-    min-height: 300px;
-
-    &>h1 {
-      padding-bottom: calc(variables.$spacing * 2);
-    }
-
-    &>div {
-      @extend .vertical-container;
-      flex-grow: 1;
-      margin: 0 20px 0 10px;
-      padding-top: calc(variables.$spacing * 2);
-      border-top: 1px solid variables.$fgDark;
-      border-bottom: 1px solid variables.$fgDark;
-
-      &>span {
-        @extend .horizontal-container;
-        align-items: center;
-
-        &>input {
-          margin-right: calc(variables.$spacing * 4);
-        }
-
-        &>button {
-          display: flex;
-          padding: 0 variables.$spacing;
-          border-radius: 10px;
-          min-width: fit-content;
-        }
-
-        &>h3 {
-          text-align: center;
-        }
+      &>input {
+        margin-right: calc(variables.$spacing * 4);
       }
 
       &>button {
-        position: relative;
-        left: -10px;
-        max-width: fit-content;
-        opacity: 1;
-        transition: opacity 200ms ease-in;
-        margin: variables.$spacing 0 calc(variables.$spacing * 2);
+        display: flex;
+        padding: 0 variables.$spacing;
+        border-radius: 10px;
+        min-width: fit-content;
+      }
 
-        &:disabled {
-          opacity: 0;
-          transition: opacity 100ms ease-in;
-        }
+      &>h3 {
+        text-align: center;
       }
     }
 
     &>button {
-      align-self: center;
-      margin: calc(variables.$spacing * 2) 0;
+      position: relative;
+      left: -10px;
+      max-width: fit-content;
+      opacity: 1;
+      transition: opacity 200ms ease-in;
+      margin: variables.$spacing 0 calc(variables.$spacing * 2);
+
+      &:disabled {
+        opacity: 0;
+        transition: opacity 100ms ease-in;
+      }
     }
   }
+}
+
+.missing-games-container {
+  & div.inputbox {
+    min-width: 500px;
+  }
+
+  & div.inputbox-content>div {
+    @extend .horizontal-container;
+
+    align-items: center;
+
+    &>span {
+      @extend .horizontal-container;
+
+      align-items: center;
+      background-color: variables.$bgLight;
+      height: fit-content;
+      margin: variables.$spacing 0;
+      padding: variables.$spacing calc(variables.$spacing * 3);
+      border-radius: 10px;
+      max-width: fit-content;
+
+      &>* {
+        margin: 0 variables.$spacing;
+      }
+
+      &>h2 {
+        padding: 0;
+      }
+
+      &>button {
+        display: flex;
+        height: fit-content;
+        min-width: fit-content;
+        font-size: variables.$fontSmall;
+        border-radius: 5px;
+      }
+
+    }
+
+    &>p {
+      min-width: 4.2em;
+      cursor: default;
+      text-align: center;
+      padding: 0;
+      margin-right: variables.$spacing;
+    }
+  }
+
 }
 
 .version-container {
@@ -403,10 +414,6 @@ button.tab-active:not(:disabled) {
       padding: 0;
       margin: 0 calc(variables.$spacing / 2) 0 calc(variables.$spacing * 1.5);
     }
-  }
-
-  & .updated {
-    color: springgreen;
   }
 
   & .no-update {

@@ -151,9 +151,24 @@ router.post('/urlupdates', (req, res, next) => {
   const {checkUrl} = req.body
   getRedirectedUrl(checkUrl)
     .then(redirectedUrl => {
-      res.status(200).json({message: checkUrl !== redirectedUrl ? 'updated' : 'no update'})
+      res.status(200).json({message: checkUrl !== redirectedUrl ? 'updated' : 'no update', redirectedUrl})
     })
     .catch(next)
+})
+
+/**
+ * @typedef {Object} Game
+ * @property {number} game_id - The game's ID from the database
+ * @property {string} path - The path to the game (relative)
+ */
+router.post('/missinggames', (req, res) => {
+  const {games} = req.body
+  // check for missing games
+  const missingGames = games.filter(({path}) => {
+    const gamefol = Path.join(config.games_folder, path)
+    return !fs.existsSync(gamefol)
+  })
+  res.status(200).json(missingGames)
 })
 
 

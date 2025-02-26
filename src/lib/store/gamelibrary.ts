@@ -45,6 +45,8 @@ const initialState: GamelibState = {
   // gamelib states
   gamelib: [],
   editGame: null,
+  editGameType: 'edit',
+  missingGames: [],
   // sorting states
   sortedGamelib: {
     recentlyPlayed: [],
@@ -70,10 +72,10 @@ const slice = createSlice({
   name: 'gamelib',
   initialState,
   reducers: {
-    setStatus: (state, action) => {
+    setStatus: (state, action: { payload: GamelibState['status'] }) => {
       state.status = action.payload
     },
-    setError: (state, action) => {
+    setError: (state, action : { payload: GamelibState['error'] }) => {
       state.status = 'failed'
       state.error = action.payload
     },
@@ -81,21 +83,44 @@ const slice = createSlice({
       state.status = 'succeeded'
       state.error = undefined
     },
-    setSortOrder: (state, action) => {
+    setSortOrder: (state, action: { payload: GamelibState['sortOrder'] }) => {
       state.sortOrder = action.payload
     },
-    setSearchRestraints: (state, action) => {
+    setSearchRestraints: (state, action: { payload: GamelibState['searchRestraints'] }) => {
       state.searchRestraints = action.payload
     },
     clearSearchRestraints: (state) => {
       state.searchRestraints = defaultSearchRestraints
     },
+    setEditType: (state, action: { payload: GamelibState['editGameType'] }) => {
+      state.editGameType = action.payload
+    },
     clearEditGame: (state) => {
       state.editGame = null
+      // TODO? might need to set editGameType to default?
+    },
+    setMissingGames: (state, action: {payload: GamelibState['missingGames']}) => {
+      state.missingGames = action.payload
+    },
+    enqueueMissingGame: (state, action: { payload: GamelibState['missingGames'][0] }) => {
+      state.missingGames.push(action.payload)
+    },
+    dequeueMissingGame: (state) => {
+      state.missingGames.shift()
+    },
+    clearMissingGames: (state) => {
+      state.missingGames = []
     }
   },
   extraReducers: (builder) => {
     builder
+      .addMatcher( // handle all errors
+        (action): action is { payload: { data: { message: string } } } & PayloadAction => action.type.endsWith('/rejected'),
+        (state, action) => {
+          state.status = 'failed'
+          state.error = action.payload.data.message
+        }
+      )
       // GET DATA
       .addMatcher(
         gamelibApi.endpoints.getGames.matchPending,
@@ -112,13 +137,6 @@ const slice = createSlice({
           state.sortedGamelib.recentlyAdded = sortGamelib(action.payload, 'recentlyAdded')
           state.sortedGamelib.recentlyUpdated = sortGamelib(action.payload, 'recentlyUpdated')
           state.sortedGamelib.alphabetical = sortGamelib(action.payload, 'alphabetical')
-        }
-      )
-      .addMatcher( // handle all errors
-        (action): action is { payload: { data: { message: string } } } & PayloadAction => action.type.endsWith('/rejected'),
-        (state, action) => {
-          state.status = 'failed'
-          state.error = action.payload.data.message
         }
       )
       .addMatcher(
@@ -159,6 +177,13 @@ const slice = createSlice({
           state.editGame = action.payload
         }
       )
+      // FIND MISSING GAMES
+      .addMatcher(
+        filesystemApi.endpoints.checkMissingGames.matchFulfilled,
+        (state, action) => {
+          state.missingGames = action.payload
+        }
+      )
   }
 })
 
@@ -172,5 +197,10 @@ export const {
   clearError,
   setSearchRestraints,
   clearSearchRestraints,
+  setEditType,
   clearEditGame,
+  setMissingGames,
+  enqueueMissingGame,
+  dequeueMissingGame,
+  clearMissingGames,
 } = slice.actions

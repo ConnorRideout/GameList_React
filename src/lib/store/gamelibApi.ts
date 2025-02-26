@@ -1,5 +1,5 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
-import { GameEntry } from '../types/types-gamelibrary'
+import { CategoryEntry, GameEntry, StatusEntry, StringMap, TagEntry } from '../types/types-gamelibrary'
 
 export const gamelibApi = createApi({
   reducerPath: 'gamelibApi',
@@ -11,26 +11,26 @@ export const gamelibApi = createApi({
     'Tags',
   ],
   endpoints: builder => ({
-    getGames: builder.query<any, void>({
+    getGames: builder.query<GameEntry[], void>({
       query: () => 'games',
       providesTags: ['Games'],
     }),
-    getCategories: builder.query<any, void>({
+    getCategories: builder.query<CategoryEntry[], void>({
       query: () => 'categories',
       providesTags: ['Categories']
     }),
-    getStatuses: builder.query<any, void>({
+    getStatuses: builder.query<StatusEntry[], void>({
       query: () => 'statuses',
       providesTags: ['Statuses']
     }),
-    getTags: builder.query<any, void>({
+    getTags: builder.query<TagEntry[], void>({
       query: () => 'tags',
       providesTags: ['Tags']
     }),
-    getStyleVars: builder.query<any, void>({
+    getStyleVars: builder.query<StringMap, void>({
       query: () => 'styles'
     }),
-    editGame: builder.query<any, number>({
+    editGame: builder.query<GameEntry, number>({
       query: (game_id: number) => `games/${game_id}`
     }),
     updateTimestamp: builder.mutation({
@@ -41,10 +41,10 @@ export const gamelibApi = createApi({
       invalidatesTags: ['Games']
     }),
     updateGame: builder.mutation({
-      query: ({game_id, game}: {game_id: number, game: GameEntry}) => ({
+      query: ({game_id, updatedGameData}: { game_id: number, updatedGameData: { [K in keyof GameEntry]?: GameEntry[K] } }) => ({
         url: `games/${game_id}`,
         method: 'PUT',
-        body: game,
+        body: updatedGameData,
       }),
       invalidatesTags: ['Games']
     }),

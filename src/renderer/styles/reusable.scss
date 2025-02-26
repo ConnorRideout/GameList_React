@@ -1,6 +1,20 @@
 @use 'variables';
 
 
+@mixin fade-in($duration) {
+  animation: fadeIn $duration ease-in forwards;
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+}
+
 .header-max {
   font-size: variables.$fontMax;
   font-weight: bold;
@@ -118,6 +132,10 @@ div.tooltip-image {
   color: variables.$fgError;
 }
 
+.updated {
+  color: variables.$fgUpdated;
+}
+
 .error-container {
   @extend .horizontal-container;
   @extend .container-centered;
@@ -160,5 +178,69 @@ div.tooltip-image {
 
   50% {
     filter: invert(1);
+  }
+}
+
+.dimming-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: rgba(0, 0, 0, 0.5);
+
+  @include fade-in(100ms);
+}
+
+.inputbox-container {
+  // background overlay
+  @extend .vertical-container;
+  @extend .dimming-overlay;
+
+  justify-content: center;
+  align-items: center;
+
+  @include fade-in(200ms);
+
+  &>div.inputbox {
+    // the input box
+    @extend .vertical-container;
+
+    position: relative;
+    border: 2px ridge variables.$fgNormal;
+    background-color: variables.$bgNormal;
+    padding: variables.$spacing calc(variables.$spacing * 3);
+    min-height: 300px;
+    min-width: 400px;
+
+    &>h1 {
+      // the title
+      align-self: center;
+      padding-bottom: calc(variables.$spacing * 2);
+      min-width: 75%;
+      border-bottom: 1px solid variables.$fgDark;
+      text-align: center;
+    }
+
+    &>div.inputbox-content {
+      @extend .vertical-container;
+
+      flex-grow: 1;
+      margin: 0 20px 0 10px;
+      padding: calc(variables.$spacing * 2) 0;
+    }
+
+    &>div.inputbox-buttons {
+      @extend .horizontal-container;
+
+      border-top: 1px solid variables.$fgDark;
+      min-width: 75%;
+      width: fit-content;
+      align-self: center;
+      justify-content: space-evenly;
+      align-items: center;
+      padding: calc(variables.$spacing * 2) 0;
+    }
   }
 }

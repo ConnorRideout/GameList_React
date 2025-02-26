@@ -10,7 +10,7 @@
  */
 import 'dotenv/config'
 import path from 'path'
-import { app, BrowserWindow, shell, ipcMain, net, protocol, dialog } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, net, protocol, dialog, MessageBoxSyncOptions } from 'electron'
 // import { autoUpdater } from 'electron-updater'
 // import log from 'electron-log'
 import installExtension, {REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer'
@@ -172,11 +172,14 @@ app
       .then(res => console.log(`Added Extensions:  ${res}`))
       .catch((err) => console.log('An error occurred: ', err))
     protocol.handle('load-image', async (request) => {
-      let imgPath = request.url
+      const rawImgPath = request.url
         .replace('load-image://', '')
         .replaceAll('_', ' ')
-      imgPath = path.resolve(imgDir, imgPath)
-      return net.fetch(`file://${imgPath}`)
+      const imgPath = path.resolve(imgDir, rawImgPath)
+      if (rawImgPath && existsSync(imgPath))
+        return net.fetch(`file://${imgPath}`)
+      else
+        return new Response('')
     })
 
     createWindow();
@@ -195,18 +198,34 @@ app
       }
     })
 
-    ipcMain.on('open-file-dialog', (event, dialogType: 'openFile' | 'openDirectory' = 'openFile', initialPath: string = games_folder, dataPassthrough: any = null) => {
-      const defaultPath = /^[A-Z]:/.test(initialPath) ? initialPath : path.join(games_folder, initialPath)
-      dialog.showOpenDialog(mainWindow!, {
-        properties: [dialogType],
-        defaultPath
-      }).then(res => {
-        if (!res.canceled) {
-          event.reply('selected-file', res.filePaths, dataPassthrough)
-        }
-      }).catch(err => {
-        console.error(err)
+    ipcMain.on('open-file-dialog', (event, title=undefined, dialogType: 'openFile' | 'openDirectory' = 'openFile', initialPath: string = games_folder) => {
+      // if it's a full path, use initialPath, otherwise join it to games_folder
+      const isRelative = !/^[A-Z]:/.test(initialPath)
+      const defaultPath = isRelative ? path.join(games_folder, initialPath) : path.resolve(initialPath)
+      // prompt for picking file or folder
+      const [filePath] = dialog.showOpenDialogSync(mainWindow!, {
+        properties: [dialogType, 'dontAddToRecent'],
+        defaultPath,
+        title,
+      }) || []
+      // if path is relative to initialPath and doesn't backstep, return relative. otherwise, don't
+      if (!filePath) event.returnValue = filePath
+      else {
+        const relativePath = path.relative(initialPath, filePath)
+        event.returnValue = relativePath.startsWith('..') ? filePath : (relativePath || '.')
+      }
+    })
+
+    ipcMain.on('show-message-dialog', (event, title: string, message: string, type: MessageBoxSyncOptions['type']='none', buttons: MessageBoxSyncOptions['buttons']=[], defaultBtnIdx=0) => {
+      const res = dialog.showMessageBoxSync(mainWindow!, {
+        title,
+        message,
+        type,
+        buttons,
+        defaultId: defaultBtnIdx,
+        noLink: true,
       })
+      event.returnValue = res
     })
 
   })

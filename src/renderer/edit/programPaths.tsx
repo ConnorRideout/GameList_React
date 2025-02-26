@@ -1,7 +1,7 @@
 // TODO: drag-n-drop lines
 
 /* eslint-disable react/no-array-index-key */
-import React, { useEffect, ChangeEvent } from "react"
+import React, { ChangeEvent } from "react"
 
 import {
   PlusSvg,
@@ -42,10 +42,8 @@ export default function ProgramPaths({handleFormChange, formData}: Props) {
 
   const handleFileSearch = (idx: number) => {
     // TODO: implement file search
-    window.electron.openFileDialog({initialPath: formData.path, dataPassthrough: idx})
-  }
-  useEffect(() => {
-    window.electron.onFileSelected(([filePath], idx) => {
+    const filePath = window.electron.openFileDialog({initialPath: formData.path})
+    if (filePath) {
       const regex = new RegExp(`^.+${formData.path}\\\\?`)
       const relativePath = filePath.replace(regex, '')
       const parsedPath = relativePath.trim()
@@ -55,8 +53,8 @@ export default function ProgramPaths({handleFormChange, formData}: Props) {
       const progData = [...formData.program_path]
       progData[idx] = [parsedPath, relativePath]
       handleFormChange({target: {name: 'program_path', value: progData}})
-    })
-  }, [formData, handleFormChange])
+    }
+  }
 
   return(
     <div className="info-prog-paths-container info-column-2 info-row-6 info-column-span-3">

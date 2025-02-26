@@ -59,7 +59,7 @@ export default function CreateEditFormSchema() {
               }
 
               if (hasDuplicatePath) {
-                return createError({ path, message: `The Executabl Paths must be unique` });
+                return createError({ path, message: `The Executable Paths must be unique` });
               }
               // Both strings must have length
               if (value[0] === undefined || value[0].length === 0) {

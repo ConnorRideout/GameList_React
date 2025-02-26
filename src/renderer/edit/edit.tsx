@@ -1,10 +1,12 @@
+/* eslint-disable no-use-before-define */
 // TODO: when updating, auto fill info
 // TODO: when updating, show differences in tags/categories/etc and allow user to pick which ones to keep/change
+// TODO: when updating, if user cancels dialog, ensure the missingGames state is handled correctly
 // TODO: add checkbox that will prevent the `updated_at` timestamp from updating even if version changes
 // TODO: drag n drop handler for urls and images
 
 /* eslint-disable promise/catch-or-return */
-import React, { ChangeEvent, useEffect, useState } from "react"
+import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from "react"
 import styled from "styled-components"
 import { useNavigate } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux"
@@ -13,7 +15,11 @@ import { StringSchema, reach as yup_reach } from "yup"
 import Picker, { FormState } from "../shared/picker/picker"
 import ErrorMessage from "../shared/errorMessage"
 import Info from "./info"
-import { clearEditGame, setError } from "../../lib/store/gamelibrary"
+import {
+  clearEditGame,
+  setError,
+  dequeueMissingGame,
+} from "../../lib/store/gamelibrary"
 import {
   FolderOpenSvg,
   FolderEditSvg,
@@ -22,13 +28,15 @@ import {
 import {
   useOpenUrlMutation,
   useOpenFolderMutation,
+  useCheckUpdatedUrlMutation,
 } from "../../lib/store/filesystemApi"
 import {
   useUpdateGameMutation,
   useUpdateTimestampMutation,
+  useLazyEditGameQuery,
 } from "../../lib/store/gamelibApi"
 
-import { GameEntry, RootState } from "../../types"
+import { GameEntry, GamelibState, RootState } from "../../types"
 import CreateEditFormSchema from "./edit_schema"
 
 
@@ -47,18 +55,17 @@ const EditDiv = styled.div`
 const PathP = styled.p`
   font-size: var(--font-header);
 `
-export interface Props {
-  isNew?: boolean,
-}
-export default function Edit({isNew=false}: Props) {
+export default function Edit() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [openUrl] = useOpenUrlMutation()
   const [openFolder] = useOpenFolderMutation()
   const [updateGame] = useUpdateGameMutation()
   const [updateTimestamp] = useUpdateTimestampMutation()
-  const game_dir = useSelector((state: RootState) => state.data.config.games_folder)
+  const [updateEditGame] = useLazyEditGameQuery()
   const [isLoading, setIsLoading] = useState(false)
+  const game_dir = useSelector((state: RootState) => state.data.config.games_folder)
+  const editType = useSelector((state: RootState) => state.data.editGameType)
 
   const [submitDisabled, setSubmitDisabled] = useState(true)
   const emptyFormErrors = {
@@ -73,19 +80,21 @@ export default function Edit({isNew=false}: Props) {
   const [formErrors, setFormErrors] = useState(emptyFormErrors)
 
   const game_data = useSelector((state: RootState) => state.data.editGame)
-  const emptyFormData = {
-    path: '',
-    title: '',
-    url: '',
-    image: '',
-    version: '',
-    description: '',
-    program_path: {"":""},
-    tags: [],
-    status: [],
-    categories: {}
-  }
-  const {path, title, url, image, version, description, program_path: prog_obj, tags, status, categories}: Omit<GameEntry, 'game_id' | 'timestamps' | 'timestamps_sec'> = game_data || emptyFormData
+  const {path, title, url, image, version, description, program_path: prog_obj, tags, status, categories}: Omit<GameEntry, 'game_id' | 'timestamps' | 'timestamps_sec'> = useMemo(() => (
+    game_data ||
+    {
+      path: '',
+      title: '',
+      url: '',
+      image: '',
+      version: '',
+      description: '',
+      program_path: {"":""},
+      tags: [],
+      status: [],
+      categories: {}
+    }
+  ), [game_data])
   const program_path = Object.entries(prog_obj)
   const [formData, setFormData] = useState({path, title, url, image, version, description, program_path})
 
@@ -171,7 +180,7 @@ export default function Edit({isNew=false}: Props) {
         return acc
       }, {})
     }
-    if (isNew) {
+    if (editType === 'new') {
       // TODO: handle creating new game entry
     } else {
       const { game_id, timestamps, timestamps_sec } = game_data!
@@ -184,11 +193,16 @@ export default function Edit({isNew=false}: Props) {
         timestamps,
         timestamps_sec
       }
-      // setFormData({...emptyFormData, program_path: [["", ""]]})
-      await updateGame({game_id, game: updatedGame})
+      await updateGame({game_id, updatedGameData: updatedGame})
       if (version !== updatedData.version) await updateTimestamp({game_id, type: 'updated_at'})
       setIsLoading(false)
-      closeEdit()
+      if (editType === 'update') {
+        // handle updating missingGames
+        dispatch(dequeueMissingGame())
+        if (missingGames.length === 1) closeEdit()
+      } else {
+        closeEdit()
+      }
     }
   }
 
@@ -198,10 +212,45 @@ export default function Edit({isNew=false}: Props) {
     formErrors
   }
 
+  //    _   _ ___ ___   _ _____ ___ _  _  ___   __  __ ___ ___ ___ ___ _  _  ___    ___   _   __  __ ___ ___
+  //   | | | | _ \   \ /_\_   _|_ _| \| |/ __| |  \/  |_ _/ __/ __|_ _| \| |/ __|  / __| /_\ |  \/  | __/ __|
+  //   | |_| |  _/ |) / _ \| |  | || .` | (_ | | |\/| || |\__ \__ \| || .` | (_ | | (_ |/ _ \| |\/| | _|\__ \
+  //    \___/|_| |___/_/ \_\_| |___|_|\_|\___| |_|  |_|___|___/___/___|_|\_|\___|  \___/_/ \_\_|  |_|___|___/
+  //
+  const [checkForUpdatedUrl] = useCheckUpdatedUrlMutation()
+  const missingGames = useSelector((state: RootState) => state.data.missingGames)
+  const [currentMissing, setCurrentMissing] = useState<GamelibState['missingGames'][0]>()
+  const blockUpdateEdit = useRef(false)
+  useEffect(() => {
+    // if updating missing games, start working through missingGames
+    if (missingGames.length && editType === 'update') {
+      const curMissing = missingGames[0]
+      setCurrentMissing(curMissing)
+      updateEditGame(curMissing.game_id)
+    }
+  }, [editType, missingGames, updateEditGame])
+  useEffect(() => {
+    if (editType === 'update' && !blockUpdateEdit.current && game_data && currentMissing && formData.path !== currentMissing.path && title === currentMissing.title) {
+      // show visual blocking and block the effect
+      setIsLoading(true)
+      blockUpdateEdit.current = true;
+      (async () => {
+        // update url
+        const rawUpdatedUrl = await checkForUpdatedUrl(url).unwrap()
+        const {redirectedUrl} = rawUpdatedUrl
+        // update formData
+        setFormData({path: currentMissing.path, title, url: redirectedUrl, image, version, description, program_path})
+        // clear visual and effect blocking
+        setIsLoading(false)
+        blockUpdateEdit.current = false
+      })()
+    }
+  }, [editType, game_data, formData, currentMissing, checkForUpdatedUrl, title, url, image, version, description, program_path])
+
   return (
     <EditDiv className="main-container vertical-center">
       {isLoading && <div className='loading' />}
-      <h1>{isNew ? 'ADD NEW' : 'EDIT'} GAME</h1>
+      <h1>{editType === 'new' ? 'ADD NEW' : 'EDIT'} GAME</h1>
       <button style={{position: 'fixed', left: 0, top: '30px'}} type='button' onClick={() => dispatch(setError('test error'))}>Test</button>
       <ErrorMessage />
 

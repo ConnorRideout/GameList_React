@@ -135,6 +135,8 @@ export interface SearchRestraints {
 interface GamelibState {
   gamelib: GameEntry[];
   editGame: GameEntry | null;
+  editGameType: 'edit' | 'update' | 'new';
+  missingGames: {game_id: number, title: string, path: string}[];
   sortedGamelib: SortedGamelib;
   sortOrder: SortOrders;
   searchRestraints: SearchRestraints;
@@ -142,6 +144,7 @@ interface GamelibState {
   statuses: StatusEntry[];
   tags: TagEntry[];
   styleVars: StringMap;
+  // TODO: make the config type more accurate with actual key-values
   config: StringMap;
   status: string;
   error: string | undefined;
