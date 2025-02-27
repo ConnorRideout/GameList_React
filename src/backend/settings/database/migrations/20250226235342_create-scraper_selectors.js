@@ -21,7 +21,7 @@ exports.up = (knex) => {
       tbl.string('type').notNullable()
       tbl.string('selector', 1024).notNullable()
       tbl.boolean('queryAll').defaultTo(false)
-      tbl.string('regex').notNullable()
+      tbl.string('regex')
     })
 };
 
