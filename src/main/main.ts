@@ -9,28 +9,37 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 import 'dotenv/config'
-import path from 'path'
+// import path from 'path'
 import { app, BrowserWindow, shell, ipcMain, net, protocol, dialog, MessageBoxSyncOptions } from 'electron'
 // import { autoUpdater } from 'electron-updater'
 // import log from 'electron-log'
 import installExtension, {REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer'
+
+// import Path from 'pathlib-js'
+// import { promises as fs, existsSync } from 'fs'
 import axios from 'axios'
-
 import sassVars from 'get-sass-vars'
-import { promises as fs, existsSync } from 'fs'
 
+import Path from '../parsedPath'
 
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 
-const imgDir = path.join(
+const imgDir = new Path(
   __dirname,
   '../../src/backend/data',
   process.env.SHOWCASING ? 'showcase/gameImages' : 'development/gameImages'
 )
+console.log(imgDir.path)
+// const imgDir = path.join(
+//   __dirname,
+//   '../../src/backend/data',
+//   process.env.SHOWCASING ? 'showcase/gameImages' : 'development/gameImages'
+// )
 
 const getSassVars = async () => {
-  const css = await fs.readFile('./src/renderer/styles/variables.scss', 'utf-8')
+  const css = await new Path('./src/renderer/styles/variables.scss').readFile({encoding: 'utf-8'})
+  // const css = await fs.readFile('./src/renderer/styles/variables.scss', 'utf-8')
   const json = await sassVars(css)
   return json
 }
@@ -82,11 +91,15 @@ const createWindow = async () => {
   }
 
   const RESOURCES_PATH = app.isPackaged
-    ? path.join(process.resourcesPath, 'assets')
-    : path.join(__dirname, '../../assets');
+    ? new Path(process.resourcesPath, 'assets')
+    : new Path(__dirname, '../../assets');
+  // const RESOURCES_PATH = app.isPackaged
+  //   ? path.join(process.resourcesPath, 'assets')
+  //   : path.join(__dirname, '../../assets');
 
   const getAssetPath = (...paths: string[]): string => {
-    return path.join(RESOURCES_PATH, ...paths);
+    return RESOURCES_PATH.join(...paths).path;
+    // return path.join(RESOURCES_PATH, ...paths);
   };
 
   let {$appWidth, $appHeight} = await getSassVars()
@@ -99,10 +112,15 @@ const createWindow = async () => {
     height: parseInt($appHeight, 10) + 35,
     icon: getAssetPath('icon.ico'),
     webPreferences: {
-      preload: app.isPackaged
-        ? path.join(__dirname, 'preload.js')
-        : path.join(__dirname, '../../.erb/dll/preload.js'),
+      preload: (app.isPackaged
+        ? new Path(__dirname, 'preload.js')
+        : new Path(__dirname, '../../.erb/dll/preload.js')).path,
     },
+    // webPreferences: {
+    //   preload: app.isPackaged
+    //     ? path.join(__dirname, 'preload.js')
+    //     : path.join(__dirname, '../../.erb/dll/preload.js'),
+    // },
     resizable: false,
   });
 
@@ -161,11 +179,16 @@ app
       const rawImgPath = request.url
         .replace('load-image://', '')
         .replaceAll('_', ' ')
-      const imgPath = path.resolve(imgDir, rawImgPath)
-      if (rawImgPath && existsSync(imgPath))
-        return net.fetch(`file://${imgPath}`)
+      const imgPath = imgDir.join(rawImgPath)
+      if (rawImgPath && imgPath.existsSync())
+        return net.fetch(`file://${imgPath.path}`)
       else
         return new Response('')
+      // const imgPath = path.join(imgDir, rawImgPath)
+      // if (rawImgPath && existsSync(imgPath))
+      //   return net.fetch(`file://${imgPath}`)
+      // else
+      //   return new Response('')
     })
 
     createWindow();
@@ -183,7 +206,7 @@ app
     ipcMain.on('open-file-dialog', (event, title=undefined, dialogType: 'openFile' | 'openDirectory' = 'openFile', initialPath: string = games_folder) => {
       // if it's a full path, use initialPath, otherwise join it to games_folder
       const isRelative = !/^[A-Z]:/.test(initialPath)
-      const defaultPath = isRelative ? path.join(games_folder, initialPath) : path.resolve(initialPath)
+      const defaultPath = (isRelative ? new Path(games_folder, initialPath) : new Path(initialPath)).path
       // prompt for picking file or folder
       const [filePath] = dialog.showOpenDialogSync(mainWindow!, {
         properties: [dialogType, 'dontAddToRecent'],
@@ -193,7 +216,7 @@ app
       // if path is relative to initialPath and doesn't backstep, return relative. otherwise, don't
       if (!filePath) event.returnValue = filePath
       else {
-        const relativePath = path.relative(initialPath, filePath)
+        const relativePath = new Path(initialPath).relative(filePath)
         event.returnValue = relativePath.startsWith('..') ? filePath : (relativePath || '.')
       }
     })

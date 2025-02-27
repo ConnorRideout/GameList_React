@@ -106,8 +106,8 @@ export default function MissingGames() {
             >
               <p className={ isUpdated ? 'updated' : 'error' }>
                 {isUpdated ?
-                  `<games>/${updatedMissingGames.find(upG => g.game_id === upG.game_id)?.path}`
-                  : `<games>/${missingGames.find(miss => g.game_id === miss.game_id)?.path}`
+                  `<games>\\${updatedMissingGames.find(upG => g.game_id === upG.game_id)?.path}`
+                  : `<games>\\${missingGames.find(miss => g.game_id === miss.game_id)?.path}`
                 }
               </p>
             </Tooltip>
