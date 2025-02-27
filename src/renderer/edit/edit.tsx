@@ -64,7 +64,7 @@ export default function Edit() {
   const [updateTimestamp] = useUpdateTimestampMutation()
   const [updateEditGame] = useLazyEditGameQuery()
   const [isLoading, setIsLoading] = useState(false)
-  const game_dir = useSelector((state: RootState) => state.data.config.games_folder)
+  const game_dir = useSelector((state: RootState) => state.data.settings.games_folder)
   const editType = useSelector((state: RootState) => state.data.editGameType)
 
   const [submitDisabled, setSubmitDisabled] = useState(true)

@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable promise/always-return */
-import {gamesdb} from '../data/db-config'
+import { gamesdb } from '../data/db-config'
 
 
 export interface RawGameEntry {

@@ -18,16 +18,18 @@ import {
   useGetStyleVarsQuery,
 } from '../lib/store/gamelibApi'
 import {
-  useGetConfigQuery,
   useCheckMissingGamesMutation,
 } from '../lib/store/filesystemApi'
+import {
+  useGetSettingsQuery,
+} from '../lib/store/settingsApi'
 
 export default function App() {
   useGetStyleVarsQuery()
   useGetCategoriesQuery()
   useGetStatusesQuery()
   useGetTagsQuery()
-  useGetConfigQuery()
+  useGetSettingsQuery()
   const {data: games} = useGetGamesQuery()
   const [blockCheckMissing, setBlockCheckMissing] = useState(false)
 

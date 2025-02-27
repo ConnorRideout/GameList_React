@@ -1,4 +1,5 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
+
 import { CategoryEntry, GameEntry, StatusEntry, StringMap, TagEntry } from '../types/types-gamelibrary'
 
 export const gamelibApi = createApi({

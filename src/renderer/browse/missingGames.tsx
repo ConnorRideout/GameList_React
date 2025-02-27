@@ -85,7 +85,10 @@ export default function MissingGames() {
     <InputBox
       className="missing-games-container"
       title="Games with missing folders..."
-      buttons={[{text: 'Cancel', clickHandler: handleCancel}, ...(disableSubmit ? [] : [{text: 'Open Edit with Updates', clickHandler: handleSubmit}])]}
+      buttons={[
+        {text: 'Cancel', clickHandler: handleCancel},
+        ...(disableSubmit ? [] : [{text: 'Open Edit to Finish Updates', clickHandler: handleSubmit}])
+      ]}
     >
       {missingGames.map(g => {
         const isUpdated = updatedMissingGames.findIndex(upG => g.game_id === upG.game_id) !== -1

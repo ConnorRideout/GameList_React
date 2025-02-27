@@ -6,6 +6,7 @@ import {
 import { GamelibState, GameEntry } from "../types/types-gamelibrary"
 import { gamelibApi } from "./gamelibApi"
 import { filesystemApi } from "./filesystemApi"
+import { settingsApi } from "./settingsApi"
 
 
 function sortGamelib(gamelib: GameEntry[], sortOrder: string): GameEntry[] {
@@ -62,7 +63,16 @@ const initialState: GamelibState = {
   tags: [],
   // variable states
   styleVars: {},
-  config: {},
+  settings: {
+    games_folder: '',
+    locale_emulator: '',
+    file_types: {
+      Images: [],
+      Executables: []
+    },
+    ignored_exes: [],
+    site_scrapers: []
+  },
   // application status
   status: 'idle', // loading | succeeded | failed | idle | updating
   error: undefined,
@@ -97,7 +107,6 @@ const slice = createSlice({
     },
     clearEditGame: (state) => {
       state.editGame = null
-      // TODO? might need to set editGameType to default?
     },
     setMissingGames: (state, action: {payload: GamelibState['missingGames']}) => {
       state.missingGames = action.payload
@@ -165,9 +174,9 @@ const slice = createSlice({
         }
       )
       .addMatcher(
-        filesystemApi.endpoints.getConfig.matchFulfilled,
+        settingsApi.endpoints.getSettings.matchFulfilled,
         (state, action) => {
-          state.config = action.payload
+          state.settings = action.payload
         }
       )
       // GET GAME FOR EDIT

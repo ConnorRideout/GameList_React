@@ -1,15 +1,16 @@
 /* eslint-disable import/no-relative-packages */
 /* eslint-disable promise/no-callback-in-promise */
 /* eslint-disable promise/always-return */
-import express from 'express'
+import { Router } from 'express'
 import sassVars from 'get-sass-vars'
 import { promises as fs } from 'fs'
 
 import * as Games from './games-model'
+
 import { GameEntry, StringMap } from '../../types'
 
 
-const router = express.Router()
+const router = Router()
 
 function parseRawGameData(game: Games.RawGameEntry) {
   // format program_path
@@ -173,5 +174,6 @@ router.put('/games/:game_id', async (req, res, next) => {
     })
     .catch(next)
 })
+
 
 module.exports = router

@@ -132,11 +132,37 @@ interface SearchRestraints {
     categories: StringMap;
   };
 }
-interface ConfigType {
+interface SettingsType {
   games_folder: string;
   locale_emulator: string;
-  file_types: {[key: string]: string[]};
+  file_types: {
+    Images: string[];
+    Executables: string[];
+    [key: string]: string[];
+  };
   ignored_exes: string[];
+  site_scrapers: {
+    base_url: string;
+    selectors: {
+      type: string;
+      selector: string;
+      queryAll: boolean;
+      regex: string | null;
+      limit_text: boolean;
+      remove_regex: string | null;
+    }[];
+  }[];
+  [key: string]: string | string[] | {[key: string]: string[]} | {
+    base_url: string;
+    selectors: {
+      type: string;
+      selector: string;
+      queryAll: boolean;
+      regex: string | null;
+      limit_text: boolean;
+      remove_regex: string | null;
+    }[];
+  }[];
 }
 type MissingGamesType = {game_id: number, title: string, path: string}[]
 interface GamelibState {
@@ -151,7 +177,7 @@ interface GamelibState {
   statuses: StatusEntry[];
   tags: TagEntry[];
   styleVars: StringMap;
-  config: ConfigType;
+  settings: SettingsType;
   status: string;
   error: string | undefined;
 }
@@ -165,6 +191,6 @@ export {
   StatusEntry,
   TagEntry,
   SearchRestraints,
-  ConfigType,
+  SettingsType,
   MissingGamesType,
 }

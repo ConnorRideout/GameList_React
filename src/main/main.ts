@@ -14,10 +14,11 @@ import { app, BrowserWindow, shell, ipcMain, net, protocol, dialog, MessageBoxSy
 // import { autoUpdater } from 'electron-updater'
 // import log from 'electron-log'
 import installExtension, {REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer'
+import axios from 'axios'
 
 import sassVars from 'get-sass-vars'
-import { promises as fs, readFile, existsSync, writeFileSync } from 'fs'
-import { parse as iniParse, stringify as iniStringify } from 'ini'
+import { promises as fs, existsSync } from 'fs'
+
 
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
@@ -149,21 +150,6 @@ app.on('window-all-closed', () => {
   }
 });
 
-const iniFile = path.join(__dirname, '../../config.ini')
-if (!existsSync(iniFile)) {
-  // TODO: prompt user for config.ini defaults
-  // config.ini file doesn't exist. create it
-  console.log('"config.ini" does not exist. Creating it...')
-  const defaultConfig = {
-    DEFAULT: {
-      games_folder: __dirname,
-      locale_emulator: ''
-    },
-    Ignored_Exes: {'':''}
-  }
-  const iniString = iniStringify(defaultConfig)
-  writeFileSync(iniFile, iniString, 'utf-8')
-}
 
 app
   .whenReady()
@@ -190,13 +176,9 @@ app
     })
 
     let games_folder = __dirname
-    readFile(iniFile, 'utf-8', (err, data) => {
-      if (err) {
-        console.error(err)
-      } else {
-        games_folder = iniParse(data).DEFAULT.games_folder
-      }
-    })
+    axios.get('http://localhost:9000/settings')
+      .then(({data}) => {games_folder = data.games_folder})
+      .catch(err => console.error(err))
 
     ipcMain.on('open-file-dialog', (event, title=undefined, dialogType: 'openFile' | 'openDirectory' = 'openFile', initialPath: string = games_folder) => {
       // if it's a full path, use initialPath, otherwise join it to games_folder
