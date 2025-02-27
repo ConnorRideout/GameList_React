@@ -4,4 +4,10 @@ require('dotenv').config()
 
 const environment = process.env.SHOWCASING ? 'showcasing' : process.env.NODE_ENV || 'showcasing'
 
-module.exports = knex(config[environment])
+const gamesdb = knex(config[environment])
+const settingsdb = knex(config.settings)
+
+module.exports = {
+  gamesdb,
+  settingsdb
+}

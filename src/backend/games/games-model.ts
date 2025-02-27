@@ -1,7 +1,7 @@
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable promise/always-return */
-import db from '../data/db-config'
+import {gamesdb} from '../data/db-config'
 
 
 export interface RawGameEntry {
@@ -57,12 +57,12 @@ function getAll() {
           ELSE 1
       END, g.title ASC
   */
-  return db('games as g')
+  return gamesdb('games as g')
     .select(
       'g.*',
-      db.raw('GROUP_CONCAT(DISTINCT t.tag_name) AS tags'),
-      db.raw('GROUP_CONCAT(DISTINCT s.status_name) AS status'),
-      db.raw('GROUP_CONCAT(DISTINCT c.category_name || ":" || co.option_name) AS categories'),
+      gamesdb.raw('GROUP_CONCAT(DISTINCT t.tag_name) AS tags'),
+      gamesdb.raw('GROUP_CONCAT(DISTINCT s.status_name) AS status'),
+      gamesdb.raw('GROUP_CONCAT(DISTINCT c.category_name || ":" || co.option_name) AS categories'),
       'time.created_at', 'time.played_at', 'time.updated_at'
     )
     .leftJoin('games_tags AS gt', 'g.game_id', 'gt.game_id')
@@ -84,7 +84,7 @@ function getAll() {
 }
 
 function getTimestamps(type: string) {
-  return db('games as g')
+  return gamesdb('games as g')
     .select('g.game_id', `t.${type}`)
     .leftJoin('timestamps as t', 'g.game_id', 't.game_id')
     .orderBy(`t.${type}`, 'desc')
@@ -97,7 +97,7 @@ function getById(gameId: number | string) {
 }
 
 function getTags() {
-  return db('tags')
+  return gamesdb('tags')
     .orderByRaw(`
         CASE
           WHEN tag_name GLOB '[^a-zA-Z0-9]*' THEN 0
@@ -107,7 +107,7 @@ function getTags() {
 }
 
 function getStatus() {
-  return db('status')
+  return gamesdb('status')
     .orderBy('status_priority')
 }
 
@@ -123,10 +123,10 @@ function getCategories() {
   GROUP BY
     c.category_id
   */
-  return db('categories as c')
+  return gamesdb('categories as c')
     .select(
       'c.*',
-      db.raw('GROUP_CONCAT(o.option_name) AS options')
+      gamesdb.raw('GROUP_CONCAT(o.option_name) AS options')
     )
     .join('category_options AS o', 'c.category_id', 'o.category_id')
     .groupBy('c.category_id')
@@ -139,7 +139,7 @@ function getTagByName(tag_name: string) {
   FROM tags
   WHERE tag_name="Gay"
   */
-  return db('tags')
+  return gamesdb('tags')
     .where({ tag_name })
     .first()
 }
@@ -150,7 +150,7 @@ function getStatusByName(status_name: string) {
   FROM status
   WHERE status_name="Favorite"
   */
-  return db('status')
+  return gamesdb('status')
     .where({ status_name })
     .first()
 }
@@ -161,7 +161,7 @@ function getCategoryByName(category_name: string) {
   FROM categories
   WHERE category_name="art"
   */
-  return db('categories')
+  return gamesdb('categories')
     .where({ category_name })
     .first()
 }
@@ -172,7 +172,7 @@ function getCategoryOptionsByCategoryId(category_id: number | string) {
   FROM category_options
   WHERE category_id=2
   */
-  return db('category_options')
+  return gamesdb('category_options')
     .select('option_id', 'option_name')
     .where({ category_id })
 }
@@ -204,7 +204,7 @@ async function insertNewGame(game: {
     return { category_id, option_id }
   }))
 
-  const trx = await db.transaction()
+  const trx = await gamesdb.transaction()
 
   try {
     // Insert into games
@@ -242,13 +242,13 @@ async function insertNewGame(game: {
 
 async function deleteGame(game_id: number | string) {
   const delGame = await getById(game_id)
-  await db('games').where({ game_id }).del()
+  await gamesdb('games').where({ game_id }).del()
   return delGame
 }
 
 function updateTimestamp(game_id: number | string, type: string) {
-  const newData = {[type]: db.fn.now()}
-  return db('timestamps')
+  const newData = {[type]: gamesdb.fn.now()}
+  return gamesdb('timestamps')
     .where({game_id})
     .update(newData)
     .then(() => {
@@ -298,7 +298,7 @@ async function updateGame(game: {
     return { category_id, option_id }
   }))
 
-  const trx = await db.transaction()
+  const trx = await gamesdb.transaction()
 
   try {
     // Update games
@@ -344,7 +344,7 @@ async function updateGame(game: {
 
     // Update timestamps
     const {played_at} = timestamps
-    const updated_at = db.fn.now()
+    const updated_at = gamesdb.fn.now()
     await trx('timestamps')
       .where({ game_id })
       .update({ updated_at, played_at })

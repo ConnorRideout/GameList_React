@@ -206,6 +206,17 @@ export default function Edit() {
     }
   }
 
+  const handleChangeFolder = () => {
+    const newFol = window.electron.openFileDialog({
+      title: `Choose a New Folder for '${title}'`,
+      dialogType: 'openDirectory'
+    })
+    if (newFol) {
+      // folder path was updated
+      setFormData({...formData, path: newFol})
+    }
+  }
+
   const additionalFormData = {
     defaults: {tags, status, categories},
     disabledState: submitDisabled,
@@ -264,10 +275,10 @@ export default function Edit() {
         >
           <FolderOpenSvg color="currentColor" size={25} />
         </button>
-        {/* TODO: Implement changing folder */}
         <button
           type="button"
           className="svg-button"
+          onClick={handleChangeFolder}
         >
           <FolderEditSvg color="currentColor" size={25} />
         </button>

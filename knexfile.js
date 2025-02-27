@@ -23,6 +23,19 @@ const sharedConfig = {
  * @type { Object.<string, import("knex").Knex.Config> }
  */
 module.exports = {
+  settings: {
+    ...sharedConfig,
+    connection: {
+      filename: './settings/database/settings.db3'
+    },
+    migrations: {
+      directory: './settings/database/migrations'
+    },
+    seeds: {
+      directory: './settings/database/seeds'
+    }
+  },
+
   development: {
     ...sharedConfig,
     connection: {

@@ -3,11 +3,14 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "postinstall": "mkdir \"./data/development\" & npm run resetdb:showcase & powershell -Command \"if (-Not (Test-Path './data/development/gameslist.db3')) { Write-Host 'creating database...'; npm run resetdb } else { Write-Host 'database already exists, skipping creation...' }",
+    "postinstall": "mkdir \"./data/development\" & npm run resetdb:showcase & npm run check:resetdb & npm run check:resetdb:settings",
     "start": "node server.js",
     "start:dev": "nodemon --exec ts-node server.js",
     "resetdb": "npx knex migrate:rollback && npx knex migrate:latest && if exist \"./data/development/seeds\" npx knex seed:run",
-    "resetdb:showcase": "npx knex migrate:rollback --env \"showcasing\" && npx knex migrate:latest --env \"showcasing\" && npx knex seed:run --env \"showcasing\""
+    "check:resetdb": "powershell -Command \"if (-Not (Test-Path './data/development/gameslist.db3')) { Write-Host 'creating games database...'; npm run resetdb } else { Write-Host 'games database already exists, skipping creation...' }",
+    "resetdb:showcase": "npx knex migrate:rollback --env \"showcasing\" && npx knex migrate:latest --env \"showcasing\" && npx knex seed:run --env \"showcasing\"",
+    "resetdb:settings": "npx knex migrate:rollback --env \"settings\" && npx knex migrate:latest --env \"settings\" && npx knex seed:run --env \"settings\"",
+    "check:resetdb:settings": "powershell -Command \"if (-Not (Test-Path './settings/database/settings.db3')) { Write-Host 'creating settings database...'; npm run resetdb:settings } else { Write-Host 'settings database already exists, skipping creation...' }"
   },
   "keywords": [],
   "author": "",
