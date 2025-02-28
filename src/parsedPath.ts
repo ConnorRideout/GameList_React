@@ -1,3 +1,4 @@
+/* eslint-disable no-use-before-define */
 /* eslint-disable no-constructor-return */
 import BasePath from "pathlib-js"
 import { join as parsePath } from "path"
@@ -8,6 +9,8 @@ function stringParser(str: string) {
 }
 
 function deepChangeStrings(value: any): any {
+  const isBasePath = checkInstanceBasePath(value)
+  if (isBasePath) return isBasePath
   if (value === null) return value
   if (value instanceof Promise) {
     return value.then(res => deepChangeStrings(res))
@@ -86,9 +89,16 @@ class Path extends BasePath {
             const result = value.apply(target, args2)
 
             // Check if the result is an instance of BasePath
-            if (result instanceof BasePath) {
-              // Return a new instance of Path instead of just wrapping
-              return new Path(result.path)
+            const isBasePath = checkInstanceBasePath(result)
+            if (isBasePath) return isBasePath
+
+            // Check if the result is an array of BasePath instances
+            if (Array.isArray(result)) {
+              return result.map(item => {
+                const isBasePathArr = checkInstanceBasePath(item)
+                if (isBasePath) return isBasePathArr
+                else return deepChangeStrings(item)
+              })
             }
 
             // If result is not an instance of BasePath, parse it
@@ -101,6 +111,16 @@ class Path extends BasePath {
       }
     })
   }
+}
+
+function checkInstanceBasePath(value: any) {
+  if (value instanceof BasePath) {
+    // Return a new instance of Path instead of just wrapping
+    const newPathInstance = new Path(value.path)
+    Object.assign(newPathInstance, value)
+    return newPathInstance
+  }
+  return false
 }
 
 export default Path
