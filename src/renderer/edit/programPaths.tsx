@@ -41,8 +41,10 @@ export default function ProgramPaths({handleFormChange, formData}: Props) {
   }
 
   const handleFileSearch = (idx: number) => {
-    // TODO: implement file search
-    const filePath = window.electron.openFileDialog({initialPath: formData.path})
+    const filePath = window.electron.openFileDialog({
+      initialPath: formData.path,
+      extension_filters: 'executables'
+    })
     if (filePath) {
       const regex = new RegExp(`^.+${formData.path}\\\\?`)
       const relativePath = filePath.replace(regex, '')

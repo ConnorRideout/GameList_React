@@ -86,7 +86,7 @@ export default function MissingGames() {
       className="missing-games-container"
       title="Games with missing folders..."
       buttons={[
-        {text: 'Cancel', clickHandler: handleCancel},
+        {text: disableSubmit ? 'Skip' : 'Cancel', clickHandler: handleCancel},
         ...(disableSubmit ? [] : [{text: 'Open Edit to Finish Updates', clickHandler: handleSubmit}])
       ]}
     >

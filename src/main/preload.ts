@@ -5,20 +5,23 @@ import { contextBridge, ipcRenderer, IpcRendererEvent, MessageBoxSyncOptions } f
 export type Channels = 'ipc-example';
 
 /** Opens a syncronous Electron dialog to select files or folders
- * @param title - The title of the dialog (default is dialog types's default)
+ * @param title - The title of the dialog (default is dialogTypes's default)
  * @param dialogType - The type of dialog (default is 'openFile')
  * @param initialPath - What folder to open the select dialog to (default is the games_folder in settings)
+ * @param extension_filters - If `dialogType` is 'openFile', which type of extensions to allow (default is 'any')
  * @returns The string path that was selected (relative to initialPath if possible without backstepping) or undefined if dialog was canceled
  */
 const openFileDialog = ({
     title,
     dialogType,
-    initialPath
+    initialPath,
+    extension_filters
   }: {
     title?: string,
     dialogType?: 'openFile' | 'openDirectory',
     initialPath?: string
-  }): string | undefined => ipcRenderer.sendSync('open-file-dialog', title, dialogType, initialPath)
+    extension_filters?: 'executables' | 'images' | 'all'
+  }): string | undefined => ipcRenderer.sendSync('open-file-dialog', title, dialogType, initialPath, extension_filters)
 
 /** Opens a syncronous Electron dialog that shows information and optionally gets basic user input
  * @param title - The title of the dialog
