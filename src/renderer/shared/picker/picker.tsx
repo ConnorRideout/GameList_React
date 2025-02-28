@@ -142,16 +142,22 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
     evt.preventDefault()
     setAllowSetDefault(false)
     await submitHandler.handler(formData)
-    setAllowSetDefault(true)
+    if (!isBrowse)
+      setAllowSetDefault(true)
   }
   const handleReset = (evt: MouseEvent<HTMLButtonElement>) => {
     evt.preventDefault()
-    // run the parent's handler
-    cancelHandler.handler()
     if (isBrowse) {
       setFlashClear(true)
-      setTimeout(() => setFlashClear(false), 350)
+      setTimeout(() => {
+        setFlashClear(false)
+        cancelHandler.handler()
+      }, 350)
+      setAllowSetDefault(true)
       setFormData(defaultFormData)
+    } else {
+      // run the parent's handler
+      cancelHandler.handler()
     }
   }
 
