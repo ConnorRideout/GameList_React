@@ -16,6 +16,7 @@ import { app, BrowserWindow, shell, ipcMain, net, protocol, dialog, MessageBoxSy
 import installExtension, {REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer'
 
 // import Path from 'pathlib-js'
+// import { promises as fs } from 'fs'
 // import { promises as fs, existsSync } from 'fs'
 import axios from 'axios'
 import sassVars from 'get-sass-vars'
@@ -25,20 +26,10 @@ import Path from '../parsedPath'
 import MenuBuilder from './menu'
 import { resolveHtmlPath } from './util'
 
-const imgDir = new Path(
-  __dirname,
-  '../../src/backend/data',
-  process.env.SHOWCASING ? 'showcase/gameImages' : 'development/gameImages'
-)
-console.log(imgDir.path)
-// const imgDir = path.join(
-//   __dirname,
-//   '../../src/backend/data',
-//   process.env.SHOWCASING ? 'showcase/gameImages' : 'development/gameImages'
-// )
 
 const getSassVars = async () => {
-  const css = await new Path('./src/renderer/styles/variables.scss').readFile({encoding: 'utf-8'})
+  const cssFile = new Path('./src/renderer/styles/variables.scss')
+  const css = await cssFile.readFile({encoding: 'utf-8'})
   // const css = await fs.readFile('./src/renderer/styles/variables.scss', 'utf-8')
   const json = await sassVars(css)
   return json
@@ -175,6 +166,17 @@ app
     installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS])
       .then(res => console.log(`Added Extensions:  ${res}`))
       .catch((err) => console.log('An error occurred: ', err))
+
+    const imgDir = new Path(
+      __dirname,
+      '../../src/backend/data',
+      process.env.SHOWCASING ? 'showcase/gameImages' : 'development/gameImages'
+    )
+    // const imgDir = path.join(
+    //   __dirname,
+    //   '../../src/backend/data',
+    //   process.env.SHOWCASING ? 'showcase/gameImages' : 'development/gameImages'
+    // )
     protocol.handle('load-image', async (request) => {
       const rawImgPath = request.url
         .replace('load-image://', '')

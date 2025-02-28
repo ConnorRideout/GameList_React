@@ -7,6 +7,27 @@ function stringParser(str: string) {
   return parsePath(str)
 }
 
+function deepChangeStrings(value: any): any {
+  if (value === null) return value
+  if (value instanceof Promise) {
+    return value.then(res => deepChangeStrings(res))
+  }
+  if (typeof value === 'string' && /[^/*]\/([^/*]|$)/.test(value)) {
+    return stringParser(value)
+  }
+  if (Array.isArray(value)) {
+    return value.map(val => deepChangeStrings(val))
+  }
+  if (typeof value === 'object') {
+    return Object.entries(value).reduce((acc: {[key: string|number|symbol|``]: any}, [key, val]) => {
+      const parseVal = deepChangeStrings(val)
+      acc[key] = parseVal
+      return acc
+    }, {})
+  }
+  return value
+}
+
 /**
  * A class that extends the default 'pathlib-js' `Path` class. It's been updated to return strings parsed using System Path Delimiters
  * @description
@@ -53,25 +74,33 @@ function stringParser(str: string) {
  * ```
  */
 class Path extends BasePath {
-    constructor(...args: ConstructorParameters<typeof BasePath>) {
-        super(...args)
-        return new Proxy(this, {
-            get(target, prop) {
-                const value = (target as any)[prop]
+  constructor(...args: ConstructorParameters<typeof BasePath>) {
+    super(...args)
+    return new Proxy(this, {
+      get(target, prop) {
+        const value = (target as any)[prop]
 
-                // If it's a method, wrap it
-                if (typeof value === 'function') {
-                    return (...args2: any[]) => {
-                        const result = value.apply(target, args2)
-                        return typeof result === 'string' ? stringParser(result) : result
-                    }
-                }
+        // If it's a method, wrap it
+        if (typeof value === 'function') {
+          return (...args2: any[]) => {
+            const result = value.apply(target, args2)
 
-                // If it's a string property, parse it
-                return typeof value === 'string' ? stringParser(value) : value
+            // Check if the result is an instance of BasePath
+            if (result instanceof BasePath) {
+              // Return a new instance of Path instead of just wrapping
+              return new Path(result.path)
             }
-        })
-    }
+
+            // If result is not an instance of BasePath, parse it
+            return deepChangeStrings(result)
+          }
+        }
+
+        // If it's not a function, parse it
+        return deepChangeStrings(value)
+      }
+    })
+  }
 }
 
 export default Path
