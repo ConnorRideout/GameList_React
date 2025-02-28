@@ -1,13 +1,8 @@
-// TODO: use nircmd
-
 /* eslint-disable import/no-relative-packages */
 /* eslint-disable prefer-promise-reject-errors */
 /* eslint-disable promise/no-callback-in-promise */
 /* eslint-disable no-console */
-import { spawn, exec } from 'child_process'
-// import fs from 'fs'
-// import ini from 'ini'
-// import Path from 'path'
+import { exec } from 'child_process'
 import { Router } from 'express'
 import axios from 'axios'
 
@@ -38,25 +33,31 @@ router.post('/open/:type', (req, res, next) => {
   const { path, useLE } = req.body
 
   const run = (filepath: Path, args: string[] = []) => {
-  // const run = (filepath: string, args: string[] = []) => {
     const workingdir = filepath.dirname
     const relativePath = new Path(workingdir).relative(filepath)
-    // const workingdir = Path.dirname(filepath)
-    // const relativePath = Path.relative(workingdir, filepath)
 
+    const nircmd = new Path(__dirname, '../../../', 'nircmd-x64.exe')
+
+    let commandArgs = ''
     let command = ''
-    if (useLE && /(swf|exe|jar)$/.test(relativePath)) {
-      command = `Start-Process \\"${settings.locale_emulator}\\" -ArgumentList \\"${relativePath}\\"`
+    if (/(swf|exe|jar)$/.test(relativePath)) {
+      if (useLE) {
+        commandArgs = `"${settings.locale_emulator}" "${relativePath}"`
+      } else {
+        commandArgs = `"${filepath.path}" ${args.length ? `"${args.join('" "')}"` : ''}`
+      }
+      command = `"${nircmd.path}" exec2 show "${workingdir}" ${commandArgs}`
     } else {
-      command = `Start-Process \\"${relativePath}\\" ${args.length ? `-ArgumentList \\"${args.join('\\",\\"')}\\"` : ''}`
+      command = `"${nircmd.path}" shexec "open" "${filepath.path}"`
     }
+    console.log(command)
 
-    const process = spawn('powershell.exe', ['-command', command], {
-      detached: true,
-      stdio: 'ignore',
-      cwd: workingdir,
-      shell: true,
+    const process = exec(command, (err) => {
+      if (err) {
+        next({message: `Failed to start url "${path}": ${err}`})
+      }
     })
+
     process.on('error', err => {
       console.error(`Failed to start process "${filepath}": ${err}`)
       next({message: `Failed to start process "${filepath}": ${err}`})
@@ -72,9 +73,6 @@ router.post('/open/:type', (req, res, next) => {
     const filepath = (process.env.SHOWCASING || process.env.NODE_ENV === 'showcasing')
       ? new Path('notepad')
       : new Path(games_folder, path)
-      // ? : 'notepad'
-      // : Path.join(games_folder, path)
-    console.log(filepath)
     if (filepath.path === 'notepad' || filepath.existsSync()) {
     // if (filepath === 'notepad' || fs.existsSync(filepath)) {
       run(filepath)
@@ -92,14 +90,10 @@ router.post('/open/:type', (req, res, next) => {
     const filepath = new Path(path)
     if (filepath.existsSync()) run(new Path("explorer.exe"), [filepath.path])
     else run(new Path("explorer.exe"), [games_folder])
-    // if (fs.existsSync(filepath)) run("explorer.exe", [filepath])
-    // else run("explorer.exe", [games_folder])
   } else if (type === 'openatfile') {
     const filepath = new Path(path)
     if (filepath.existsSync()) run(new Path("explorer.exe"), ['/select,', `\`\\"${filepath.path}\`\\"`])
     else run(new Path('explorer.exe'), [games_folder])
-    // if (fs.existsSync(filepath)) run("explorer.exe", ['/select,', `\`\\"${filepath}\`\\"`])
-    // else run('explorer.exe', [games_folder])
   }
 })
 
@@ -131,8 +125,6 @@ router.post('/missinggames', (req, res) => {
   const missingGames = games.filter(({path}) => {
     const gamefol = new Path(settings.games_folder, path)
     return !gamefol.existsSync()
-    // const gamefol = Path.join(settings.games_folder, path)
-    // return !fs.existsSync(gamefol)
   })
   res.status(200).json(missingGames)
 })
