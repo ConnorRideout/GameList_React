@@ -2,6 +2,8 @@
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent, MessageBoxSyncOptions } from 'electron';
 
+import { MenuAction } from '../types';
+
 export type Channels = 'ipc-example';
 
 /** Opens a syncronous Electron dialog to select files or folders
@@ -12,16 +14,18 @@ export type Channels = 'ipc-example';
  * @returns The string path that was selected (relative to initialPath if possible without backstepping) or undefined if dialog was canceled
  */
 const openFileDialog = ({
-    title,
-    dialogType,
-    initialPath,
-    extension_filters
-  }: {
-    title?: string,
-    dialogType?: 'openFile' | 'openDirectory',
-    initialPath?: string
-    extension_filters?: 'executables' | 'images' | 'all'
-  }): string | undefined => ipcRenderer.sendSync('open-file-dialog', title, dialogType, initialPath, extension_filters)
+  title,
+  dialogType,
+  initialPath,
+  extension_filters
+}: {
+  title?: string,
+  dialogType?: 'openFile' | 'openDirectory',
+  initialPath?: string
+  extension_filters?: 'executables' | 'images' | 'all'
+}): string | undefined => (
+  ipcRenderer.sendSync('open-file-dialog', title, dialogType, initialPath, extension_filters)
+)
 
 /** Opens a syncronous Electron dialog that shows information and optionally gets basic user input
  * @param title - The title of the dialog
@@ -32,20 +36,24 @@ const openFileDialog = ({
  * @returns The index of the clicked button
  */
 const showMessageBox = ({
-    title,
-    message,
-    type,
-    buttons,
-    defaultBtnIdx
-  }: {
-    title: string,
-    message: string,
-    type?: MessageBoxSyncOptions['type'],
-    buttons?: MessageBoxSyncOptions['buttons'],
-    defaultBtnIdx?: number
-  }): number => ipcRenderer.sendSync('show-message-dialog', title, message, type, buttons, defaultBtnIdx)
+  title,
+  message,
+  type,
+  buttons,
+  defaultBtnIdx
+}: {
+  title: string,
+  message: string,
+  type?: MessageBoxSyncOptions['type'],
+  buttons?: MessageBoxSyncOptions['buttons'],
+  defaultBtnIdx?: number
+}): number => (
+  ipcRenderer.sendSync('show-message-dialog', title, message, type, buttons, defaultBtnIdx)
+)
 
-  const electronHandler = {
+
+
+const electronHandler = {
   ipcRenderer: {
     sendMessage(channel: Channels, ...args: unknown[]) {
       ipcRenderer.send(channel, ...args);
@@ -62,6 +70,10 @@ const showMessageBox = ({
     once(channel: Channels, func: (...args: unknown[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
     },
+  },
+
+  onMenuAction: (callback: (action: MenuAction) => void) => {
+    ipcRenderer.on('menu-action', (event, action: MenuAction) => callback(action))
   },
 
   openFileDialog,

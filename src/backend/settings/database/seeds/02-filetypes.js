@@ -4,7 +4,7 @@
  */
 exports.seed = (knex) => {
   return knex('filetypes').insert([
+    {name: 'Executables', filetypes: 'exe, jar, swf, html, htm, url'},
     {name: 'Images', filetypes: 'jpg, jpeg, png, gif'},
-    {name: 'Executables', filetypes: 'exe, jar, swf, html, htm, url'}
   ])
 };

@@ -52,4 +52,5 @@ export const {
   useOpenFolderMutation,
   useCheckUpdatedUrlMutation,
   useCheckMissingGamesMutation,
+  useLazyCheckNewGamesQuery,
 } = filesystemApi

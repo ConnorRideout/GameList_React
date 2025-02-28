@@ -7,6 +7,8 @@ import TabularButton from "./tabularButton"
 import { RootState } from '../../lib/store/store'
 import { setSortOrder, setStatus } from "../../lib/store/gamelibrary"
 
+import { GamelibState } from '../../types'
+
 
 const NavDiv = styled.div`
 justify-content: flex-start;
@@ -22,7 +24,7 @@ export default function BrowseNav({scrollToItem}: {scrollToItem: (idx: number) =
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
   const status = useSelector((state: RootState) => state.data.status)
 
-  const sortGamelib = (sortby: string) => {
+  const sortGamelib = (sortby: GamelibState['sortOrder']) => {
     if (sortOrder !== sortby) {
       dispatch(setStatus('updating'))
       return new Promise(resolve => {
@@ -66,7 +68,7 @@ export default function BrowseNav({scrollToItem}: {scrollToItem: (idx: number) =
     return false
   }
 
-  const sortHandler = (evt: React.MouseEvent<HTMLButtonElement>, sortby: string) => {
+  const sortHandler = (evt: React.MouseEvent<HTMLButtonElement>, sortby: GamelibState['sortOrder']) => {
     sortGamelib(sortby)
     scrollToTop(false)
   }

@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
 // store
-import { clearMissingGames, setEditType, setMissingGames } from "../../lib/store/gamelibrary"
-import { useCheckMissingGamesMutation } from "../../lib/store/filesystemApi"
+import { clearMissingGames, setEditType, setMissingGames } from "../../../lib/store/gamelibrary"
+import { useCheckMissingGamesMutation } from "../../../lib/store/filesystemApi"
 // components
-import InputBox from "../shared/inputBox"
-import Tooltip from "../shared/tooltip"
+import InputBox from "../../shared/inputBox"
+import Tooltip from "../../shared/tooltip"
 // types
-import { GamelibState, RootState } from "../../types"
+import { GamelibState, RootState } from "../../../types"
 
 
 export default function MissingGames() {

@@ -18,8 +18,8 @@ import Lineitem from './lineitem/lineitem'
 import BrowseNav from './browseNav'
 import ErrorMessage from '../shared/errorMessage'
 import TextSearch from './textSearch'
-import GamePicker from './gamePicker'
-import MissingGames from './missingGames'
+import GamePicker from './dialogs/gamePicker'
+import MissingGames from './dialogs/missingGames'
 
 import { SearchRestraints, RootState } from '../../types'
 

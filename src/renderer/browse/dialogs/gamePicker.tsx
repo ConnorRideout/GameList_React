@@ -1,7 +1,7 @@
 import React, { useState, useEffect, ChangeEvent } from "react"
 
-import InputBox from "../shared/inputBox"
-import { PlaySvg } from "../shared/svg"
+import InputBox from "../../shared/inputBox"
+import { PlaySvg } from "../../shared/svg"
 
 interface Props {
   isVisible: boolean,
