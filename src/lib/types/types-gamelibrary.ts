@@ -170,6 +170,7 @@ interface GamelibState {
   editGame: GameEntry | null;
   editGameType: 'edit' | 'update' | 'new';
   missingGames: MissingGamesType;
+  newGames: string[];
   sortedGamelib: SortedGamelib;
   sortOrder: SortOrders;
   searchRestraints: SearchRestraints;

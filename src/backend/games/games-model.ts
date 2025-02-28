@@ -83,17 +83,21 @@ function getAll() {
       `)
 }
 
+function getById(gameId: number | string) {
+  return getAll()
+    .where({ 'g.game_id': gameId })
+    .first()
+}
+
+function getGamePaths() {
+  return gamesdb('games').select('path')
+}
+
 function getTimestamps(type: string) {
   return gamesdb('games as g')
     .select('g.game_id', `t.${type}`)
     .leftJoin('timestamps as t', 'g.game_id', 't.game_id')
     .orderBy(`t.${type}`, 'desc')
-}
-
-function getById(gameId: number | string) {
-  return getAll()
-    .where({ 'g.game_id': gameId })
-    .first()
 }
 
 function getTags() {
@@ -362,8 +366,9 @@ async function updateGame(game: {
 
 export {
   getAll,
-  getTimestamps,
   getById,
+  getGamePaths,
+  getTimestamps,
   getTags,
   getStatus,
   getCategories,

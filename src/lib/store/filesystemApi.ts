@@ -39,6 +39,9 @@ export const filesystemApi = createApi({
         method: 'POST',
         body: {games}
       })
+    }),
+    checkNewGames: builder.query<string[], void>({
+      query: () => 'newgames'
     })
   })
 })

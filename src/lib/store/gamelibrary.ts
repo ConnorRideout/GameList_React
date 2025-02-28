@@ -48,6 +48,7 @@ const initialState: GamelibState = {
   editGame: null,
   editGameType: 'edit',
   missingGames: [],
+  newGames: [],
   // sorting states
   sortedGamelib: {
     recentlyPlayed: [],
@@ -191,6 +192,13 @@ const slice = createSlice({
         filesystemApi.endpoints.checkMissingGames.matchFulfilled,
         (state, action) => {
           state.missingGames = action.payload
+        }
+      )
+      // FIND NEW GAMES
+      .addMatcher(
+        filesystemApi.endpoints.checkNewGames.matchFulfilled,
+        (state, action) => {
+          state.newGames = action.payload
         }
       )
   }
