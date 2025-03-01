@@ -22,6 +22,7 @@ import GamePicker from './dialogs/gamePicker'
 import MissingGames from './dialogs/missingGames'
 
 import { SearchRestraints, RootState } from '../../types'
+import NewGames from './dialogs/newGames'
 
 
 const SearchFieldset = styled.fieldset`
@@ -34,11 +35,13 @@ export default function Browse() {
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
   const searchRestraints = useSelector((state: RootState) => state.data.searchRestraints)
   const status = useSelector((state: RootState) => state.data.status)
+  // new games
+  const newGames = useSelector((state: RootState) => state.data.newGames)
+  const [handleNewGames, setHandleNewGames] = useState(false)
   // missing games
   const missingGames = useSelector((state: RootState) => state.data.missingGames)
   const [handleMissingGames, setHandleMissingGames] = useState(false)
-  // const [triggerEditGame] = useLazyEditGameQuery()
-  // edit games handlers
+  // edit games
   const navigate = useNavigate()
   const editGame = useSelector((state: RootState) => state.data.editGame)
 
@@ -128,6 +131,11 @@ export default function Browse() {
     return true
   })
 
+  // ask about new games
+  useEffect(() => {
+    setHandleNewGames(newGames.length > 0)
+  }, [newGames])
+
   // ask about missing games
   useEffect(() => {
     setHandleMissingGames(missingGames.length > 0)
@@ -143,6 +151,9 @@ export default function Browse() {
     <div className='main-container'>
       {handleMissingGames && (
         <MissingGames />
+      )}
+      {handleNewGames && !handleMissingGames && (
+        <NewGames />
       )}
       <GamePicker
         isVisible={showGamePicker}

@@ -148,7 +148,7 @@ input[type=checkbox] {
   }
 
   &:indeterminate {
-    background-image: linear-gradient(darkgoldenrod, 50%, color.adjust(darkgoldenrod, $lightness: -12%) 50%);
+    background-image: linear-gradient(goldenrod, 50%, darkgoldenrod 50%);
 
     &::before {
       transform: scale(1);

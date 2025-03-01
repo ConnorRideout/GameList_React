@@ -53,6 +53,7 @@ div.tooltip-image {
 
 .horizontal-container {
   display: flex;
+  flex-direction: row;
 
   &.horizontal-center {
     justify-content: center;
@@ -177,6 +178,7 @@ div.tooltip-image {
   }
 
   50% {
+    background-color: variables.$bgNormal;
     filter: invert(1);
   }
 }
@@ -227,6 +229,7 @@ div.tooltip-image {
     }
 
     &>div.inputbox-content {
+      // the content box
       @extend .vertical-container;
 
       flex-grow: 1;

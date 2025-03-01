@@ -50,7 +50,7 @@ export const gamelibApi = createApi({
       invalidatesTags: ['Games']
     }),
     newGame: builder.mutation({
-      query: (game) => ({
+      query: (game: Omit<GameEntry, 'game_id' | 'timestamps' | 'timestamps_sec'>) => ({
         url: 'games/new',
         method: 'POST',
         body: game,

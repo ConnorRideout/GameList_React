@@ -421,3 +421,88 @@ button.tab-active:not(:disabled) {
     color: variables.$fgError;
   }
 }
+
+.new-games-container {
+  & div.inputbox {
+    min-width: 500px;
+
+    & div.inputbox-content {
+      position: relative;
+
+      &>div {
+        @extend .vertical-container;
+
+        max-height: 100%;
+        overflow: auto;
+        padding-top: calc(variables.$spacing * 5 + 35px);
+
+        &>div,
+        &.legend {
+          @extend .horizontal-container;
+
+          align-items: center;
+          background-color: variables.$bgLight;
+          height: fit-content;
+          margin: variables.$spacing 0;
+          padding: variables.$spacing calc(variables.$spacing * 3);
+          border-radius: 10px;
+          max-width: fit-content;
+
+          &>* {
+            margin: 0 variables.$spacing;
+          }
+
+          &>span {
+            border-left: 1px inset variables.$bgDark;
+            border-right: 1px inset variables.$bgDark;
+            padding: 0;
+            min-height: 80%;
+          }
+
+          &>h2 {
+            padding: 0;
+            color: variables.$fgLight;
+          }
+        }
+
+        &.legend {
+          position: absolute;
+          top: 0;
+          left: 0;
+          max-width: none;
+          width: calc(100% - 25px);
+          overflow: visible;
+          padding: 0;
+          border-left: 1px solid variables.$fgNormal;
+          border-bottom: 1px solid variables.$fgNormal;
+          border-right: 1px solid variables.$fgNormal;
+          border-top-left-radius: 0;
+          border-top-right-radius: 0;
+          margin: 0;
+          z-index: 10;
+
+          &>span {
+            min-height: 2em;
+          }
+
+          &>label {
+            @extend .vertical-container;
+
+            flex-direction: column-reverse;
+            margin: 0;
+
+            &>input[type=checkbox] {
+              margin: 0;
+            }
+          }
+
+          & h1,
+          & h2,
+          & h3 {
+            color: variables.$fgHighlightedText;
+          }
+        }
+      }
+    }
+  }
+}

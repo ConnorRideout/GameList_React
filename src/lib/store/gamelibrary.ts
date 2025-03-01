@@ -106,6 +106,9 @@ const slice = createSlice({
     setEditType: (state, action: { payload: GamelibState['editGameType'] }) => {
       state.editGameType = action.payload
     },
+    setEditGame: (state, action: { payload: GamelibState['editGame'] }) => {
+      state.editGame = action.payload
+    },
     clearEditGame: (state) => {
       state.editGame = null
     },
@@ -120,6 +123,18 @@ const slice = createSlice({
     },
     clearMissingGames: (state) => {
       state.missingGames = []
+    },
+    setNewGames: (state, action: {payload: GamelibState['newGames']}) => {
+      state.newGames = action.payload
+    },
+    enqueueNewGame: (state, action: {payload: GamelibState['newGames'][0]}) => {
+      state.newGames.push(action.payload)
+    },
+    dequeueNewGame: (state) => {
+      state.newGames.shift()
+    },
+    clearNewGames: (state) => {
+      state.newGames = []
     }
   },
   extraReducers: (builder) => {
@@ -215,9 +230,14 @@ export const {
   setSearchRestraints,
   clearSearchRestraints,
   setEditType,
+  setEditGame,
   clearEditGame,
   setMissingGames,
   enqueueMissingGame,
   dequeueMissingGame,
   clearMissingGames,
+  setNewGames,
+  enqueueNewGame,
+  dequeueNewGame,
+  clearNewGames,
 } = slice.actions

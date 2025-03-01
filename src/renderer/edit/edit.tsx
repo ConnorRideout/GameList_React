@@ -1,10 +1,10 @@
-/* eslint-disable no-use-before-define */
 // TODO: when updating, auto fill info
 // TODO: when updating, show differences in tags/categories/etc and allow user to pick which ones to keep/change
-// TODO: when updating, if user cancels dialog, ensure the missingGames state is handled correctly
 // TODO: add checkbox that will prevent the `updated_at` timestamp from updating even if version changes
 // TODO: drag n drop handler for urls and images
+// TODO: set default values for categories like 'play-status'
 
+/* eslint-disable no-use-before-define */
 /* eslint-disable promise/catch-or-return */
 import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from "react"
 import styled from "styled-components"
@@ -19,6 +19,8 @@ import {
   clearEditGame,
   setError,
   dequeueMissingGame,
+  setEditGame,
+  dequeueNewGame,
 } from "../../lib/store/gamelibrary"
 import {
   FolderOpenSvg,
@@ -34,6 +36,7 @@ import {
   useUpdateGameMutation,
   useUpdateTimestampMutation,
   useLazyEditGameQuery,
+  useNewGameMutation,
 } from "../../lib/store/gamelibApi"
 
 import { GameEntry, GamelibState, RootState } from "../../types"
@@ -61,12 +64,14 @@ export default function Edit() {
   const [openUrl] = useOpenUrlMutation()
   const [openFolder] = useOpenFolderMutation()
   const [updateGame] = useUpdateGameMutation()
+  const [newGame] = useNewGameMutation()
   const [updateTimestamp] = useUpdateTimestampMutation()
   const [updateEditGame] = useLazyEditGameQuery()
   const [isLoading, setIsLoading] = useState(false)
   const game_dir = useSelector((state: RootState) => state.data.settings.games_folder)
   const editType = useSelector((state: RootState) => state.data.editGameType)
 
+  const [flashPath, setFlashPath] = useState(false)
   const [submitDisabled, setSubmitDisabled] = useState(true)
   const emptyFormErrors = {
     path: '',
@@ -81,7 +86,6 @@ export default function Edit() {
 
   const game_data = useSelector((state: RootState) => state.data.editGame)
   const {path, title, url, image, version, description, program_path: prog_obj, tags, status, categories}: Omit<GameEntry, 'game_id' | 'timestamps' | 'timestamps_sec'> = useMemo(() => (
-    game_data ||
     {
       path: '',
       title: '',
@@ -92,7 +96,8 @@ export default function Edit() {
       program_path: {"":""},
       tags: [],
       status: [],
-      categories: {}
+      categories: {},
+      ...game_data
     }
   ), [game_data])
   const program_path = Object.entries(prog_obj)
@@ -181,9 +186,19 @@ export default function Edit() {
       }, {})
     }
     if (editType === 'new') {
-      // TODO: handle creating new game entry
+      const addedGame = {
+        ...updatedData,
+        tags: updatedTags,
+        status: updatedStatuses,
+        categories: updatedCategories,
+      }
+      await newGame(addedGame)
+      setIsLoading(false)
+      dispatch(dequeueNewGame())
+      if (newGames.length === 1)
+        closeEdit()
     } else {
-      const { game_id, timestamps, timestamps_sec } = game_data!
+      const { game_id, timestamps, timestamps_sec } = (game_data as GameEntry)
       const updatedGame: GameEntry = {
         game_id,
         ...updatedData,
@@ -199,7 +214,8 @@ export default function Edit() {
       if (editType === 'update') {
         // handle updating missingGames
         dispatch(dequeueMissingGame())
-        if (missingGames.length === 1) closeEdit()
+        if (missingGames.length === 1)
+          closeEdit()
       } else {
         closeEdit()
       }
@@ -241,6 +257,7 @@ export default function Edit() {
     }
   }, [editType, missingGames, updateEditGame])
   useEffect(() => {
+    // fill the form with data
     if (editType === 'update' && !blockUpdateEdit.current && game_data && currentMissing && formData.path !== currentMissing.path && title === currentMissing.title) {
       // show visual blocking and block the effect
       setIsLoading(true)
@@ -254,9 +271,44 @@ export default function Edit() {
         // clear visual and effect blocking
         setIsLoading(false)
         blockUpdateEdit.current = false
+        setFlashPath(true)
+        setTimeout(() => setFlashPath(false), 300)
       })()
     }
   }, [editType, game_data, formData, currentMissing, checkForUpdatedUrl, title, url, image, version, description, program_path])
+
+  //      _   ___  ___ ___ _  _  ___   _  _ _____      __   ___   _   __  __ ___ ___
+  //     /_\ |   \|   \_ _| \| |/ __| | \| | __\ \    / /  / __| /_\ |  \/  | __/ __|
+  //    / _ \| |) | |) | || .` | (_ | | .` | _| \ \/\/ /  | (_ |/ _ \| |\/| | _|\__ \
+  //   /_/ \_\___/|___/___|_|\_|\___| |_|\_|___| \_/\_/    \___/_/ \_\_|  |_|___|___/
+  //
+  const newGames = useSelector((state: RootState) => state.data.newGames)
+  const [currentNew, setCurrentNew] = useState<GamelibState['newGames'][0]>()
+  useEffect(() => {
+    // if adding new games, start working through newGames
+    if (newGames && newGames.length && editType === 'new') {
+      const curNew = newGames[0]
+      setCurrentNew(curNew)
+      dispatch(setEditGame({path: curNew}))
+    }
+  }, [editType, newGames, dispatch])
+  useEffect(() => {
+    // fill the form with data
+    if (editType === 'new' && !blockUpdateEdit.current && currentNew && currentNew !== formData.path) {
+      // show visual blocking and block the effect
+      setIsLoading(true)
+      blockUpdateEdit.current = true;
+      (async () => {
+        // update formData
+        setFormData({path: currentNew, title, url, image, version, description, program_path})
+        // clear visual and effect blocking
+        setIsLoading(false)
+        blockUpdateEdit.current = false
+        setFlashPath(true)
+        setTimeout(() => setFlashPath(false), 300)
+      })()
+    }
+  }, [editType, game_data, formData, currentNew, path, title, url, image, version, description, program_path])
 
   return (
     <EditDiv className="main-container vertical-center">
@@ -265,7 +317,7 @@ export default function Edit() {
       <button style={{position: 'fixed', left: 0, top: '30px'}} type='button' onClick={() => dispatch(setError('test error'))}>Test</button>
       <ErrorMessage />
 
-      <fieldset className="horizontal-container">
+      <fieldset className={`horizontal-container ${flashPath ? 'flash-twice-invert' : ''}`}>
         <legend>Top Path</legend>
         <PathP className="grow-1">{formData.path}</PathP>
         <button

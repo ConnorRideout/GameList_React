@@ -167,7 +167,7 @@ interface SettingsType {
 type MissingGamesType = {game_id: number, title: string, path: string}[]
 interface GamelibState {
   gamelib: GameEntry[];
-  editGame: GameEntry | null;
+  editGame: { [K in keyof GameEntry]?: GameEntry[K] } | null;
   editGameType: 'edit' | 'update' | 'new';
   missingGames: MissingGamesType;
   newGames: string[];

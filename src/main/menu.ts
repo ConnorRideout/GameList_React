@@ -1,7 +1,5 @@
-// TODO: open games folder
-// TODO: recheck for missing game folders, use same logic as browse
+// TODO: when checking for new/missing games, indicate if none were found somehow
 // TODO: open settings
-// TODO: find new game folders
 
 import {
   // app,
@@ -183,17 +181,17 @@ export default class MenuBuilder {
         label: '&Edit',
         submenu: [
           {
-            label: 'Check for &Missing Games',
-            accelerator: 'Ctrl+M',
-            click: () => {
-              this.sendMenuTrigger('CHECK_MISSING')
-            }
-          },
-          {
-            label: 'Check for &New Games',
+            label: 'Check for &NEW Games',
             accelerator: 'Ctrl+N',
             click: () => {
               this.sendMenuTrigger('CHECK_NEW')
+            }
+          },
+          {
+            label: 'Check for &MISSING Games',
+            accelerator: 'Ctrl+M',
+            click: () => {
+              this.sendMenuTrigger('CHECK_MISSING')
             }
           }
         ]

@@ -41,10 +41,10 @@ export default function MissingGames() {
   }, [updatedMissingGames])
 
   useEffect(() => {
+    // if returning from edit, make sure updatedMissingGames is still correct
     if (missingGames && missingGames.length && editType === 'update') {
       dispatch(setEditType('edit'));
       (async () => {
-        // if returning from edit, make sure updatedMissingGames is still correct
         await checkForMissingGames(gameslist.map(({game_id, title, path}) => ({game_id, title, path})))
         const updated = missingGames.filter(miss => gameslist.find(g => g.game_id === miss.game_id)!.path !== miss.path)
         setUpdatedMissingGames(updated)
@@ -84,7 +84,7 @@ export default function MissingGames() {
   return (
     <InputBox
       className="missing-games-container"
-      title="Games with missing folders..."
+      title="Games with Missing Folders..."
       buttons={[
         {text: disableSubmit ? 'Skip' : 'Cancel', clickHandler: handleCancel},
         ...(disableSubmit ? [] : [{text: 'Open Edit to Finish Updates', clickHandler: handleSubmit}])
@@ -105,8 +105,8 @@ export default function MissingGames() {
               place="bottom-start"
             >
               <p className={ isUpdated ? 'updated' : 'error' }>
-                {isUpdated ?
-                  `<games>\\${updatedMissingGames.find(upG => g.game_id === upG.game_id)?.path}`
+                {isUpdated
+                  ? `<games>\\${updatedMissingGames.find(upG => g.game_id === upG.game_id)?.path}`
                   : `<games>\\${missingGames.find(miss => g.game_id === miss.game_id)?.path}`
                 }
               </p>
