@@ -29,7 +29,7 @@ exports.seed = (knex) => {
     {category_id: 3, option_name: "Others"},
     {category_id: 3, option_name: "Unknown"},
 
-    {category_id: 4, option_name: "New"},
+    {category_id: 4, option_name: "New", option_id_default: true},
     {category_id: 4, option_name: "Updated"},
     {category_id: 4, option_name: "Playing"},
     {category_id: 4, option_name: "Beaten"},

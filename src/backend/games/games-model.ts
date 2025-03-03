@@ -119,7 +119,8 @@ function getCategories() {
   /*
   SELECT
     c.*,
-    GROUP_CONCAT(o.option_name) AS options
+    GROUP_CONCAT(o.option_name) AS options,
+    MAX(CASE WHEN o.option_is_default THEN o.option_name END) AS default_option
   FROM
     categories AS c
   JOIN
@@ -130,7 +131,8 @@ function getCategories() {
   return gamesdb('categories as c')
     .select(
       'c.*',
-      gamesdb.raw('GROUP_CONCAT(o.option_name) AS options')
+      gamesdb.raw('GROUP_CONCAT(o.option_name) AS options'),
+      gamesdb.raw('MAX(CASE WHEN o.option_is_default THEN o.option_name END) AS default_option')
     )
     .join('category_options AS o', 'c.category_id', 'o.category_id')
     .groupBy('c.category_id')

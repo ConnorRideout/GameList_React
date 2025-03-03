@@ -92,11 +92,13 @@ interface CategoryEntry {
     "Pixel",
     "3D",
     "Drawn"
-  ]
+  ],
+  "default_option": "Text"
   */
   category_id: number;
   category_name: string;
   options: string[];
+  default_option: string | null
 }
 interface StatusEntry {
   /*

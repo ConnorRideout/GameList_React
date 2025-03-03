@@ -3,6 +3,7 @@
 // TODO: add checkbox that will prevent the `updated_at` timestamp from updating even if version changes
 // TODO: drag n drop handler for urls and images
 // TODO: set default values for categories like 'play-status'
+// TODO: title must be unique
 
 /* eslint-disable no-use-before-define */
 /* eslint-disable promise/catch-or-return */

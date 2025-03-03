@@ -32,7 +32,8 @@
   & textarea {
     overflow-y: auto;
     resize: none;
-    width: 100%;
+    // max-width subtractions are width-tools, width-title, width-version, width-categories, width-tags, margins-desc, margins-between, margins-around, arbitrary extra
+    width: calc(95vw - (26px - 2px - variables.$spacing * 4 - 5px) - (205px) - (90px) - (170px) - (230px) - (variables.$spacing * 2) - (6 * 2 * 1px) - (variables.$spacing * 4));
     line-height: 1.1em;
     height: calc(5 * 1.1em + variables.$spacing * 3);
     background-color: variables.$bgLight;

@@ -78,8 +78,8 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
 
   const defaultFormData = useMemo(() => ({
     categories: categories.reduce((acc: FormState['categories'], cur) => {
-      const {category_name} = cur
-      acc[category_name] = isBrowse ? 'Any' : (additionalFormData ? additionalFormData.defaults?.categories[category_name] || '' : '')
+      const {category_name, default_option} = cur
+      acc[category_name] = isBrowse ? 'Any' : (additionalFormData ? additionalFormData.defaults?.categories[category_name] || default_option || '' : default_option || '')
       return acc
     }, {protagonist: isBrowse ? 'Any' : (additionalFormData ? additionalFormData.defaults?.categories.protagonist || '' : '')}),
     statuses: statusValues.reduce((acc: FormState['statuses'], cur) => {
