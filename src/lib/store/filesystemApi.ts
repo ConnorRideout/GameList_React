@@ -26,13 +26,6 @@ export const filesystemApi = createApi({
         body: {path}
       })
     }),
-    checkUpdatedUrl: builder.mutation<{message: string, redirectedUrl: string}, string>({
-      query: (checkUrl: string) => ({
-        url: 'urlupdates',
-        method: 'POST',
-        body: {checkUrl}
-      })
-    }),
     checkMissingGames: builder.mutation<GamelibState['missingGames'], {game_id: number, path: string}[]>({
       query: (games: {game_id: number, path: string}[]) => ({
         url: 'missinggames',
@@ -50,7 +43,6 @@ export const {
   usePlayGameMutation,
   useOpenUrlMutation,
   useOpenFolderMutation,
-  useCheckUpdatedUrlMutation,
   useCheckMissingGamesMutation,
   useLazyCheckNewGamesQuery,
 } = filesystemApi

@@ -4,7 +4,8 @@ require('dotenv').config()
 
 const gameRoutes = require('./games/games-router.ts')
 const filesystemRoutes = require('./filesystem/filesystem-router.ts')
-const settingsRoutes = require('./settings/settings-router')
+const websitesRoutes = require('./websites/websites-router.ts')
+const settingsRoutes = require('./settings/settings-router.ts')
 
 const { logger, errorHandler } = require('./middleware/middleware')
 
@@ -18,6 +19,7 @@ server.use(logger)
 
 server.use('/api', gameRoutes)
 server.use('/filesystem', filesystemRoutes)
+server.use('/websites', websitesRoutes)
 server.use('/settings', settingsRoutes)
 
 server.use(errorHandler)

@@ -146,12 +146,13 @@ interface SettingsType {
   site_scrapers: {
     base_url: string;
     selectors: {
-      type: string;
-      selector: string;
-      queryAll: boolean;
-      regex: string | null;
-      limit_text: boolean;
-      remove_regex: string | null;
+      type: string; // title/description/version/tags | category_<cat_name>/status/tag
+      selector: string; // the selector to pass to document.querySelectorAll
+      queryAll: boolean; // whether to only look at the first matched result or all of them
+      regex: string | null; // if type is tags: if queryAll, will be run on all SELECTOR matches and returns an array of strings if the string.length > 0; otherwise, returns an array of the matches of the pattern
+                            // else: if queryAll, will be run on all SELECTOR matches and return the first regexMatch; otherwise, just returns the regexMatch of the textcontent
+      limit_text: boolean; // if true, will only get text from the SELECTOR element. Otherwise, gets text from the SELECTOR and all its children
+      remove_regex: string | null; // run against the regex match(es), removes the matching text
     }[];
   }[];
   [key: string]: string | string[] | {[key: string]: string[]} | {

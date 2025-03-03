@@ -97,28 +97,6 @@ router.post('/open/:type', (req, res, next) => {
   }
 })
 
-router.post('/urlupdates', (req, res, next) => {
-  async function getRedirectedUrl(url: string) {
-    const response = await fetch(url, {
-      method: 'HEAD', // Use HEAD to fetch headers only
-      redirect: 'follow' // Follow redirects
-    });
-
-    // Check if the response is a redirect
-    if (response.redirected) {
-      return response.url; // This will give you the final URL after redirects
-    } else {
-      return url; // If no redirect, return the original URL
-    }
-  }
-  const {checkUrl} = req.body
-  getRedirectedUrl(checkUrl)
-    .then(redirectedUrl => {
-      res.status(200).json({message: checkUrl !== redirectedUrl ? 'updated' : 'no update', redirectedUrl})
-    })
-    .catch(next)
-})
-
 router.post('/missinggames', (req, res) => {
   const {games}: {games: MissingGamesType} = req.body
   // check for missing games

@@ -3,7 +3,8 @@ import React, { useState } from 'react'
 import Tooltip from '../../shared/tooltip'
 import { RefreshSvg } from '../../shared/svg'
 
-import { useCheckUpdatedUrlMutation, useOpenUrlMutation } from '../../../lib/store/filesystemApi'
+import { useOpenUrlMutation } from '../../../lib/store/filesystemApi'
+import { useCheckUpdatedUrlMutation } from '../../../lib/store/websitesApi'
 
 import { Timestamps } from '../../../lib/types/types-gamelibrary'
 

@@ -10,7 +10,7 @@ export const settingsApi = createApi({
     getSettings: builder.query<SettingsType, void>({
       query: () => '/',
       providesTags: ['Settings']
-    })
+    }),
   })
 })
 
