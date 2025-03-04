@@ -155,7 +155,12 @@ interface SettingsType {
       remove_regex: string | null; // run against the regex match(es), removes the matching text
     }[];
   }[];
-  [key: string]: string | string[] | {[key: string]: string[]} | {
+  site_scraper_aliases: {
+    [k in 'tags' | 'categories' | 'statuses']: {
+      [base_url: string]: [string, string][];
+    };
+  };
+  [key: string]: string | string[] | {[key: string]: string[] | {[base_url: string]: [string, string][]}} | {
     base_url: string;
     selectors: {
       type: string;
