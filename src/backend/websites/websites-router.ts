@@ -1,27 +1,20 @@
 /* eslint-disable import/no-relative-packages */
 /* eslint-disable promise/no-callback-in-promise */
 import { Router } from 'express'
-// import axios from 'axios'
+import axios from 'axios'
 
 import * as Games from '../games/games-model'
 import SiteScraper from './website-scraper'
 
 import { SettingsType } from '../../types'
 
+
 const router = Router()
 
-// let settings: SettingsType
-// async function getSettings() {
-//   const res = await axios.get('http://localhost:9000/settings')
-//   return res.data
-// }
-// getSettings()
-//   .then(set => {
-//     settings = (set as any)
-//   })
-//   .catch(err => {
-//     console.error(err)
-//   })
+async function getSettings(): Promise<SettingsType> {
+  const res = await axios.get('http://localhost:9000/settings')
+  return res.data
+}
 
 
 router.post('/urlupdates', (req, res, next) => {
@@ -46,7 +39,6 @@ router.post('/urlupdates', (req, res, next) => {
     .catch(next)
 })
 
-// TODO: parse equalities/renames the user has set (i.e. art: 2dcg = 2d)
 router.post('/scrape', (req, res, next) => {
   const makeSiteScraper = async () => {
     const categories = await Games.getCategories()
@@ -55,7 +47,8 @@ router.post('/scrape', (req, res, next) => {
     })
     const tags = await Games.getTags()
     const statuses = await Games.getStatus()
-    return new SiteScraper(categories, statuses, tags)
+    const settings = await getSettings()
+    return new SiteScraper(categories, statuses, tags, settings.site_scraper_aliases)
   }
   const {
     selectors,

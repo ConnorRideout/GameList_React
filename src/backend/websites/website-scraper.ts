@@ -1,10 +1,14 @@
+// TODO: login to sites
+
 /* eslint-disable import/no-relative-packages */
 /* eslint-disable func-names */
 /* eslint-disable no-restricted-syntax */
 import axios from "axios"
 import * as cheerio from "cheerio"
+
 import { CategoryEntry, SettingsType, StatusEntry, TagEntry } from "../../types"
 
+// const includedElementTags = ['b', 'i', 'strong', 'em', 'u', 's', 'del', 'sub', 'sup', 'small', 'big', 'mark', 'code', 'pre', 'blockquote', 'span']
 
 export default class SiteScraper {
   categories
@@ -17,12 +21,22 @@ export default class SiteScraper {
 
   tagsLower
 
-  constructor(categories: CategoryEntry[], statuses: StatusEntry[], tags: TagEntry[]) {
+  aliases
+
+  url=''
+
+  constructor(
+    categories: CategoryEntry[],
+    statuses: StatusEntry[],
+    tags: TagEntry[],
+    aliases: SettingsType['site_scraper_aliases']
+  ) {
     this.categories = categories.map(({category_name, options}) => ({category_name, options}))
     this.statuses = statuses.map(({status_name}) => status_name)
     this.statusesLower = statuses.map(({status_name}) => status_name.toLowerCase())
     this.tags = tags.map(({tag_name}) => tag_name)
     this.tagsLower = tags.map(({tag_name}) => tag_name.toLowerCase())
+    this.aliases = aliases
   }
 
   filterCustomSelectors(parsedSelectors: {type: string, parsed: string | string[]}[]) {
@@ -30,26 +44,44 @@ export default class SiteScraper {
       const { type, parsed } = pSel
       if (['title', 'version', 'description'].includes(type))
         return pSel
-      const selectorValue = parsed as string[]
-      const parseValues = (ref: this['statuses'] | this['tags'] | this['categories'][0]['options'], refLower: this['statusesLower'] | this['tagsLower'] | this['categories'][0]['options']) => {
-        // filter the values so only defined values remain, then make sure they have the correct capitalization
-        const filteredParsed = selectorValue
-          .filter(s => refLower.includes(s.toLowerCase()))
-          .map(s => {
-            const idx = refLower.indexOf(s.toLowerCase())
-            return ref[idx]
-          })
+      const selectorValues = (parsed as string[])
+      const parseValues = (
+        ref: this['statuses'] | this['tags'] | this['categories'][0]['options'],
+        refLower: this['statusesLower'] | this['tagsLower'] | this['categories'][0]['options'],
+        aliasesType: SettingsType['site_scraper_aliases'][keyof SettingsType['site_scraper_aliases']]
+      ) => {
+        const [,aliases] = Object.entries(aliasesType).find(([base_url]) => this.url.includes(base_url)) || []
+        const filteredParsed = selectorValues
+          .reduce((acc: string[], cur) => {
+            // // apply aliases
+            if (aliases) {
+              const alias = aliases.find(([website_val]) => cur.toLowerCase() === website_val)
+              // console.log(cur, alias)
+              if (alias) {
+                if (!acc.includes(alias[1]))
+                  acc.push(alias[1])
+                return acc
+              }
+            }
+            // filter the values so only defined values remain (with correct capitalization)
+            if (refLower.includes(cur.toLowerCase())) {
+              const idx = refLower.indexOf(cur.toLowerCase())
+              acc.push(ref[idx])
+            }
+            // value wasn't found
+            return acc
+          }, [])
         return filteredParsed
       }
       if (type === 'status') {
-        return {type, parsed: parseValues(this.statuses, this.statusesLower)}
+        return {type, parsed: parseValues(this.statuses, this.statusesLower, this.aliases.statuses)}
       } else if (type === 'tags' || type === 'tag') {
-        return  {type, parsed: parseValues(this.tags, this.tagsLower)}
+        return  {type, parsed: parseValues(this.tags, this.tagsLower, this.aliases.tags)}
       } else if (type.startsWith('category')) {
         const catName = type.replace(/^category_/, '')
         const {options} = (this.categories.find(c => c.category_name === catName)!)
         const lowerOptions = options?.map(opt => opt.toLowerCase())
-        return {type, parsed: parseValues(options, lowerOptions)}
+        return {type, parsed: parseValues(options, lowerOptions, this.aliases.categories)}
       }
       // fallback
       return pSel
@@ -58,6 +90,7 @@ export default class SiteScraper {
   }
 
   scrape(url: string, selectors: SettingsType['site_scrapers'][0]['selectors']) {
+    this.url = url
     const parsedSelectors: {type: string, parsed: string | string[]}[] = []
     return axios.get(url)
       .then(response => {
