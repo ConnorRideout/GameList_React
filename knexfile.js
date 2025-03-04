@@ -46,6 +46,22 @@ module.exports = {
     },
   },
 
+  development_settings: {
+    client: 'sqlite3',
+    connection: {
+      filename: './settings/database/settings.db3'
+    },
+    seeds: {
+      directory: './data/development/seeds_settings'
+    },
+    pool: {
+      afterCreate: (conn, done) => {
+        conn.run('PRAGMA foreign_keys = ON', done)
+      },
+    },
+    useNullAsDefault: true,
+  },
+
   showcasing: {
     ...sharedConfig,
     connection: {
