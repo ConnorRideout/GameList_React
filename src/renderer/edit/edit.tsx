@@ -7,7 +7,7 @@
 
 /* eslint-disable no-use-before-define */
 /* eslint-disable promise/catch-or-return */
-import React, { ChangeEvent, useEffect, useMemo, useRef, useState } from "react"
+import React, { ChangeEvent, useEffect, useMemo, useRef, useState, useCallback } from "react"
 import styled from "styled-components"
 import { useNavigate } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux"
@@ -31,6 +31,7 @@ import {
 import {
   useOpenUrlMutation,
   useOpenFolderMutation,
+  useDeleteFileMutation,
 } from "../../lib/store/filesystemApi"
 import { useCheckUpdatedUrlMutation } from "../../lib/store/websitesApi"
 import {
@@ -68,6 +69,7 @@ export default function Edit() {
   const [newGame] = useNewGameMutation()
   const [updateTimestamp] = useUpdateTimestampMutation()
   const [updateEditGame] = useLazyEditGameQuery()
+  const [deleteUrlFile] = useDeleteFileMutation()
   const [isLoading, setIsLoading] = useState(false)
   const game_dir = useSelector((state: RootState) => state.data.settings.games_folder)
   const editType = useSelector((state: RootState) => state.data.editGameType)
@@ -86,7 +88,7 @@ export default function Edit() {
   const [formErrors, setFormErrors] = useState(emptyFormErrors)
 
   const game_data = useSelector((state: RootState) => state.data.editGame)
-  const {path, title, url, image, version, description, program_path: prog_obj, tags, status, categories}: Omit<GameEntry, 'game_id' | 'timestamps' | 'timestamps_sec'> = useMemo(() => (
+  const { path, title, url, image, version, description, program_path: prog_obj, tags, status, categories }: Omit<GameEntry, 'game_id' | 'timestamps' | 'timestamps_sec'> = useMemo(() => (
     {
       path: '',
       title: '',
@@ -94,7 +96,7 @@ export default function Edit() {
       image: '',
       version: '',
       description: '',
-      program_path: {"":""},
+      program_path: { "": "" },
       tags: [],
       status: [],
       categories: {},
@@ -102,7 +104,7 @@ export default function Edit() {
     }
   ), [game_data])
   const program_path = Object.entries(prog_obj)
-  const [formData, setFormData] = useState({path, title, url, image, version, description, program_path})
+  const [formData, setFormData] = useState({ path, title, url, image, version, description, program_path })
 
   const formSchema = CreateEditFormSchema()
   useEffect(() => {
@@ -112,15 +114,15 @@ export default function Edit() {
       })
   }, [formData, formSchema])
 
-  const handleFormChange = (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | {target: {name: string, value: string | [string, string][]}}) => {
-    const {name, value} = evt.target
+  const handleFormChange = (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string, value: string | [string, string][] } }) => {
+    const { name, value } = evt.target
     const schema = yup_reach(formSchema, name) as StringSchema
     schema.validate(value)
       .then(() => {
-        setFormErrors({...formErrors, [name]: ''})
+        setFormErrors({ ...formErrors, [name]: '' })
       })
-      .catch(({errors}) => {
-        setFormErrors({...formErrors, [name]: errors[0]})
+      .catch(({ errors }) => {
+        setFormErrors({ ...formErrors, [name]: errors[0] })
       })
     setFormData({
       ...formData,
@@ -181,7 +183,7 @@ export default function Edit() {
     // parse formData
     const updatedData = {
       ...formData,
-      program_path: formData.program_path.reduce((acc: {[key: string]: string}, [progPath, progPathName]) => {
+      program_path: formData.program_path.reduce((acc: { [key: string]: string }, [progPath, progPathName]) => {
         acc[progPath] = progPathName
         return acc
       }, {})
@@ -209,8 +211,13 @@ export default function Edit() {
         timestamps,
         timestamps_sec
       }
-      await updateGame({game_id, updatedGameData: updatedGame})
-      if (version !== updatedData.version) await updateTimestamp({game_id, type: 'updated_at'})
+      await updateGame({ game_id, updatedGameData: updatedGame })
+      if (version !== updatedData.version)
+        await updateTimestamp({ game_id, type: 'updated_at' })
+      if (urlFile.current) {
+        deleteUrlFile(urlFile.current)
+        urlFile.current = ''
+      }
       setIsLoading(false)
       if (editType === 'update') {
         // handle updating missingGames
@@ -230,15 +237,54 @@ export default function Edit() {
     })
     if (newFol) {
       // folder path was updated
-      setFormData({...formData, path: newFol})
+      setFormData({ ...formData, path: newFol })
     }
   }
 
   const additionalFormData = {
-    defaults: {tags, status, categories},
+    defaults: { tags, status, categories },
     disabledState: submitDisabled,
     formErrors
   }
+
+  //    ___  ___    _   ___ _ _  _ _ ___  ___  ___  ___
+  //   |   \| _ \  /_\ / __( ) \| ( )   \| _ \/ _ \| _ \
+  //   | |) |   / / _ \ (_ |/| .` |/| |) |   / (_) |  _/
+  //   |___/|_|_\/_/ \_\___| |_|\_| |___/|_|_\\___/|_|
+  //
+
+  const urlFile = useRef('')
+
+  const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault() // to allow drop
+  }, [])
+
+  const handleDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault()
+    const { items } = event.dataTransfer
+    Array.from(items).forEach(item => {
+      if (item.kind === 'file') {
+        const file = item.getAsFile()
+        if (file) {
+          const filePath = file.path
+          if (filePath.endsWith('.url')) {
+            const reader = new FileReader()
+            reader.onload = e => {
+              const urlContent = e.target?.result
+              if (typeof urlContent === 'string') {
+                const weburl = urlContent.split('=')[1]
+                setFormData({ ...formData, url: weburl })
+                urlFile.current = filePath
+              }
+            }
+            reader.readAsText(file)
+          } else if (file.type.startsWith('image/')) {
+            setFormData({ ...formData, image: filePath })
+          }
+        }
+      }
+    })
+  }, [formData])
 
   //    _   _ ___ ___   _ _____ ___ _  _  ___   __  __ ___ ___ ___ ___ _  _  ___    ___   _   __  __ ___ ___
   //   | | | | _ \   \ /_\_   _|_ _| \| |/ __| |  \/  |_ _/ __/ __|_ _| \| |/ __|  / __| /_\ |  \/  | __/ __|
@@ -266,9 +312,9 @@ export default function Edit() {
       (async () => {
         // update url
         const rawUpdatedUrl = await checkForUpdatedUrl(url).unwrap()
-        const {redirectedUrl} = rawUpdatedUrl
+        const { redirectedUrl } = rawUpdatedUrl
         // update formData
-        setFormData({path: currentMissing.path, title, url: redirectedUrl, image, version, description, program_path})
+        setFormData({ path: currentMissing.path, title, url: redirectedUrl, image, version, description, program_path })
         // clear visual and effect blocking
         setIsLoading(false)
         blockUpdateEdit.current = false
@@ -290,7 +336,7 @@ export default function Edit() {
     if (newGames && newGames.length && editType === 'new') {
       const curNew = newGames[0]
       setCurrentNew(curNew)
-      dispatch(setEditGame({path: curNew}))
+      dispatch(setEditGame({ path: curNew }))
     }
   }, [editType, newGames, dispatch])
   useEffect(() => {
@@ -301,7 +347,7 @@ export default function Edit() {
       blockUpdateEdit.current = true;
       (async () => {
         // update formData
-        setFormData({path: currentNew, title, url, image, version, description, program_path})
+        setFormData({ path: currentNew, title, url, image, version, description, program_path })
         // clear visual and effect blocking
         setIsLoading(false)
         blockUpdateEdit.current = false
@@ -312,67 +358,74 @@ export default function Edit() {
   }, [editType, game_data, formData, currentNew, path, title, url, image, version, description, program_path])
 
   return (
-    <EditDiv className="main-container vertical-center">
-      {isLoading && <div className='loading' />}
-      <h1>{editType === 'new' ? 'ADD NEW' : 'EDIT'} GAME</h1>
-      <button style={{position: 'fixed', left: 0, top: '30px'}} type='button' onClick={() => dispatch(setError('test error'))}>Test</button>
-      <ErrorMessage />
+    <div
+      className="main-container"
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      <EditDiv className="main-container vertical-center">
+        {isLoading && <div className='loading' />}
+        <h1>{editType === 'new' ? 'ADD NEW' : 'EDIT'} GAME</h1>
+        <button style={{ position: 'fixed', left: 0, top: '30px' }} type='button' onClick={() => dispatch(setError('test error'))}>Test</button>
+        <ErrorMessage />
 
-      <fieldset className={`horizontal-container ${flashPath ? 'flash-twice-invert' : ''}`}>
-        <legend>Top Path</legend>
-        <PathP className="grow-1">{formData.path}</PathP>
-        <button
-          type="button"
-          className="svg-button"
-          onClick={() => openFolder(`${game_dir}/${formData.path}`)}
-        >
-          <FolderOpenSvg color="currentColor" size={25} />
-        </button>
-        <button
-          type="button"
-          className="svg-button"
-          onClick={handleChangeFolder}
-        >
-          <FolderEditSvg color="currentColor" size={25} />
-        </button>
-      </fieldset>
+        <fieldset className={`horizontal-container ${flashPath ? 'flash-twice-invert' : ''}`}>
+          <legend>Top Path</legend>
+          <PathP className="grow-1">{formData.path}</PathP>
+          <button
+            type="button"
+            className="svg-button"
+            onClick={() => openFolder(`${game_dir}/${formData.path}`)}
+          >
+            <FolderOpenSvg color="currentColor" size={25} />
+          </button>
+          <button
+            type="button"
+            className="svg-button"
+            onClick={handleChangeFolder}
+          >
+            <FolderEditSvg color="currentColor" size={25} />
+          </button>
+        </fieldset>
 
-      <fieldset className="horizontal-container">
-        {/* TODO: button to check for updated url */}
-        {/* TODO? warn if url is invalid */}
-        <legend>URL</legend>
-        <input
-          type="text"
-          className="grow-1"
-          name="url"
-          onChange={handleFormChange}
-          value={formData.url}
+        <fieldset className="horizontal-container">
+          {/* TODO: button to check for updated url */}
+          {/* TODO? warn if url is invalid */}
+          <legend>URL</legend>
+          <input
+            type="text"
+            className="grow-1"
+            name="url"
+            onChange={handleFormChange}
+            value={formData.url}
+          />
+          <button
+            type='button'
+            className="svg-button"
+            onClick={() => openUrl(formData.url)}
+          >
+            <WebSvg color="currentColor" size={25} />
+          </button>
+        </fieldset>
+
+        <Info
+          handleFormChange={handleFormChange}
+          formData={formData}
         />
-        <button
-          type='button'
-          className="svg-button"
-          onClick={() => openUrl(formData.url)}
-        >
-          <WebSvg color="currentColor" size={25} />
-        </button>
-      </fieldset>
-
-      <Info
-        handleFormChange={handleFormChange}
-        formData={formData}
-      />
 
 
-      <Picker
-        submitHandler={{
-          text: 'Save',
-          handler: submitHandler}}
-        cancelHandler={{
-          text: 'Cancel',
-          handler: closeEdit
-        }}
-        additionalFormData={additionalFormData}
-      />
-    </EditDiv>
+        <Picker
+          submitHandler={{
+            text: 'Save',
+            handler: submitHandler
+          }}
+          cancelHandler={{
+            text: 'Cancel',
+            handler: closeEdit
+          }}
+          additionalFormData={additionalFormData}
+        />
+      </EditDiv>
+    </div>
   )
 }

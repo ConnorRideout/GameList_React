@@ -1,4 +1,4 @@
-import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { GamelibState } from '../types/types-gamelibrary'
 
 export const filesystemApi = createApi({
@@ -6,35 +6,42 @@ export const filesystemApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:9000/filesystem/' }),
   endpoints: builder => ({
     playGame: builder.mutation({
-      query: ({path, useLE=false}: {path: string, useLE: boolean}) => ({
+      query: ({ path, useLE = false }: { path: string, useLE: boolean }) => ({
         url: 'open/game',
         method: 'POST',
-        body: {path, useLE}
+        body: { path, useLE }
       })
     }),
     openUrl: builder.mutation({
       query: (path: string) => ({
         url: 'open/webpage',
         method: 'POST',
-        body: {path}
+        body: { path }
       })
     }),
     openFolder: builder.mutation<void, string>({
       query: (path: string) => ({
         url: 'open/folder',
         method: 'POST',
-        body: {path}
+        body: { path }
       })
     }),
-    checkMissingGames: builder.mutation<GamelibState['missingGames'], {game_id: number, path: string}[]>({
-      query: (games: {game_id: number, path: string}[]) => ({
+    checkMissingGames: builder.mutation<GamelibState['missingGames'], { game_id: number, path: string }[]>({
+      query: (games: { game_id: number, path: string }[]) => ({
         url: 'missinggames',
         method: 'POST',
-        body: {games}
+        body: { games }
       })
     }),
     checkNewGames: builder.query<string[], void>({
       query: () => 'newgames'
+    }),
+    deleteFile: builder.mutation({
+      query: (file: string) => ({
+        url: 'deletefile',
+        method: 'POST',
+        body: { file }
+      })
     })
   })
 })
@@ -45,4 +52,5 @@ export const {
   useOpenFolderMutation,
   useCheckMissingGamesMutation,
   useLazyCheckNewGamesQuery,
+  useDeleteFileMutation,
 } = filesystemApi

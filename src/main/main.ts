@@ -105,6 +105,8 @@ const createWindow = async () => {
     height: parseInt($appHeight, 10) + 35,
     icon: getAssetPath('icon.ico'),
     webPreferences: {
+      contextIsolation: true,
+      nodeIntegration: false,
       preload: (app.isPackaged
         ? new Path(__dirname, 'preload.js')
         : new Path(__dirname, '../../.erb/dll/preload.js')).path,
@@ -175,25 +177,16 @@ app
       '../../src/backend/data',
       process.env.SHOWCASING ? 'showcase/gameImages' : 'development/gameImages'
     )
-    // const imgDir = path.join(
-    //   __dirname,
-    //   '../../src/backend/data',
-    //   process.env.SHOWCASING ? 'showcase/gameImages' : 'development/gameImages'
-    // )
     protocol.handle('load-image', async (request) => {
       const rawImgPath = request.url
         .replace('load-image://', '')
         .replaceAll('_', ' ')
-      const imgPath = imgDir.join(rawImgPath)
+      const isRelative = !/^[A-Z]\//.test(rawImgPath)
+      const imgPath = isRelative ? imgDir.join(rawImgPath) : new Path(rawImgPath.replace(/^([A-Z])/, '$1:'))
       if (rawImgPath && imgPath.existsSync())
         return net.fetch(`file://${imgPath.path}`)
       else
         return new Response('')
-      // const imgPath = path.join(imgDir, rawImgPath)
-      // if (rawImgPath && existsSync(imgPath))
-      //   return net.fetch(`file://${imgPath}`)
-      // else
-      //   return new Response('')
     })
 
     createWindow();

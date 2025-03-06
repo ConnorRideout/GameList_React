@@ -140,10 +140,11 @@ div.tooltip-image {
 .error-container {
   @extend .horizontal-container;
   @extend .container-centered;
-  @extend .flash-twice;
+  @extend .flash-twice-invert;
 
-  background-color: transparent;
+  background-color: variables.$bgDark;
   width: 100%;
+  z-index: 5;
 }
 
 .flash-once {

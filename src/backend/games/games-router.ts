@@ -8,6 +8,7 @@ import { promises as fs } from 'fs'
 import * as Games from './games-model'
 
 import { GameEntry, StringMap } from '../../types'
+import Path from '../../parsedPath'
 
 
 const router = Router()
@@ -40,6 +41,22 @@ function parseRawGameData(game: Games.RawGameEntry) {
     played_at: played_at ? new Date(played_at.replace(' ', 'T')).getTime() : -Infinity
   }
   Object.assign(game, game as unknown as GameEntry)
+}
+
+function handleImage(img: string) {
+  if (/^[A-Z]:/.test(img)) {
+    // image is absolute, should be moved
+    const imgPath = new Path(img)
+    const img_dir = new Path(
+      __dirname,
+      '../data',
+      process.env.SHOWCASING ? 'showcase/gameImages' : 'development/gameImages'
+    )
+    const newImagePath = img_dir.join(imgPath.basename)
+    imgPath.moveSync(newImagePath)
+    return imgPath.basename
+  }
+  return img
 }
 
 router.get('/games', (req, res, next) => {
@@ -111,11 +128,14 @@ router.get('/styles', (req, res, next) => {
     .catch(next)
 })
 
-router.post('/games/new', (req, res, next) => {
+router.post('/games/new', async (req, res, next) => {
   const game = req.body
+  // properly format the game data
+  game.image = handleImage(game.image)
   game.protagonist = game.categories.protagonist
   delete game.categories.protagonist
   game.program_path = JSON.stringify(game.program_path)
+  // insert it
   Games.insertNewGame(game)
     .then(newGame => {
       if (newGame.error) {
@@ -159,6 +179,7 @@ router.put('/games/:game_id', async (req, res, next) => {
   // overwrite oldGameData with updatedGameData
   const game = {...oldGameData, ...updatedGameData}
   // properly format the game data
+  game.image = handleImage(game.image)
   game.protagonist = game.categories.protagonist
   delete game.categories.protagonist
   game.program_path = JSON.stringify(game.program_path)

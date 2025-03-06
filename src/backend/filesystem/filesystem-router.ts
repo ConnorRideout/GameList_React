@@ -15,20 +15,13 @@ import { SettingsType, MissingGamesType } from '../../types'
 const router = Router()
 
 
-let settings: SettingsType
-async function getSettings() {
+async function getSettings(): Promise<SettingsType> {
   const res = await axios.get('http://localhost:9000/settings')
   return res.data
 }
-getSettings()
-  .then(set => {
-    settings = (set as any)
-  })
-  .catch(err => {
-    console.error(err)
-  })
 
-router.post('/open/:type', (req, res, next) => {
+router.post('/open/:type', async (req, res, next) => {
+  const settings = await getSettings()
   const { type } = req.params
   const { path, useLE } = req.body
 
@@ -54,16 +47,16 @@ router.post('/open/:type', (req, res, next) => {
 
     const process = exec(command, (err) => {
       if (err) {
-        next({message: `Failed to start url "${path}": ${err}`})
+        next({ message: `Failed to start url "${path}": ${err}` })
       }
     })
 
     process.on('error', err => {
       console.error(`Failed to start process "${filepath}": ${err}`)
-      next({message: `Failed to start process "${filepath}": ${err}`})
+      next({ message: `Failed to start process "${filepath}": ${err}` })
     })
     process.on('exit', () => {
-      res.status(200).json({'message': 'started game'})
+      res.status(200).json({ 'message': 'started game' })
     })
     process.unref()
   }
@@ -74,16 +67,16 @@ router.post('/open/:type', (req, res, next) => {
       ? new Path('notepad')
       : new Path(games_folder, path)
     if (filepath.path === 'notepad' || filepath.existsSync()) {
-    // if (filepath === 'notepad' || fs.existsSync(filepath)) {
+      // if (filepath === 'notepad' || fs.existsSync(filepath)) {
       run(filepath)
     } else {
-      next({status: 404, message: `file ${filepath.path} does not exist`})
+      next({ status: 404, message: `file ${filepath.path} does not exist` })
       // next({status: 404, message: `file ${filepath} does not exist`})
     }
   } else if (type === 'webpage') {
     exec(`start "" "${path}"`, (err) => {
       if (err) {
-        next({message: `Failed to start url "${path}": ${err}`})
+        next({ message: `Failed to start url "${path}": ${err}` })
       }
     })
   } else if (type === 'folder') {
@@ -97,10 +90,11 @@ router.post('/open/:type', (req, res, next) => {
   }
 })
 
-router.post('/missinggames', (req, res) => {
-  const {games}: {games: MissingGamesType} = req.body
+router.post('/missinggames', async (req, res) => {
+  const settings = await getSettings()
+  const { games }: { games: MissingGamesType } = req.body
   // check for missing games
-  const missingGames = games.filter(({path}) => {
+  const missingGames = games.filter(({ path }) => {
     const gamefol = new Path(settings.games_folder, path)
     return !gamefol.existsSync()
   })
@@ -108,10 +102,11 @@ router.post('/missinggames', (req, res) => {
 })
 
 router.get('/newgames', async (req, res, next) => {
+  const settings = await getSettings()
   // get games dir
   const games_dir = new Path(settings.games_folder)
   // parse existing games
-  const rawExistingGames: {[path: string]: string}[] = await getGamePaths()
+  const rawExistingGames: { [path: string]: string }[] = await getGamePaths()
   const existingGames = rawExistingGames.map(p => games_dir.join(p.path).path)
   // find folders that aren't in existing games
   const newGames: string[] = []
@@ -129,6 +124,16 @@ router.get('/newgames', async (req, res, next) => {
       res.status(200).json(newGames)
     })
     .catch(next)
+})
+
+router.post('/deletefile', (req, res, next) => {
+  try {
+    const { file } = req.body
+    const filePath = new Path(file)
+    filePath.removeSync()
+  } catch (error) {
+    next({ message: error })
+  }
 })
 
 

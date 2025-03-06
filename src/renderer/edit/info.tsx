@@ -38,7 +38,7 @@ export default function Info({handleFormChange, formData}: Props) {
       </Tooltip>
       <img
         id="imagePreview"
-        src={`load-image://${formData.image.replaceAll(' ', '_')}`}
+        src={`load-image://${formData.image.replaceAll('\\', '/').replaceAll(' ', '_')}`}
         alt="[image preview]"
         className="info-column-4 info-row-1 info-row-span-4"
       />
