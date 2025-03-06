@@ -1,7 +1,7 @@
 // TODO? transitions between screens
 // TODO? resizeable
 // TODO? light mode
-// TODO: create an ini file if it doesn't exist, prompting user for the defaults
+// TODO: if settings are default, prompt user for what they should be updated to
 import React, { useEffect, useState } from 'react'
 import { MemoryRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
@@ -69,7 +69,7 @@ function Wrapper({children}: {children: React.ReactNode}) {
             break
           }
           case 'OPEN_SETTINGS': {
-            // TODO: navigate to settings
+            navigate('/settings')
             break
           }
           default:
@@ -86,17 +86,17 @@ function Wrapper({children}: {children: React.ReactNode}) {
   )
 }
 
+
 export default function App() {
   return (
     <Router>
       <Wrapper>
         <Routes>
           <Route path="/" element={<Browse />} />
-          <Route path="/edit" element={<Edit />}/>
+          <Route path="/edit" element={<Edit />} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </Wrapper>
     </Router>
-  )
+  );
 }
-

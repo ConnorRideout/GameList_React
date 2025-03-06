@@ -1,9 +1,6 @@
 // TODO: when updating, auto fill info
 // TODO: when updating, show differences in tags/categories/etc and allow user to pick which ones to keep/change
 // TODO: add checkbox that will prevent the `updated_at` timestamp from updating even if version changes
-// TODO: drag n drop handler for urls and images
-// TODO: set default values for categories like 'play-status'
-// TODO: title must be unique
 
 /* eslint-disable no-use-before-define */
 /* eslint-disable promise/catch-or-return */
@@ -106,7 +103,10 @@ export default function Edit() {
   const program_path = Object.entries(prog_obj)
   const [formData, setFormData] = useState({ path, title, url, image, version, description, program_path })
 
-  const formSchema = CreateEditFormSchema()
+  // Form Validation
+  const gamelib = useSelector((state: RootState) => state.data.gamelib)
+  const existingTitles = useMemo(() => (gamelib.map(g => g.title)), [gamelib])
+  const formSchema = CreateEditFormSchema(existingTitles, title)
   useEffect(() => {
     formSchema.isValid(formData)
       .then(isEditValid => {

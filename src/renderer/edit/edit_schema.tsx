@@ -2,15 +2,21 @@
 import * as yup from 'yup'
 
 
-// path, title, url, image, version, description, program_path: prog_obj
-export default function CreateEditFormSchema() {
+export default function CreateEditFormSchema(existingTitles: string[], currentTitle?: string) {
   return yup.object().shape({
     path: yup
       .string()
       .required("path is required"),
     title: yup
       .string()
-      .required("title is required"),
+      .required("title is required")
+      .test('check-unique', 'Title must be unique (or the same it used to be)', function (value) {
+        const { createError } = this
+        if ((currentTitle && value === currentTitle) || !existingTitles.includes(value)) {
+          return true // valid
+        }
+        return createError({ message: 'title must be unique' })
+      }),
     url: yup
       .string()
       .required("url is required"),

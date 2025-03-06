@@ -7,10 +7,14 @@ tags (expects an array) -> textinput[SELECTOR], checkbox[doQueryAll], textinput[
 others -> combobox[TYPE(category|status|tag)], textinput[SELECTOR], checkbox[doQueryAll], textinput[regexmatcher](behaves like tags)
 */
 import React from 'react'
-
+import { useNavigate } from 'react-router-dom'
 
 export default function Settings() {
+  const navigate = useNavigate()
   return (
-    <div>settings</div>
+    <div>
+      settings
+      <button type='button' onClick={() => navigate('/')}>Return</button>
+    </div>
   )
 }

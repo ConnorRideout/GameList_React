@@ -44,7 +44,6 @@ export default function Info({handleFormChange, formData}: Props) {
       />
 
       <label htmlFor="titleField" className="info-column-1 info-row-2">Title:</label>
-      {/* TODO: warn if title already exists */}
       <input
         id="titleField"
         type="text"

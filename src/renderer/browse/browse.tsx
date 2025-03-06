@@ -54,7 +54,7 @@ export default function Browse() {
 
   const scrollToItem = (idx: number) => {
     const offset = idx * 140
-    document.querySelector('div.game-scroll-list')?.scrollTo({top: offset, behavior: 'smooth'})
+    document.querySelector('div.game-scroll-list')?.scrollTo({ top: offset, behavior: 'smooth' })
   }
 
   const getScrollOffset = () => {
@@ -83,10 +83,10 @@ export default function Browse() {
         statuses: {[key: string]: number},
         tags: {[key: string]: number},
     */
-    const {categories, statuses, tags} = data
+    const { categories, statuses, tags } = data
     const restraints: SearchRestraints = {
-      include:{tags: [], status: [], categories: {}},
-      exclude:{tags: [], status: [], categories: {}}
+      include: { tags: [], status: [], categories: {} },
+      exclude: { tags: [], status: [], categories: {} }
     }
     Object.entries(tags).forEach(([tagName, val]) => {
       if (val === 0) restraints.exclude.tags.push(tagName)
@@ -144,8 +144,8 @@ export default function Browse() {
   // game picker state
   const [showGamePicker, setShowGamePicker] = useState(false)
   const [gamePickerOptions, setGamePickerOptions] = useState<[string, string][]>([])
-  const [gamePickerClickHandler, setGamePickerClickHandler] = useState<{func: (progPath: string) => void}>({func: () => {}})
-  const gamePickerState = {setShowGamePicker, setGamePickerOptions, setGamePickerClickHandler}
+  const [gamePickerClickHandler, setGamePickerClickHandler] = useState<{ func: (progPath: string) => void }>({ func: () => { } })
+  const gamePickerState = { setShowGamePicker, setGamePickerOptions, setGamePickerClickHandler }
 
   return (
     <div className='main-container'>
@@ -155,13 +155,16 @@ export default function Browse() {
       {handleNewGames && !handleMissingGames && (
         <NewGames />
       )}
+
       <GamePicker
         isVisible={showGamePicker}
         setIsVisible={setShowGamePicker}
         programPaths={gamePickerOptions}
         clickHandler={gamePickerClickHandler}
       />
-      <button style={{position: 'fixed', left: 0}} type='button' onClick={() => dispatch(setError('test error'))}>Test</button>
+
+      <button style={{ position: 'fixed', left: 0 }} type='button' onClick={() => dispatch(setError('test error'))}>Test</button>
+
       <SearchFieldset className='vertical-container'>
         <legend className='header-max'>Search</legend>
         <Picker
@@ -175,12 +178,15 @@ export default function Browse() {
           }}
           isBrowse
         />
-        <TextSearch scrollToItem={scrollToItem}/>
+        <TextSearch scrollToItem={scrollToItem} />
       </SearchFieldset>
-      <BrowseNav scrollToItem={scrollToItem}/>
+
+      <BrowseNav scrollToItem={scrollToItem} />
+
       <div className='game-scroll'>
         {['loading', 'updating'].includes(status) && <div className='loading' />}
         <ErrorMessage />
+
         {status !== 'idle' && (
           <>
             <div className='loading-lineitems'>
@@ -188,7 +194,7 @@ export default function Browse() {
               <p>-- end --</p>
             </div>
             <List
-              height={ document.querySelector('div.game-scroll')?.getBoundingClientRect().height || 865 }
+              height={document.querySelector('div.game-scroll')?.getBoundingClientRect().height || 865}
               width='100%'
               itemCount={currentGamlib.length}
               itemSize={140}
@@ -196,7 +202,7 @@ export default function Browse() {
               className='game-scroll-list'
               initialScrollOffset={getScrollOffset()}
             >
-              {({index, style}) => (
+              {({ index, style }) => (
                 <Lineitem
                   key={currentGamlib[index].game_id}
                   gamePickerState={gamePickerState}
