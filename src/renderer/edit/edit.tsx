@@ -1,5 +1,4 @@
 // TODO: when updating, auto fill info
-// TODO: when updating, show differences in tags/categories/etc and allow user to pick which ones to keep/change
 // TODO: add checkbox that will prevent the `updated_at` timestamp from updating even if version changes
 
 /* eslint-disable no-use-before-define */
@@ -38,7 +37,7 @@ import {
   useNewGameMutation,
 } from "../../lib/store/gamelibApi"
 
-import { GameEntry, GamelibState, RootState } from "../../types"
+import { GameEntry, GamelibState, RootState, StringMap } from "../../types"
 import CreateEditFormSchema from "./edit_schema"
 
 
@@ -241,10 +240,27 @@ export default function Edit() {
     }
   }
 
-  const additionalFormData = {
+  const [additionalFormData, setAdditionalFormData] = useState({
     defaults: { tags, status, categories },
     disabledState: submitDisabled,
     formErrors
+  })
+
+  const updatePickerDefaults = (newDefaults: {[type: string]: string | string[] | StringMap}) => {
+    // ensure other categories aren't destroyed
+    const updateDefaults = {
+      ...newDefaults,
+      ...(newDefaults.categories
+        ? {...additionalFormData.defaults.categories, ...(newDefaults.categories as StringMap)}
+        : {}
+      )
+    }
+    setAdditionalFormData({
+      ...additionalFormData, defaults: {
+        ...additionalFormData.defaults,
+        ...updateDefaults
+      }
+    })
   }
 
   //    ___  ___    _   ___ _ _  _ _ ___  ___  ___  ___
@@ -411,8 +427,10 @@ export default function Edit() {
         <Info
           handleFormChange={handleFormChange}
           formData={formData}
+          setFormData={setFormData}
+          updatePickerDefaults={updatePickerDefaults}
+          setIsLoading={setIsLoading}
         />
-
 
         <Picker
           submitHandler={{

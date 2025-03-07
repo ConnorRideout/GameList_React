@@ -13,7 +13,7 @@ import {
 import { Props } from "./info"
 
 
-export default function ProgramPaths({handleFormChange, formData}: Props) {
+export default function ProgramPaths({handleFormChange, formData}: Pick<Props, 'handleFormChange' | 'formData'>) {
 
   const handleProgramChange = (evt: ChangeEvent<HTMLInputElement>, idx: number) => {
     const {name, value} = evt.target

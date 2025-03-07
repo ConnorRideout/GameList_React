@@ -1,5 +1,4 @@
 // TODO: when checking for new/missing games, indicate if none were found somehow
-// TODO: open settings
 
 import {
   // app,

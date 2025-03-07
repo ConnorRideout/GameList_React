@@ -48,19 +48,20 @@ router.post('/scrape', (req, res, next) => {
     const tags = await Games.getTags()
     const statuses = await Games.getStatus()
     const settings = await getSettings()
-    return new SiteScraper(categories, statuses, tags, settings.site_scraper_aliases)
+    return new SiteScraper(categories, statuses, tags, settings.site_scrapers, settings.site_scraper_aliases)
   }
   const {
-    selectors,
+    base_url,
     url
   }: {
-    selectors: SettingsType['site_scrapers'][0]['selectors'],
+    base_url: string,
     url: string
   } = req.body
   makeSiteScraper()
     .then(siteScraper => {
-      siteScraper.scrape(url, selectors)
+      siteScraper.scrape(url, base_url)
         .then(response => {
+          console.log(response)
           res.status(200).json(response)
         })
         .catch(err => next({message:err}))

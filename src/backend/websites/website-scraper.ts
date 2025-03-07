@@ -21,6 +21,8 @@ export default class SiteScraper {
 
   tagsLower
 
+  scraper_selectors
+
   aliases
 
   url=''
@@ -29,6 +31,7 @@ export default class SiteScraper {
     categories: CategoryEntry[],
     statuses: StatusEntry[],
     tags: TagEntry[],
+    scraper_selectors: SettingsType['site_scrapers'],
     aliases: SettingsType['site_scraper_aliases']
   ) {
     this.categories = categories.map(({category_name, options}) => ({category_name, options}))
@@ -36,6 +39,7 @@ export default class SiteScraper {
     this.statusesLower = statuses.map(({status_name}) => status_name.toLowerCase())
     this.tags = tags.map(({tag_name}) => tag_name)
     this.tagsLower = tags.map(({tag_name}) => tag_name.toLowerCase())
+    this.scraper_selectors = scraper_selectors
     this.aliases = aliases
   }
 
@@ -89,8 +93,16 @@ export default class SiteScraper {
     return result
   }
 
-  scrape(url: string, selectors: SettingsType['site_scrapers'][0]['selectors']) {
+  /**
+   * Scrape a website for default values for a game's title, description, version, tags, statuses, and/or categories
+   * @param url - the url to scrape
+   * @param base_url - the base of the url, which matches a base_url key from settings.scraper_selectors
+   * @returns a `Promise` with an array of scraper results. If the scraper `type` is one of 'title', 'description', or 'version', `parsed` will be a string.
+   * Otherwise, `parsed` will be an array of strings. Either way, `parsed`s string(s) will be guarenteed to be in their respective Object in the GamelibState
+   */
+  scrape(url: string, base_url: string): Promise<{type: string, parsed: string | string[]}[]> {
     this.url = url
+    const { selectors } = this.scraper_selectors.find(scraper => scraper.base_url === base_url)!
     const parsedSelectors: {type: string, parsed: string | string[]}[] = []
     return axios.get(url)
       .then(response => {

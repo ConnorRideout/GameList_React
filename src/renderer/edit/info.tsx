@@ -1,27 +1,90 @@
 import React, {ChangeEvent} from "react"
-import Tooltip from "../shared/tooltip"
+import { useDispatch, useSelector } from "react-redux"
 
+import Tooltip from "../shared/tooltip"
 import {
   ImageSearchSvg,
   FileAutoSearchSvg,
 } from "../shared/svg"
 // eslint-disable-next-line import/no-cycle
 import ProgramPaths from "./programPaths"
-import { GameEntry } from "../../types"
+
+import { useAutofillFromWebsiteMutation } from "../../lib/store/websitesApi"
+import { setError } from "../../lib/store/gamelibrary"
+
+import { GameEntry, RootState, StringMap } from "../../types"
 
 
 export interface Props {
   handleFormChange: (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | {target: {name: string, value: string | [string, string][]}}) => void,
-  formData: Pick<GameEntry, 'path' | 'title' | 'url' | 'image' | 'version' | 'description'> & {program_path: [string, string][]}
+  formData: Pick<GameEntry, 'path' | 'title' | 'url' | 'image' | 'version' | 'description'> & {program_path: [string, string][]},
+  setFormData: React.Dispatch<React.SetStateAction<{
+    path: string;
+    title: string;
+    url: string;
+    image: string;
+    version: string;
+    description: string;
+    program_path: [string, string][];
+  }>>,
+  updatePickerDefaults: (newDefaults: {[type: string]: string | string[] | StringMap}) => void,
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
 }
-export default function Info({handleFormChange, formData}: Props) {
+export default function Info({handleFormChange, formData, setFormData, updatePickerDefaults, setIsLoading}: Props) {
+  const dispatch = useDispatch()
+  const settings = useSelector((state: RootState) => state.data.settings)
+  const [autoFillFromWebsite] = useAutofillFromWebsiteMutation()
+
+  const handleAutoFill = async () => {
+    // TODO: when updating, show differences in tags/categories/etc and allow user to pick which ones to keep/change
+    // TODO: move protagonist to categories, and make a selector for it. Have the database be ordered by preference? IDK how to have 'multiple' be an option
+    // TODO: auto search for exes
+    const { url } = formData
+    const base_url = settings.site_scrapers.find(scraper => url.includes(scraper.base_url))?.base_url
+    if (base_url) {
+      setIsLoading(true)
+      try {
+        const scraper_result = await autoFillFromWebsite({base_url, url}).unwrap()
+        console.log(scraper_result)
+        const newEditFormData: StringMap = {}
+        const newPickerFormData: {[type: string]: string | string[] | StringMap} = {}
+        scraper_result.forEach(({type, parsed}) => {
+          if (['title', 'description', 'version'].includes(type)) {
+            // type is title, description, or version from Edit FormData
+            // console.log('changing edit', type)
+            newEditFormData[type] = (parsed as string)
+          } else {
+            // type is tags, tag, status, or category_<cat_name> from Picker FormData
+            const updateType = type.includes('tag')
+              ? 'tags'
+              : type.includes('category')
+                ? 'categories'
+                : 'status'
+            const newValues = updateType === 'categories'
+              ? {[type.match(/_(.+)$/)![1]]: parsed[0], ...((newPickerFormData.categories as StringMap | undefined) || {})}
+              : parsed
+            // console.log('changing picker', updateType, newValues)
+            newPickerFormData[updateType] = newValues
+          }
+        })
+        setFormData({...formData, ...newEditFormData})
+        updatePickerDefaults(newPickerFormData)
+      } catch (error: any) {
+        dispatch(setError(error.message))
+      }
+      setIsLoading(false)
+    } else {
+      // TODO: open dialog asking if wants to open website since there are no scrapers defined for this website
+    }
+  }
+
   return (
     <fieldset className="info-container">
       <legend>Info</legend>
-      {/* TODO: implement auto-fill */}
       <button
         className="info-column-1 info-row-1"
         type="button"
+        onClick={handleAutoFill}
       >Auto-fill info from URL</button>
 
       <Tooltip

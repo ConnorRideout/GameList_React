@@ -72,7 +72,12 @@ const initialState: GamelibState = {
       Executables: []
     },
     ignored_exes: [],
-    site_scrapers: []
+    site_scrapers: [],
+    site_scraper_aliases: {
+      tags: {},
+      categories: {},
+      statuses: {}
+    },
   },
   // application status
   status: 'idle', // loading | succeeded | failed | idle | updating
