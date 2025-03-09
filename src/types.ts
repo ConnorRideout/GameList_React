@@ -13,5 +13,10 @@ export {
 } from "./lib/types/types-gamelibrary"
 
 export type MenuAction = {
-  type: 'OPEN_GAMES_FOLDER' | 'OPEN_SETTINGS' | 'CHECK_MISSING' | 'CHECK_NEW',
+  type: 'OPEN_GAMES_FOLDER' | 'OPEN_SETTINGS' | 'CHECK_MISSING' | 'CHECK_NEW' | 'CHECK_UPDATED',
+}
+export type ContextMenuTemplate = {
+  label: string,
+  trigger: string,
+  target: string | number,
 }

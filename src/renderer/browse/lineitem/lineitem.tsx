@@ -1,5 +1,8 @@
 /* eslint-disable react/prop-types */
-import React, { CSSProperties } from 'react'
+import React, {
+  CSSProperties,
+  useEffect
+} from 'react'
 import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 
@@ -10,8 +13,9 @@ import Version from './version'
 import Categories from './categories'
 import Tags from './tags'
 import Description from './description'
-import { RootState } from '../../../lib/store/store'
-import { GameEntry } from '../../../lib/types/types-gamelibrary'
+import { useContextMenu } from '../../ContextMenuProvider'
+
+import { ContextMenuTemplate, RootState, GameEntry } from '../../../types'
 
 const LineitemDiv = styled.div`
   min-height: 140px;
@@ -60,8 +64,33 @@ export default function Lineitem({gamePickerState, lineData, style}: Props) {
 
   const [status_color_title, status_color_version] = getStatusColors(status)
 
+  // Context Menu
+  const contextMenuData = useContextMenu()
+
+  const handleContextMenu = (evt: React.MouseEvent<HTMLDivElement>) => {
+    evt.preventDefault()
+    const x = evt.clientX
+    const y = evt.clientY
+    const customTemplates: ContextMenuTemplate[] = [
+      {label: 'test', trigger: 'TEST', target: game_id}
+    ]
+
+    window.electron.showCustomContextMenu({x, y, customTemplates})
+  }
+  useEffect(() => {
+    if (contextMenuData && contextMenuData.trigger === 'TEST' && contextMenuData.target === game_id) {
+      console.log('Yay', title)
+    }
+  }, [contextMenuData, game_id, title])
+
+
   return (
-    <LineitemDiv style={{background: styleVars.$bgNormal, ...style}} className='horizontal-container' data-title={title}>
+    <LineitemDiv
+      style={{background: styleVars.$bgNormal, ...style}}
+      className='horizontal-container'
+      data-title={title}
+      onContextMenu={handleContextMenu}
+    >
       <Tools
         game_id={game_id}
         path={path}

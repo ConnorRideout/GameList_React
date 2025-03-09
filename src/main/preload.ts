@@ -2,7 +2,7 @@
 /* eslint no-unused-vars: off */
 import { contextBridge, ipcRenderer, IpcRendererEvent, MessageBoxSyncOptions } from 'electron';
 
-import { MenuAction } from '../types';
+import { ContextMenuTemplate, MenuAction } from '../types';
 
 export type Channels = 'ipc-example';
 
@@ -51,6 +51,40 @@ const showMessageBox = ({
   ipcRenderer.sendSync('show-message-dialog', title, message, type, buttons, defaultBtnIdx)
 )
 
+/**
+ *
+ * @param args.x - The x position of the context menu
+ * @param args.y - The y position of the context menu
+ * @param args.customTemplates - An array of items to show in the context menu
+ * @param args.customTemplates.label - The text to show on the context menu
+ * @param args.customTemplates.trigger - The ipcRenderer trigger that will be sent
+ * @param args.customTemplates.target - In case `customTemplates.trigger` isn't specific enough, this will allow more specificity
+ * @returns Void; if the user clicks a content menu item it will send the signal defined in the customTemplate (with target, if defined)
+ */
+const showCustomContextMenu = ({
+  x,
+  y,
+  customTemplates
+}: {
+  x: number,
+  y: number,
+  customTemplates: ContextMenuTemplate[]
+}) => (
+  ipcRenderer.send('show-custom-context-menu', x, y, customTemplates)
+)
+
+const onContextMenuAction = (callback: (trigger: string, target: string | number) => void) => {
+  const listener = (event: IpcRendererEvent, trigger: string, target: string | number) => {
+    callback(trigger, target)
+  }
+
+  ipcRenderer.on('context-menu-action', listener)
+
+  return () => {
+    ipcRenderer.removeListener('context-menu-action', listener)
+  }
+}
+
 
 
 const electronHandler = {
@@ -78,6 +112,8 @@ const electronHandler = {
 
   openFileDialog,
   showMessageBox,
+  showCustomContextMenu,
+  onContextMenuAction,
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler)

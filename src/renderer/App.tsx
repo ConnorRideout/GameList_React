@@ -10,6 +10,7 @@ import './styles/App.scss'
 import Browse from './browse/browse'
 import Edit from './edit/edit'
 import Settings from './settings/settings'
+import ContextMenuProvider from './ContextMenuProvider'
 
 import {
   useGetGamesQuery,
@@ -52,6 +53,14 @@ function Wrapper({children}: {children: React.ReactNode}) {
       checkForMissingGames(games.map(({game_id, title, path}) => ({game_id, title, path})))
       window.electron.onMenuAction((action) => {
         switch (action.type) {
+          case 'OPEN_GAMES_FOLDER': {
+            openFolder(settings.games_folder)
+            break
+          }
+          case 'OPEN_SETTINGS': {
+            navigate('/settings')
+            break
+          }
           case 'CHECK_MISSING': {
             dispatch(clearEditGame())
             navigate('/')
@@ -64,12 +73,8 @@ function Wrapper({children}: {children: React.ReactNode}) {
             checkForNewGames()
             break
           }
-          case 'OPEN_GAMES_FOLDER': {
-            openFolder(settings.games_folder)
-            break
-          }
-          case 'OPEN_SETTINGS': {
-            navigate('/settings')
+          case 'CHECK_UPDATED': {
+            // TODO: check for updated urls for all games
             break
           }
           default:
@@ -91,11 +96,13 @@ export default function App() {
   return (
     <Router>
       <Wrapper>
-        <Routes>
-          <Route path="/" element={<Browse />} />
-          <Route path="/edit" element={<Edit />} />
-          <Route path="/settings" element={<Settings />} />
-        </Routes>
+        <ContextMenuProvider>
+          <Routes>
+            <Route path="/" element={<Browse />} />
+            <Route path="/edit" element={<Edit />} />
+            <Route path="/settings" element={<Settings />} />
+          </Routes>
+        </ContextMenuProvider>
       </Wrapper>
     </Router>
   );

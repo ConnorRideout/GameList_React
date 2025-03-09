@@ -5,8 +5,9 @@ import {
   Menu,
   // shell,
   BrowserWindow,
-  // MenuItemConstructorOptions,
+  MenuItemConstructorOptions,
 } from 'electron';
+import { ContextMenuTemplate } from '../types';
 
 // interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
 //   selector?: string;
@@ -21,12 +22,19 @@ export default class MenuBuilder {
   }
 
   buildMenu(): Menu {
-    if (
-      process.env.NODE_ENV === 'development' ||
-      process.env.DEBUG_PROD === 'true'
-    ) {
-      this.setupDevelopmentEnvironment();
-    }
+    // context menu
+    this.mainWindow.webContents.on('context-menu', (_, props) => {
+      const { x, y } = props
+      const contextTemplate = this.buildDefaultContextTemplate(x, y)
+
+      Menu.buildFromTemplate(contextTemplate).popup({ window: this.mainWindow });
+    });
+    // if (
+    //   process.env.NODE_ENV === 'development' ||
+    //   process.env.DEBUG_PROD === 'true'
+    // ) {
+    //   this.setupDevelopmentEnvironment(contextTemplate);
+    // }
 
     const template = this.buildDefaultTemplate();
     // const template =
@@ -41,20 +49,60 @@ export default class MenuBuilder {
   }
 
   // Context Menu
-  setupDevelopmentEnvironment(): void {
-    this.mainWindow.webContents.on('context-menu', (_, props) => {
-      const { x, y } = props;
-
-      Menu.buildFromTemplate([
-        {
-          label: 'Inspect element',
-          click: () => {
-            this.mainWindow.webContents.inspectElement(x, y);
-          },
-        },
-      ]).popup({ window: this.mainWindow });
-    });
+  sendContextMenuTrigger(trigger: string, target?: string | number) {
+    this.mainWindow.webContents.send('context-menu-action', trigger, target)
   }
+
+  buildDefaultContextTemplate(x: number, y: number) {
+    const templateDefault = [
+      // {
+      //   label: 'Do something',
+      //   click: () => {
+      //     this.sendContextMenuTrigger('DO-SOMETHING')
+      //   },
+      // },
+    ]
+    if (
+      process.env.NODE_ENV === 'development' ||
+      process.env.DEBUG_PROD === 'true'
+    ) {
+      templateDefault.push({
+        label: 'Inspect element',
+        click: () => {
+          this.mainWindow.webContents.inspectElement(x, y)
+        },
+      })
+    }
+
+    return templateDefault
+  }
+
+  buildCustomMenu(x: number, y: number, customTemplates: ContextMenuTemplate[]) {
+    const templateDefault = this.buildDefaultContextTemplate(x, y)
+    const template = customTemplates.map(({label, trigger, target}) => ({
+      label,
+      click: () => {
+        this.sendContextMenuTrigger(trigger, target)
+      }
+    }))
+    Menu.buildFromTemplate([...templateDefault, ...template]).popup({ window: this.mainWindow })
+  }
+
+  // setupDevelopmentEnvironment(contextTemplate: MenuItemConstructorOptions[]): void {
+  //   this.mainWindow.webContents.on('context-menu', (_, props) => {
+  //     const { x, y } = props;
+
+  //     Menu.buildFromTemplate([
+  //       {
+  //         label: 'Inspect element',
+  //         click: () => {
+  //           this.mainWindow.webContents.inspectElement(x, y);
+  //         },
+  //       },
+  //       ...contextTemplate
+  //     ]).popup({ window: this.mainWindow });
+  //   });
+  // }
 
 
 
@@ -156,7 +204,7 @@ export default class MenuBuilder {
     //   },
     // ];
 
-    const templateDefault = [
+    const templateDefault: MenuItemConstructorOptions[] = [
       {
         label: '&File',
         submenu: [
@@ -191,6 +239,16 @@ export default class MenuBuilder {
             accelerator: 'Ctrl+M',
             click: () => {
               this.sendMenuTrigger('CHECK_MISSING')
+            }
+          },
+          {
+            type: 'separator'
+          },
+          {
+            label: 'Check for &UPDATED Games',
+            accelerator: 'Ctrl+U',
+            click: () => {
+              this.sendMenuTrigger('CHECK_UPDATED')
             }
           }
         ]

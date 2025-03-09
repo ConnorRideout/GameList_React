@@ -78,6 +78,9 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
+
+let menuBuilder: MenuBuilder
+
 const createWindow = async () => {
   if (isDebug) {
     await installExtensions();
@@ -137,7 +140,7 @@ const createWindow = async () => {
     mainWindow = null;
   });
 
-  const menuBuilder = new MenuBuilder(mainWindow);
+  menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
 
   // Open urls in the user's browser
@@ -198,9 +201,12 @@ app
 
 
 
+
     ipcMain.on('open-file-dialog', (event, ...fileArgs) => openDialog(event, mainWindow!, ...fileArgs))
 
     ipcMain.on('show-message-dialog', (event, ...msgArgs) => messageBox(event, mainWindow!, ...msgArgs))
+
+    ipcMain.on('show-custom-context-menu', (event, x, y, customTemplates) => menuBuilder.buildCustomMenu(x, y, customTemplates))
 
   })
   .catch(console.log);
