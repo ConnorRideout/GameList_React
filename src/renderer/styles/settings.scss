@@ -1,0 +1,49 @@
+@use 'sass:color';
+@use 'variables';
+@use 'reusable';
+
+
+.settings-container {
+  @extend .vertical-container;
+
+  border: 1px solid variables.$fgNormal;
+  min-width: 75vw;
+  min-height: 75vh;
+}
+
+.settings-nav {
+  @extend .horizontal-container;
+
+  position: relative;
+  padding-top: variables.$spacing;
+
+  &>span {
+    position: absolute;
+    bottom: -2px;
+    right: 0;
+    left: 0;
+    pointer-events: none;
+    border-bottom: 2px ridge variables.$fgDark;
+    flex-grow: 1;
+    margin-bottom: 2px;
+    z-index: -1;
+  }
+}
+
+.settings-body {
+  @extend .vertical-container;
+
+  flex-grow: 1;
+  padding: variables.$spacing;
+}
+
+.settings-buttons {
+  @extend .horizontal-container;
+
+  align-self: center;
+  justify-content: space-evenly;
+  padding: calc(variables.$spacing * 2) 0;
+  border-top: 1px solid variables.$fgDark;
+  margin-top: variables.$spacing;
+  min-width: 75%;
+}

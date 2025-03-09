@@ -39,6 +39,8 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
     // TODO: when updating, show differences in tags/categories/etc and allow user to pick which ones to keep/change
     // TODO: move protagonist to categories, and make a selector for it. Have the database be ordered by preference? IDK how to have 'multiple' be an option
     // TODO: auto search for exes
+    // TODO: tooltip explaining what auto fill will attempt
+    // TODO? disable autofill button if the url isn't in the scrapers
     const { url } = formData
     const base_url = settings.site_scrapers.find(scraper => url.includes(scraper.base_url))?.base_url
     if (base_url) {
