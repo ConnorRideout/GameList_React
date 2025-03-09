@@ -379,7 +379,7 @@ export default function Edit() {
       onDragOver={handleDragOver}
       onDrop={handleDrop}
     >
-      <EditDiv className="main-container vertical-center">
+      <EditDiv className="main-container center">
         {isLoading && <div className='loading' />}
         <h1>{editType === 'new' ? 'ADD NEW' : 'EDIT'} GAME</h1>
         <button style={{ position: 'fixed', left: 0, top: '30px' }} type='button' onClick={() => dispatch(setError('test error'))}>Test</button>

@@ -14,6 +14,7 @@ export default function TabularButton({text, clickHandler, active, disabled=fals
       onClick={clickHandler}
       disabled={disabled}
     >
+      <span className={`tab-btn-border ${active ? 'hidden' : ''}`}/>
       <div className="tab-btn-left" />
       <span className="tab-btn-center">{text}</span>
       <div className="tab-btn-right" />

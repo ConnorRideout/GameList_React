@@ -55,7 +55,7 @@ div.tooltip-image {
   display: flex;
   flex-direction: row;
 
-  &.horizontal-center {
+  &.center {
     justify-content: center;
   }
 }
@@ -64,7 +64,7 @@ div.tooltip-image {
   display: flex;
   flex-direction: column;
 
-  &.vertical-center {
+  &.center {
     justify-content: center;
   }
 }

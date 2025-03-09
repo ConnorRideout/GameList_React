@@ -3,7 +3,7 @@ import React from "react"
 import styled from "styled-components"
 import { useDispatch, useSelector } from "react-redux"
 
-import TabularButton from "./tabularButton"
+import TabularButton from "../shared/tabularButton"
 import { RootState } from '../../lib/store/store'
 import { setSortOrder, setStatus } from "../../lib/store/gamelibrary"
 
@@ -11,9 +11,10 @@ import { GamelibState } from '../../types'
 
 
 const NavDiv = styled.div`
-justify-content: flex-start;
-width: 100%;
-margin-top: 6px;
+  justify-content: flex-start;
+  width: 100%;
+  margin-top: 6px;
+  z-index: 1;
 `
 
 export default function BrowseNav({scrollToItem}: {scrollToItem: (idx: number) => void}) {
