@@ -1,19 +1,6 @@
 @use 'reusable';
 @use 'variables';
 
-.svg-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0 variables.$spacing;
-  min-width: 60px;
-  height: min-content;
-  margin: 0 variables.$spacing;
-
-  &.with-margin {
-    margin: variables.$spacing calc(variables.$spacing * 2);
-  }
-}
 
 .info-container {
   display: grid;
@@ -21,7 +8,7 @@
   align-items: start;
   grid-template-columns: max-content 1fr min-content min-content;
 
-  &>img {
+  img {
     border: 1px solid variables.$fgDark;
     min-width: 197px;
     max-width: 197px;
@@ -29,7 +16,7 @@
     max-height: 117px;
   }
 
-  & textarea {
+  textarea {
     overflow-y: auto;
     resize: none;
     // max-width subtractions are width-tools, width-title, width-version, width-categories, width-tags, margins-desc, margins-between, margins-around, arbitrary extra
@@ -46,14 +33,10 @@
     }
   }
 
-  & button {
+  button {
     font-size: variables.$fontSmall;
     text-align: center;
     padding: variables.$spacing;
-
-    &.svg-button {
-      @extend .svg-button;
-    }
   }
 }
 
@@ -129,12 +112,12 @@
   margin-bottom: calc(variables.$spacing * 2);
   overflow-y: auto;
 
-  & .svg-button {
+  .svg-button {
     min-width: min-content;
     padding: 0;
   }
 
-  & input {
+  input {
     font-size: variables.$fontSmall;
     height: 2em;
   }

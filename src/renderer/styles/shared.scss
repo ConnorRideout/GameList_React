@@ -13,19 +13,19 @@
 
 
   &:hover:not(:disabled) {
-    &>*:not(.tab-btn-border) {
+    *:not(.tab-btn-border) {
       filter: brightness(1.2);
     }
   }
 }
 
 button.tab-active:not(:disabled) {
-  & *:not(.tab-btn-border) {
+  *:not(.tab-btn-border) {
     filter: brightness(1.4);
   }
 
   &:hover {
-    & *:not(.tab-btn-border) {
+    *:not(.tab-btn-border) {
       filter: brightness(1.5);
     }
   }

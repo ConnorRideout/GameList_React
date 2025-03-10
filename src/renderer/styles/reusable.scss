@@ -58,6 +58,14 @@ div.tooltip-image {
   &.center {
     justify-content: center;
   }
+
+  &.align-center {
+    align-items: center;
+  }
+
+  &.scrollable {
+    overflow-y: auto
+  }
 }
 
 .vertical-container {
@@ -66,6 +74,14 @@ div.tooltip-image {
 
   &.center {
     justify-content: center;
+  }
+
+  &.align-center {
+    align-items: center;
+  }
+
+  &.scrollable {
+    overflow-y: auto;
   }
 }
 
@@ -76,11 +92,6 @@ div.tooltip-image {
   min-height: calc(100vh - 2 * variables.$spacing);
   min-width: calc(100vw - 2 * variables.$spacing);
   z-index: 1;
-}
-
-.vertical-scroll-container {
-  @extend .vertical-container;
-  overflow-y: auto;
 }
 
 .grow-1 {
@@ -206,7 +217,7 @@ div.tooltip-image {
 
   @include fade-in(200ms);
 
-  &>div.inputbox {
+  div.inputbox {
     // the input box
     @extend .vertical-container;
 
@@ -219,7 +230,7 @@ div.tooltip-image {
     min-width: 400px;
     max-width: 70vw;
 
-    &>h1 {
+    h1 {
       // the title
       align-self: center;
       min-width: 75%;
@@ -229,7 +240,7 @@ div.tooltip-image {
       text-align: center;
     }
 
-    &>div.inputbox-content {
+    div.inputbox-content {
       // the content box
       @extend .vertical-container;
 
@@ -241,7 +252,7 @@ div.tooltip-image {
       overflow: auto;
     }
 
-    &>div.inputbox-buttons {
+    div.inputbox-buttons {
       @extend .horizontal-container;
 
       margin-top: calc(variables.$spacing * 2);
@@ -253,5 +264,19 @@ div.tooltip-image {
       justify-content: space-evenly;
       align-items: center;
     }
+  }
+}
+
+.svg-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0 variables.$spacing;
+  min-width: 60px;
+  height: min-content;
+  margin: 0 variables.$spacing;
+
+  &.with-margin {
+    margin: variables.$spacing calc(variables.$spacing * 2);
   }
 }

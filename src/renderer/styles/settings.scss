@@ -8,7 +8,9 @@
 
   border: 1px solid variables.$fgNormal;
   min-width: 75vw;
+  max-width: 75vw;
   min-height: 75vh;
+  max-height: 75vh;
 }
 
 .settings-nav {
@@ -17,7 +19,7 @@
   position: relative;
   padding-top: variables.$spacing;
 
-  &>span {
+  >span {
     position: absolute;
     bottom: -2px;
     right: 0;
@@ -46,4 +48,46 @@
   border-top: 1px solid variables.$fgDark;
   margin-top: variables.$spacing;
   min-width: 75%;
+}
+
+.settings-games-container {
+  @extend .vertical-container;
+
+  max-height: 100%;
+
+  fieldset {
+    max-width: max-content;
+
+    >legend {
+      font-size: variables.$fontMax;
+    }
+  }
+
+  h2,
+  input[type=text] {
+    width: 170px;
+    margin: 0 variables.$spacing;
+  }
+
+  h2 {
+    text-align: center;
+  }
+
+  span.separator {
+    width: 100%;
+    margin: variables.$spacing 0;
+    padding: 0;
+    border-bottom: 1px solid variables.$bgLight;
+  }
+
+  button.svg-button {
+    min-width: min-content;
+    width: min-content;
+    padding: 0;
+    margin: 0;
+
+    &.center {
+      align-self: center;
+    }
+  }
 }

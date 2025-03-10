@@ -13,7 +13,9 @@
 }
 
 .game-scroll {
-  @extend .vertical-scroll-container;
+  @extend .vertical-container;
+  @extend .scrollable;
+
   outline: 2px ridge variables.$fgDark;
   max-width: calc(100% - variables.$spacing * 2);
   min-width: calc(100% - variables.$spacing * 2);
@@ -87,7 +89,7 @@
   overflow-y: hidden;
   margin-top: variables.$spacing;
 
-  &>div {
+  div {
     @extend .vertical-container;
     justify-content: center;
     align-items: center;
@@ -153,7 +155,7 @@
 
   @include fade-in-out(20%, 2s);
 
-  &>span {
+  span {
     color: lime;
     font-size: 40pt;
     font-weight: 900;
@@ -161,7 +163,7 @@
     animation: pan 2s linear forwards;
   }
 
-  &>.loading {
+  .loading {
     background: transparent;
   }
 }
@@ -176,7 +178,7 @@
   min-width: 75%;
   max-width: 75%;
 
-  &>input[type=text] {
+  input[type=text] {
     flex-grow: 1;
     font-size: variables.$fontTitle;
     margin-right: 0;
@@ -184,7 +186,7 @@
     border-right: none;
   }
 
-  &>.text-search-suggestions {
+  .text-search-suggestions {
     background-color: variables.$bgLight;
     border: 1px solid variables.$fgNormal;
     top: 100%;
@@ -194,7 +196,7 @@
     overflow-y: auto;
     max-height: 30em;
 
-    & p {
+    p {
       cursor: pointer;
       padding: 0 variables.$spacing;
       white-space: nowrap;
@@ -208,7 +210,7 @@
     }
   }
 
-  &>button.clear {
+  button.clear {
     position: absolute;
     top: calc(0.5em - 3px);
     right: 3em;
@@ -221,7 +223,7 @@
     opacity: 0.7;
   }
 
-  &>button {
+  button {
     min-width: 28px;
     min-height: 29px;
 
@@ -232,28 +234,28 @@
 }
 
 .game-picker-container {
-  & div.inputbox-content {
-    &>span {
+  div.inputbox-content {
+    span {
       @extend .horizontal-container;
       align-items: center;
 
-      &>input {
+      input {
         margin-right: calc(variables.$spacing * 4);
       }
 
-      &>button {
+      button {
         display: flex;
         padding: 0 variables.$spacing;
         border-radius: 10px;
         min-width: fit-content;
       }
 
-      &>h3 {
+      h3 {
         text-align: center;
       }
     }
 
-    &>button {
+    button {
       position: relative;
       left: -10px;
       max-width: fit-content;
@@ -270,16 +272,16 @@
 }
 
 .missing-games-container {
-  & div.inputbox {
+  div.inputbox {
     min-width: 500px;
   }
 
-  & div.inputbox-content>div {
+  div.inputbox-content>div {
     @extend .horizontal-container;
 
     align-items: center;
 
-    &>span {
+    span {
       @extend .horizontal-container;
 
       align-items: center;
@@ -290,16 +292,16 @@
       border-radius: 10px;
       max-width: fit-content;
 
-      &>* {
+      * {
         margin: 0 variables.$spacing;
       }
 
-      &>h2 {
+      h2 {
         padding: 0;
         color: variables.$fgLight;
       }
 
-      &>button {
+      button {
         display: flex;
         height: fit-content;
         min-width: fit-content;
@@ -309,7 +311,7 @@
 
     }
 
-    &>p {
+    p {
       min-width: 4.2em;
       cursor: default;
       text-align: center;
@@ -324,11 +326,11 @@
   min-width: 90px;
   max-width: 90px;
 
-  &>legend {
+  legend {
     @extend .horizontal-container;
     align-items: center;
 
-    &>button {
+    button {
       display: flex;
       background: transparent;
       border: none;
@@ -339,26 +341,26 @@
     }
   }
 
-  & .no-update {
+  .no-update {
     color: variables.$fgError;
   }
 }
 
 .new-games-container {
-  & div.inputbox {
+  div.inputbox {
     min-width: 500px;
 
-    & div.inputbox-content {
+    div.inputbox-content {
       position: relative;
 
-      &>div {
+      div {
         @extend .vertical-container;
 
         max-height: 100%;
         overflow: auto;
         padding-top: calc(variables.$spacing * 5 + 35px);
 
-        &>div,
+        div,
         &.legend {
           @extend .horizontal-container;
 
@@ -370,18 +372,18 @@
           border-radius: 10px;
           max-width: fit-content;
 
-          &>* {
+          * {
             margin: 0 variables.$spacing;
           }
 
-          &>span {
+          span {
             border-left: 1px inset variables.$bgDark;
             border-right: 1px inset variables.$bgDark;
             padding: 0;
             min-height: 80%;
           }
 
-          &>h2 {
+          h2 {
             padding: 0;
             color: variables.$fgLight;
           }
@@ -403,24 +405,24 @@
           margin: 0;
           z-index: 10;
 
-          &>span {
+          span {
             min-height: 2em;
           }
 
-          &>label {
+          label {
             @extend .vertical-container;
 
             flex-direction: column-reverse;
             margin: 0;
 
-            &>input[type=checkbox] {
+            input[type=checkbox] {
               margin: 0;
             }
           }
 
-          & h1,
-          & h2,
-          & h3 {
+          h1,
+          h2,
+          h3 {
             color: variables.$fgHighlightedText;
           }
         }
