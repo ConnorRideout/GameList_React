@@ -10,7 +10,7 @@ import { Props } from './games'
 
 export default function Categories({formData, setFormData}: Props) {
   const [newCategoryAdded, setNewCategoryAdded] = useState(false)
-    const categoryRef = useRef<HTMLFieldSetElement>(null)
+    const categoryRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
       if (newCategoryAdded && categoryRef.current) {
@@ -83,7 +83,7 @@ export default function Categories({formData, setFormData}: Props) {
   }
 
   return (
-    <fieldset className='vertical-container scrollable grid-column-1 grid-row-span-2' ref={categoryRef}>
+    <fieldset className='vertical-container grid-column-1 grid-row-span-2' >
       <legend>CATEGORIES</legend>
 
       <div className='horizontal-container align-center'>
@@ -95,74 +95,76 @@ export default function Categories({formData, setFormData}: Props) {
       </div>
       <span className='separator'/>
 
-      {formData.categories.map(({category_id, category_name, options, default_option}, index) => {
-        return (
-          <React.Fragment key={`category-${category_id}`}>
-            <div className='horizontal-container'>
-              <button
-                type='button'
-                className='svg-button center'
-                onClick={() => handleRemoveCategory(index)}
-              >
-                <MinusSvg />
-              </button>
-              <input
-                type="text"
-                name={`name-${category_id}`}
-                value={category_name}
-                onChange={handleChange}
-              />
-              <div className='vertical-container'>
-                {options.map((opt, idx) => {
-                  return (
-                    // eslint-disable-next-line react/no-array-index-key
-                    <div key={`${category_id}-${idx}`} className='horizontal-container align-center'>
-                      <button
-                        type='button'
-                        className='svg-button'
-                        onClick={() => handleRemoveOption(category_id, idx)}
-                      >
-                        <MinusSvg size={17} />
-                      </button>
-                      <input
-                        type="text"
-                        name={`option-${category_id}-${idx}`}
-                        value={opt}
-                        onChange={(evt) => handleChange(evt)}
-                      />
-                      <input
-                        type="radio"
-                        name={`default-${category_id}`}
-                        value={opt}
-                        checked={opt === default_option}
-                        onClick={handleChange}
-                        onChange={() => ''}
-                      />
-                    </div>
-                  )
-                })}
+      <div className='vertical-container scrollable' ref={categoryRef} >
+        {formData.categories.map(({category_id, category_name, options, default_option}, index) => {
+          return (
+            <React.Fragment key={`category-${category_id}`}>
+              <div className='horizontal-container'>
                 <button
                   type='button'
-                  className='svg-button'
-                  style={{marginTop: '4px'}}
-                  onClick={() => handleAddOption(category_id)}
+                  className='svg-button center'
+                  onClick={() => handleRemoveCategory(index)}
                 >
-                  <PlusSvg size={17} />
+                  <MinusSvg />
                 </button>
+                <input
+                  type="text"
+                  name={`name-${category_id}`}
+                  value={category_name}
+                  onChange={handleChange}
+                />
+                <div className='vertical-container'>
+                  {options.map((opt, idx) => {
+                    return (
+                      // eslint-disable-next-line react/no-array-index-key
+                      <div key={`${category_id}-${idx}`} className='horizontal-container align-center'>
+                        <button
+                          type='button'
+                          className='svg-button'
+                          onClick={() => handleRemoveOption(category_id, idx)}
+                        >
+                          <MinusSvg size={17} />
+                        </button>
+                        <input
+                          type="text"
+                          name={`option-${category_id}-${idx}`}
+                          value={opt}
+                          onChange={(evt) => handleChange(evt)}
+                        />
+                        <input
+                          type="radio"
+                          name={`default-${category_id}`}
+                          value={opt}
+                          checked={opt === default_option}
+                          onClick={handleChange}
+                          onChange={() => ''}
+                        />
+                      </div>
+                    )
+                  })}
+                  <button
+                    type='button'
+                    className='svg-button'
+                    style={{marginTop: '4px'}}
+                    onClick={() => handleAddOption(category_id)}
+                  >
+                    <PlusSvg size={17} />
+                  </button>
+                </div>
               </div>
-            </div>
-            <span className='separator'/>
-          </React.Fragment>
-        )
-      })}
+              <span className='separator'/>
+            </React.Fragment>
+          )
+        })}
 
-      <button
-        type='button'
-        className='svg-button'
-        onClick={handleAddCategory}
-      >
-        <PlusSvg />
-      </button>
+        <button
+          type='button'
+          className='svg-button'
+          onClick={handleAddCategory}
+        >
+          <PlusSvg />
+        </button>
+      </div>
     </fieldset>
   )
 }

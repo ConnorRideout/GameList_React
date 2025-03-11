@@ -14,14 +14,14 @@ import { RootState } from '../../../types'
 export default function Statuses({formData, setFormData}: Props) {
   const defaultFontColor = useSelector((state: RootState) => state.data.styleVars.$fgNormal)
   const [newStatusAdded, setNewStatusAdded] = useState(false)
-  const statusRef = useRef<HTMLFieldSetElement>(null)
+  const statusRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-      if (newStatusAdded && statusRef.current) {
-        setNewStatusAdded(false)
-        statusRef.current.scrollTop = statusRef.current.scrollHeight
-      }
-    }, [newStatusAdded])
+    if (newStatusAdded && statusRef.current) {
+      setNewStatusAdded(false)
+      statusRef.current.scrollTop = statusRef.current.scrollHeight
+    }
+  }, [newStatusAdded])
 
   const handleRemoveStatus = (idx: number) => {
     const newStatuses = [...formData.statuses]
@@ -58,7 +58,7 @@ export default function Statuses({formData, setFormData}: Props) {
   }
 
   return (
-    <fieldset className='vertical-container scrollable grid-column-2' ref={statusRef}>
+    <fieldset className='vertical-container grid-column-2'>
       <legend>STATUSES</legend>
 
       <div className='horizontal-container'>
@@ -69,56 +69,59 @@ export default function Statuses({formData, setFormData}: Props) {
         <h3>Applies to...</h3>
       </div>
 
-      {formData.statuses.map(({status_id, status_name, status_priority, status_color, status_color_applies_to}, idx) => (
-        <div key={`status-${status_id}`} className='horizontal-container align-center'>
-          <button
-            type='button'
-            className='svg-button'
-            onClick={() => handleRemoveStatus(idx)}
-          >
-            <MinusSvg size={17} />
-          </button>
-          <p>{status_priority}.</p>
-          <input
-            type="text"
-            name='status_name'
-            value={status_name}
-            onChange={(evt) => handleChange(evt, idx)}
-          />
-          <input
-            className='color-input'
-            type="text"
-            name='status_color'
-            value={status_color}
-            onChange={(evt) => handleChange(evt, idx)}
-          />
-          <input
-            type="color"
-            name='status_color'
-            value={status_color}
-            onChange={(evt) => handleChange(evt, idx)}
-          />
-          <select
-            name='status_color_applies_to'
-            value={status_color_applies_to}
-            onChange={(evt) => handleChange(evt, idx)}
-          >
-            <option value="title">Title</option>
-            <option value="version">Version</option>
-            <option value="categories">Categories</option>
-            <option value="tags">Tags</option>
-            <option value="description">Description</option>
-          </select>
-        </div>
-      ))}
-      <button
-        type='button'
-        className='svg-button'
-        style={{marginTop: '4px'}}
-        onClick={handleAddStatus}
-      >
-        <PlusSvg size={17} />
-      </button>
+      <div className='vertical-container scrollable' ref={statusRef}>
+        {formData.statuses.map(({status_id, status_name, status_priority, status_color, status_color_applies_to}, idx) => (
+          <div key={`status-${status_id}`} className='horizontal-container align-center'>
+            <button
+              type='button'
+              className='svg-button'
+              onClick={() => handleRemoveStatus(idx)}
+            >
+              <MinusSvg size={17} />
+            </button>
+            <p>{status_priority}.</p>
+            <input
+              type="text"
+              name='status_name'
+              value={status_name}
+              onChange={(evt) => handleChange(evt, idx)}
+            />
+            <input
+              className='color-input'
+              type="text"
+              name='status_color'
+              value={status_color}
+              onChange={(evt) => handleChange(evt, idx)}
+            />
+            <input
+              type="color"
+              name='status_color'
+              value={status_color}
+              onChange={(evt) => handleChange(evt, idx)}
+            />
+            <select
+              name='status_color_applies_to'
+              value={status_color_applies_to}
+              onChange={(evt) => handleChange(evt, idx)}
+            >
+              <option value="title">Title</option>
+              <option value="version">Version</option>
+              <option value="categories">Categories</option>
+              <option value="tags">Tags</option>
+              <option value="description">Description</option>
+            </select>
+          </div>
+        ))}
+
+        <button
+          type='button'
+          className='svg-button'
+          style={{marginTop: '4px'}}
+          onClick={handleAddStatus}
+        >
+          <PlusSvg size={17} />
+        </button>
+      </div>
     </fieldset>
   )
 }
