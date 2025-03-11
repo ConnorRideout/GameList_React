@@ -180,6 +180,14 @@ input[type=text] {
   }
 }
 
+input[type=color] {
+  background-color: transparent;
+  border: none;
+  max-width: 27px;
+  max-height: 27px;
+  cursor: pointer;
+}
+
 ::-webkit-scrollbar {
   // width: 15px;
   background-image: linear-gradient(to right, color.adjust(variables.$bgDark, $lightness: -5%), color.adjust(variables.$bgLight, $lightness: 3%));

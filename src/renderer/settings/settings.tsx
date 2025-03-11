@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
@@ -5,8 +6,9 @@ import { CategoryEntry, RootState, StatusEntry } from '../../types'
 
 import TabularButton from '../shared/tabularButton'
 import Display from './display'
-import Games from './games'
+import Games from './games/games'
 import Scrapers from './scrapers'
+
 
 export interface DefaultFormType {
   categories: CategoryEntry[],
@@ -22,6 +24,7 @@ export default function Settings() {
   const [curTab, setCurTab] = useState<'display' | 'games' | 'scrapers'>('display')
   const [isDisabled, setIsDisabled] = useState(true)
 
+  // FIXME: multiple form states are needed I think
   const defaultFormData: DefaultFormType = useMemo(() => ({
     categories,
     statuses,
@@ -30,6 +33,7 @@ export default function Settings() {
   const [formData, setFormData] = useState<DefaultFormType>(defaultFormData)
 
   useEffect(() => {
+    // TODO: YUP validation of form
     setIsDisabled(JSON.stringify(formData) === JSON.stringify(defaultFormData))
   }, [formData, defaultFormData])
 
@@ -64,9 +68,9 @@ export default function Settings() {
           />
           <span />
         </div>
-        <div className='settings-body scrollable'>
+        <div className='settings-body'>
           {curTab === 'display' && <Display formData={formData} />}
-          {curTab === 'games' && <Games formData={formData} />}
+          {curTab === 'games' && <Games formData={formData} setFormData={setFormData} />}
           {curTab === 'scrapers' && <Scrapers formData={formData} />}
         </div>
         <div className='settings-buttons'>

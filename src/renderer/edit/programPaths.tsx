@@ -14,7 +14,6 @@ import { Props } from "./info"
 
 
 export default function ProgramPaths({handleFormChange, formData}: Pick<Props, 'handleFormChange' | 'formData'>) {
-
   const handleProgramChange = (evt: ChangeEvent<HTMLInputElement>, idx: number) => {
     const {name, value} = evt.target
     const progData = [...formData.program_path]
@@ -59,7 +58,7 @@ export default function ProgramPaths({handleFormChange, formData}: Pick<Props, '
   }
 
   return(
-    <div className="info-prog-paths-container info-column-2 info-row-6 info-column-span-3">
+    <div className="info-prog-paths-container grid-column-2 grid-row-6 grid-column-span-3">
       {formData.program_path.map(([exe_name, exe_path], idx) => (
         <div className="info-prog-path-horizontal-container" key={`progPath${idx}`}>
           <button

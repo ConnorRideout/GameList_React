@@ -99,6 +99,7 @@ interface CategoryEntry {
   category_name: string;
   options: string[];
   default_option: string | null
+  [key: string]: number | string | string[] | null;
 }
 interface StatusEntry {
   /*
@@ -113,14 +114,16 @@ interface StatusEntry {
   status_priority: number;
   status_color: string;
   status_color_applies_to: string;
+  [key: string]: number | string;
 }
 interface TagEntry {
   /*
   "tag_id": 1,
   "tag_name": "Animated"
   */
- tag_id: number;
- tag_name: string;
+  tag_id: number;
+  tag_name: string;
+  [key: string]: number | string;
 }
 interface SearchRestraints {
   include: {

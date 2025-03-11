@@ -84,7 +84,7 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
     <fieldset className="info-container">
       <legend>Info</legend>
       <button
-        className="info-column-1 info-row-1"
+        className="grid-column-1 grid-row-1"
         type="button"
         onClick={handleAutoFill}
       >Auto-fill info from URL</button>
@@ -105,52 +105,52 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
         id="imagePreview"
         src={`load-image://${formData.image.replaceAll('\\', '/').replaceAll(' ', '_')}`}
         alt="[image preview]"
-        className="info-column-4 info-row-1 info-row-span-4"
+        className="grid-column-4 grid-row-1 grid-row-span-4"
       />
 
-      <label htmlFor="titleField" className="info-column-1 info-row-2">Title:</label>
+      <label htmlFor="titleField" className="grid-column-1 grid-row-2">Title:</label>
       <input
         id="titleField"
         type="text"
-        className="info-column-2 info-row-2 info-column-span-2 info-justify-stretch"
+        className="grid-column-2 grid-row-2 grid-column-span-2 info-justify-stretch"
         name="title"
         onChange={handleFormChange}
         value={formData.title}
       />
 
-      <label htmlFor="imageField" className="info-column-1 info-row-3">Image Path:</label>
+      <label htmlFor="imageField" className="grid-column-1 grid-row-3">Image Path:</label>
       <input
         type="text"
         id="imageField"
-        className="info-column-2 info-row-3 info-justify-stretch"
+        className="grid-column-2 grid-row-3 info-justify-stretch"
         name="image"
         onChange={handleFormChange}
         value={formData.image}
       />
-      <button type='button' className="info-column-3 info-row-3 svg-button">
+      <button type='button' className="grid-column-3 grid-row-3 svg-button">
         {/* TODO: implement image search */}
         <ImageSearchSvg
           color="currentColor"
         />
       </button>
 
-      <label htmlFor="versionField" className="info-column 1 info-row-4">Version:</label>
+      <label htmlFor="versionField" className="info-column 1 grid-row-4">Version:</label>
       <input
         type="text"
         id="versionField"
-        className="info-column-2 info-row-4 info-column-span-2 info-justify-stretch"
+        className="grid-column-2 grid-row-4 grid-column-span-2 info-justify-stretch"
         name="version"
         onChange={handleFormChange}
         value={formData.version}
       />
 
-      <span className="info-column-1 info-row-5">Program Path(s):</span>
-      <span className="info-column-2 info-row-5">
+      <span className="grid-column-1 grid-row-5">Program Path(s):</span>
+      <span className="grid-column-2 grid-row-5">
         <u>Executable Path</u>
       </span>
-      <span className="info-column-3 info-row-5 info-column-span-2"><u>Viewable Name</u></span>
+      <span className="grid-column-3 grid-row-5 grid-column-span-2"><u>Viewable Name</u></span>
       {/* TODO: implement file auto search */}
-      <button type='button' className="svg-button info-column-1 info-row-6">
+      <button type='button' className="svg-button grid-column-1 grid-row-6">
         <FileAutoSearchSvg />
         Auto search
       </button>
@@ -159,11 +159,11 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
         formData={formData}
       />
 
-      <label htmlFor="descriptionField" className="info-column-1 info-row-7">Description:</label>
+      <label htmlFor="descriptionField" className="grid-column-1 grid-row-7">Description:</label>
       <textarea
         name="description"
         id="descriptionField"
-        className="info-column-2 info-row-7 info-justify-stretch"
+        className="grid-column-2 grid-row-7 info-justify-stretch"
         onChange={handleFormChange}
         value={formData.description}
       />

@@ -136,7 +136,6 @@ function getCategories() {
     )
     .join('category_options AS o', 'c.category_id', 'o.category_id')
     .groupBy('c.category_id')
-    .orderBy('c.category_name', 'desc')
 }
 
 function getTagByName(tag_name: string) {
