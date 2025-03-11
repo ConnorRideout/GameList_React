@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useRef, useState, useEffect } from 'react'
+import { useSelector } from 'react-redux'
 
 import {
   MinusSvg,
@@ -7,17 +8,41 @@ import {
 
 // eslint-disable-next-line import/no-cycle
 import { Props } from './games'
+import { RootState } from '../../../types'
 
 
 export default function Statuses({formData, setFormData}: Props) {
-  const {statuses} = formData
+  const defaultFontColor = useSelector((state: RootState) => state.data.styleVars.$fgNormal)
+  const [newStatusAdded, setNewStatusAdded] = useState(false)
+  const statusRef = useRef<HTMLFieldSetElement>(null)
 
-  const handleRemoveStatus = () => {
+  useEffect(() => {
+      if (newStatusAdded && statusRef.current) {
+        setNewStatusAdded(false)
+        statusRef.current.scrollTop = statusRef.current.scrollHeight
+      }
+    }, [newStatusAdded])
 
+  const handleRemoveStatus = (idx: number) => {
+    const newStatuses = [...formData.statuses]
+    newStatuses.splice(idx, 1)
+    setFormData(prevValue => ({...prevValue, statuses: newStatuses}))
   }
 
   const handleAddStatus = () => {
-
+    const status_ids = formData.statuses.map(s => s.status_id)
+    const status_id = Math.max(...status_ids) + 1
+    const status_priorities = formData.statuses.map(s => s.status_priority)
+    const status_priority = Math.max(...status_priorities) + 1
+    const newStatuses = [...formData.statuses, {
+      status_id,
+      status_name: '',
+      status_priority,
+      status_color: defaultFontColor,
+      status_color_applies_to: 'title'
+    }]
+    setNewStatusAdded(true)
+    setFormData(prevValue => ({...prevValue, statuses: newStatuses}))
   }
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, idx: number) => {
@@ -33,22 +58,23 @@ export default function Statuses({formData, setFormData}: Props) {
   }
 
   return (
-    <fieldset className='vertical-container scrollable grid-column-2'>
+    <fieldset className='vertical-container scrollable grid-column-2' ref={statusRef}>
       <legend>STATUSES</legend>
 
       <div className='horizontal-container'>
+        <span style={{minWidth: 22}} />
         <span style={{minWidth: '1.165rem'}}/>
         <h2>Status Name</h2>
         <h2 style={{maxWidth: '8rem'}}>Color</h2>
         <h3>Applies to...</h3>
       </div>
 
-      {statuses.map(({status_id, status_name, status_priority, status_color, status_color_applies_to}, idx) => (
+      {formData.statuses.map(({status_id, status_name, status_priority, status_color, status_color_applies_to}, idx) => (
         <div key={`status-${status_id}`} className='horizontal-container align-center'>
           <button
             type='button'
             className='svg-button'
-            onClick={handleRemoveStatus}
+            onClick={() => handleRemoveStatus(idx)}
           >
             <MinusSvg size={17} />
           </button>
