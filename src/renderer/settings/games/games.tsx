@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-// TODO: options for editing the categories/tags/etc
+// TODO: have a 'deleted' item for any removed item, so the user can undo it
 import React from 'react'
 
 import Categories from './categories'

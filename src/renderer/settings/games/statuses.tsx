@@ -38,7 +38,7 @@ export default function Statuses({formData, setFormData}: Props) {
       status_id,
       status_name: '',
       status_priority,
-      status_color: defaultFontColor,
+      status_color: defaultFontColor.toUpperCase(),
       status_color_applies_to: 'title'
     }]
     setNewStatusAdded(true)

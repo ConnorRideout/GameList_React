@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import {
   PlusSvg,
@@ -9,31 +9,65 @@ import {
 import { Props } from './games'
 
 export default function Categories({formData, setFormData}: Props) {
+  const [newCategoryAdded, setNewCategoryAdded] = useState(false)
+    const categoryRef = useRef<HTMLFieldSetElement>(null)
 
-  const handleRemoveCategory = () => {
+    useEffect(() => {
+      if (newCategoryAdded && categoryRef.current) {
+        setNewCategoryAdded(false)
+        categoryRef.current.scrollTop = categoryRef.current.scrollHeight
+      }
+    }, [newCategoryAdded])
 
+  const handleRemoveCategory = (idx: number) => {
+    const newCategories = [...formData.categories]
+    newCategories.splice(idx, 1)
+
+    setFormData(prevValue => ({...prevValue, categories: newCategories}))
   }
 
   const handleAddCategory = () => {
+    const category_ids = formData.categories.map(c => c.category_id)
+    const category_id = Math.max(...category_ids) + 1
+    const newCategories = [...formData.categories, {
+      category_id,
+      category_name: '',
+      options: [''],
+      default_option: null
+    }]
+    setNewCategoryAdded(true)
 
+    setFormData(prevValue => ({...prevValue, categories: newCategories}))
   }
 
-  const handleRemoveOption = () => {
+  const handleRemoveOption = (cat_id: number, opt_idx: number) => {
+    const newCategories = formData.categories.map(cat => ({...cat}))
+    const newCat = newCategories.find(c => c.category_id === cat_id)!
+    const newOptions = [...newCat.options]
+    newOptions.splice(opt_idx, 1)
+    newCat.options = newOptions
 
+    setFormData(prevValue => ({...prevValue, categories: newCategories}))
   }
 
-  const handleAddOption = () => {
+  const handleAddOption = (cat_id: number) => {
+    const newCategories = formData.categories.map(cat => ({...cat}))
+    const newCat = newCategories.find(c => c.category_id === cat_id)!
+    const newOptions = [...newCat.options, '']
+    newCat.options = newOptions
 
+    setFormData(prevValue => ({...prevValue, categories: newCategories}))
   }
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLInputElement>) => {
     const { name, value } = evt.target as HTMLInputElement
 
-    // const oldCategories: CategoryEntry[] = JSON.parse(JSON.stringify(formData.categories))
-    const oldCategories = formData.categories.map(cat => ({...cat}))
     const [change_type, raw_cat_id, raw_opt_idx] = name.split('-')
     const cat_id = parseInt(raw_cat_id)
+
+    const oldCategories = formData.categories.map(cat => ({...cat}))
     const oldCat = oldCategories.find(cat => cat.category_id === cat_id)!
+
     if (change_type === 'default') {
       oldCat.default_option = oldCat.default_option === value ? null : value
     } else if (change_type === 'name') {
@@ -44,11 +78,12 @@ export default function Categories({formData, setFormData}: Props) {
       newOptions[opt_idx] = value
       oldCat.options = newOptions
     }
+
     setFormData(prevData => ({...prevData, categories: oldCategories}))
   }
 
   return (
-    <fieldset className='vertical-container scrollable grid-column-1 grid-row-span-2'>
+    <fieldset className='vertical-container scrollable grid-column-1 grid-row-span-2' ref={categoryRef}>
       <legend>CATEGORIES</legend>
 
       <div className='horizontal-container align-center'>
@@ -60,14 +95,14 @@ export default function Categories({formData, setFormData}: Props) {
       </div>
       <span className='separator'/>
 
-      {formData.categories.map(({category_id, category_name, options, default_option}) => {
+      {formData.categories.map(({category_id, category_name, options, default_option}, index) => {
         return (
           <React.Fragment key={`category-${category_id}`}>
             <div className='horizontal-container'>
               <button
                 type='button'
                 className='svg-button center'
-                onClick={handleRemoveCategory}
+                onClick={() => handleRemoveCategory(index)}
               >
                 <MinusSvg />
               </button>
@@ -85,7 +120,7 @@ export default function Categories({formData, setFormData}: Props) {
                       <button
                         type='button'
                         className='svg-button'
-                        onClick={handleRemoveOption}
+                        onClick={() => handleRemoveOption(category_id, idx)}
                       >
                         <MinusSvg size={17} />
                       </button>
@@ -110,7 +145,7 @@ export default function Categories({formData, setFormData}: Props) {
                   type='button'
                   className='svg-button'
                   style={{marginTop: '4px'}}
-                  onClick={handleAddOption}
+                  onClick={() => handleAddOption(category_id)}
                 >
                   <PlusSvg size={17} />
                 </button>
