@@ -5,7 +5,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import { CategoryEntry, RootState, StatusEntry } from '../../types'
+import { CategoryEntry, RootState, SettingsType, StatusEntry } from '../../types'
 
 import TabularButton from '../shared/tabularButton'
 import Display from './display'
@@ -14,16 +14,20 @@ import Scrapers from './scrapers'
 import CreateGamesFormSchema from './games/games_schema'
 
 
-export interface DefaultDisplayFormType {
-
-}
 export interface DefaultGamesFormType {
   categories: CategoryEntry[],
   statuses: StatusEntry[],
   tags: string[],
 }
+export interface DefaultDisplayFormType {
+  games_folder: SettingsType['games_folder'],
+  locale_emulator: SettingsType['locale_emulator'],
+  file_types: SettingsType['file_types'],
+  ignored_exes: SettingsType['ignored_exes']
+}
 export interface DefaultScrapersFormType {
-
+  site_scrapers: SettingsType['site_scrapers'],
+  site_scraper_aliases: SettingsType['site_scraper_aliases']
 }
 
 export default function Settings() {
@@ -31,16 +35,12 @@ export default function Settings() {
   const categories = useSelector((state: RootState) => state.data.categories)
   const statuses = useSelector((state: RootState) => state.data.statuses)
   const tags = useSelector((state: RootState) => state.data.tags)
+  const settings = useSelector((state: RootState) => state.data.settings)
   const [curTab, setCurTab] = useState<'display' | 'games' | 'scrapers'>('display')
   const [isDisabled, setIsDisabled] = useState(true)
   const [formErrorsGames, setFormErrorsGames] = useState<string[]>([])
 
   // FORM DATA
-  // display
-  const defaultDisplayFormData = useMemo(() => ({}), [])
-
-  const [formDataDisplay, setFormDataDisplay] = useState(defaultDisplayFormData)
-
   // games
   const defaultGamesFormData: DefaultGamesFormType = useMemo(() => ({
     categories,
@@ -67,10 +67,29 @@ export default function Settings() {
       })
   }, [formDataGames, defaultGamesFormData, formSchemaGames, formErrorsGames])
 
-  // scrapers
-  const defaultScrapersFormData = useMemo(() => ({}), [])
+  // display
+  const defaultDisplayFormData: DefaultDisplayFormType = useMemo(() => {
+    const {
+      games_folder,
+      locale_emulator,
+      file_types,
+      ignored_exes
+    } = settings
+    return { games_folder, locale_emulator, file_types, ignored_exes }
+  }, [settings])
 
-  const [formDataScrapers, setFormDataScrapers] = useState(defaultScrapersFormData)
+  const [formDataDisplay, setFormDataDisplay] = useState<DefaultDisplayFormType>(defaultDisplayFormData)
+
+  // scrapers
+  const defaultScrapersFormData: DefaultScrapersFormType = useMemo(() => {
+    const {
+      site_scrapers,
+      site_scraper_aliases
+    } = settings
+    return {site_scrapers, site_scraper_aliases}
+  }, [settings])
+
+  const [formDataScrapers, setFormDataScrapers] = useState<DefaultScrapersFormType>(defaultScrapersFormData)
 
 
   // HANDLERS

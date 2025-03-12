@@ -283,6 +283,25 @@ div.tooltip-image {
   &.with-margin {
     margin: variables.$spacing calc(variables.$spacing * 2);
   }
+
+  &.center {
+    align-self: center;
+  }
+
+  &.small {
+    min-width: min-content;
+    width: min-content;
+    padding: 0;
+    margin: 0;
+    border-radius: 4px;
+  }
+}
+
+span.separator {
+  width: 100%;
+  margin: variables.$spacing 0;
+  padding: 0;
+  border-bottom: 1px solid variables.$bgLight;
 }
 
 .grid-column-1 {

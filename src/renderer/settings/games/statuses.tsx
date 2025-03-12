@@ -86,7 +86,7 @@ export default function Statuses({formData, setFormData}: Props) {
           <div key={`status-${status_id}`} className='horizontal-container align-center'>
             <button
               type='button'
-              className='svg-button'
+              className='svg-button small'
               onClick={() => handleRemoveStatus(idx)}
             >
               <MinusSvg size={17} />
@@ -128,7 +128,7 @@ export default function Statuses({formData, setFormData}: Props) {
 
         <button
           type='button'
-          className='svg-button'
+          className='svg-button small'
           style={{marginTop: '4px'}}
           onClick={handleAddStatus}
         >

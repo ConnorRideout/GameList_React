@@ -132,7 +132,7 @@ export default function Categories({formData, setFormData}: Props) {
               <div className='horizontal-container'>
                 <button
                   type='button'
-                  className='svg-button center'
+                  className='svg-button small center'
                   onClick={() => handleRemoveCategory(index)}
                 >
                   <MinusSvg />
@@ -152,7 +152,7 @@ export default function Categories({formData, setFormData}: Props) {
                       <div key={`${category_id}-${idx}`} className='horizontal-container align-center'>
                         <button
                           type='button'
-                          className='svg-button'
+                          className='svg-button small'
                           onClick={() => handleRemoveOption(category_id, idx)}
                         >
                           <MinusSvg size={17} />
@@ -179,7 +179,7 @@ export default function Categories({formData, setFormData}: Props) {
 
                   <button
                     type='button'
-                    className='svg-button'
+                    className='svg-button small'
                     style={{marginTop: '4px'}}
                     onClick={() => handleAddOption(category_id)}
                   >
@@ -194,7 +194,7 @@ export default function Categories({formData, setFormData}: Props) {
 
         <button
           type='button'
-          className='svg-button'
+          className='svg-button small'
           onClick={handleAddCategory}
         >
           <PlusSvg />

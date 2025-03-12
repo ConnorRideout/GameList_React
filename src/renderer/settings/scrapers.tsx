@@ -3,6 +3,7 @@ title/description/version (expects a string) -> textinput[SELECTOR], checkbox[do
 tags (expects an array) -> textinput[SELECTOR], checkbox[doQueryAll], textinput[regexmatcher](if doQueryAll, will be run on all SELECTOR matches and returns an array of strings if the string.length > 0; otherwise, returns an array of the matches gotten by regexmatcher) it is required if doQueryAll is false
 others -> combobox[TYPE(category|status|tag)], textinput[SELECTOR], checkbox[doQueryAll], textinput[regexmatcher](behaves like tags)
 */
+// TODO? export/import scraper settings
 import React from 'react'
 
 // eslint-disable-next-line import/no-cycle

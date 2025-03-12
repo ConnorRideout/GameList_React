@@ -59,7 +59,7 @@ export default function Tags({formData, setFormData}: Props) {
         <div key={`tag-${idx}`} className='horizontal-container align-center'>
           <button
             type='button'
-            className='svg-button'
+            className='svg-button small'
             onClick={() => handleRemoveTag(idx)}
           >
             <MinusSvg size={17} />
@@ -74,7 +74,7 @@ export default function Tags({formData, setFormData}: Props) {
       ))}
       <button
         type='button'
-        className='svg-button'
+        className='svg-button small'
         style={{marginTop: '4px'}}
         onClick={handleAddTag}
       >
