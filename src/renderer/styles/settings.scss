@@ -163,3 +163,46 @@
     margin: variables.$spacing calc(variables.$spacing * 3);
   }
 }
+
+.settings-scrapers-container {
+  @extend .vertical-container;
+
+  height: 100%;
+
+  fieldset {
+    @extend .vertical-container;
+
+    &.scrapers {
+      max-height: 60%;
+      min-height: 60%;
+    }
+
+    &.aliases {
+      max-height: 40%;
+      min-height: 40%;
+    }
+
+    .vertical-container>button {
+      margin-top: 4px;
+    }
+  }
+
+  input[type=text] {
+    min-width: 12em;
+
+    &.short {
+      min-width: 7em;
+      width: 7em;
+      align-self: stretch;
+    }
+
+    &.long {
+      min-width: 18em;
+    }
+  }
+
+  select {
+    position: relative;
+    top: 2px;
+  }
+}

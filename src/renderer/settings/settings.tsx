@@ -10,7 +10,7 @@ import { CategoryEntry, RootState, SettingsType, StatusEntry } from '../../types
 import TabularButton from '../shared/tabularButton'
 import Display from './display'
 import Games from './games/games'
-import Scrapers from './scrapers'
+import Scrapers from './scrapers/scrapers'
 import CreateGamesFormSchema from './games/games_schema'
 
 
@@ -26,7 +26,17 @@ export interface DefaultDisplayFormType {
   ignored_exes: SettingsType['ignored_exes']
 }
 export interface DefaultScrapersFormType {
-  site_scrapers: SettingsType['site_scrapers'],
+  site_scrapers: {
+    base_url: string,
+    selectors: {
+        type: string,
+        selector: string,
+        queryAll: boolean,
+        regex: string,
+        limit_text: boolean,
+        remove_regex: string,
+    }[]
+  }[],
   site_scraper_aliases: SettingsType['site_scraper_aliases']
 }
 
@@ -83,9 +93,17 @@ export default function Settings() {
   // scrapers
   const defaultScrapersFormData: DefaultScrapersFormType = useMemo(() => {
     const {
-      site_scrapers,
+      site_scrapers: raw_site_scrapers,
       site_scraper_aliases
     } = settings
+    const site_scrapers = raw_site_scrapers.map(scraper => {
+      const selectors = scraper.selectors.map(sel => {
+        const regex = sel.regex || ''
+        const remove_regex = sel.remove_regex || ''
+        return {...sel, regex, remove_regex}
+      })
+      return {...scraper, selectors}
+    })
     return {site_scrapers, site_scraper_aliases}
   }, [settings])
 
