@@ -169,6 +169,38 @@
 
   height: 100%;
 
+  .scraper-header {
+    @extend .horizontal-container;
+
+    h2,
+    h4 {
+      display: flex;
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .btn-span {
+      min-width: 22px;
+    }
+
+    .short-span {
+      min-width: 7rem;
+    }
+
+    .medium-span {
+      min-width: 12rem;
+    }
+
+    .long-span {
+      min-width: 18rem;
+    }
+
+    .matcher-span {
+      min-width: 10.4rem;
+    }
+  }
+
   fieldset {
     @extend .vertical-container;
 
@@ -182,6 +214,14 @@
       min-height: 40%;
     }
 
+    legend>h1 {
+      font-weight: normal;
+    }
+
+    legend>h2 {
+      font-variant: small-caps;
+    }
+
     .vertical-container>button {
       margin-top: 4px;
     }
@@ -191,17 +231,19 @@
     min-width: 12em;
 
     &.short {
-      min-width: 7em;
-      width: 7em;
+      min-width: 7rem;
+      width: 7rem;
       align-self: stretch;
     }
 
     &.long {
-      min-width: 18em;
+      min-width: 18rem;
     }
   }
 
   select {
+    min-width: 12rem;
+    max-width: 12rem;
     position: relative;
     top: 2px;
   }

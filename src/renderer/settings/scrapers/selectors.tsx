@@ -27,7 +27,20 @@ export default function Selectors({formData, setFormData}: Props) {
   }
   return (
     <fieldset className='scrapers'>
-      <legend><h2>Site Scrapers</h2></legend>
+      <legend><h1>SITE SCRAPERS</h1></legend>
+      <div className='scraper-header'>
+        <span className='btn-span'/>
+        <h2 className='short-span'>Site URL</h2>
+        <span className='btn-span'/>
+        <h2 className='medium-span'>Ref Type</h2>
+        <h2 className='long-span'>JS Selector</h2>
+        <h4 className='btn-span'>Query<br/>All</h4>
+        <h2 className='matcher-span'>Matcher</h2>
+        <h4 className='btn-span'>Limit<br/>Text</h4>
+        <h2 className='medium-span'>Remove Text</h2>
+      </div>
+      <span className='separator' />
+
       <div className='vertical-container scrollable'>
         {formData.site_scrapers.map(({base_url, selectors}, index) => (
           <React.Fragment key={`scrapers-${index}`}>
