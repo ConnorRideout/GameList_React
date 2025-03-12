@@ -2,11 +2,11 @@
 import React from 'react'
 
 // eslint-disable-next-line import/no-cycle
-import { DefaultFormType } from './settings'
+// import { DefaultDisplayFormType } from './settings'
 
 
 interface Props {
-  formData: DefaultFormType
+  // formData: DefaultDisplayFormType
 }
 export default function Display({formData}: Props) {
   return (

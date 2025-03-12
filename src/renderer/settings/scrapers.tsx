@@ -5,11 +5,11 @@ others -> combobox[TYPE(category|status|tag)], textinput[SELECTOR], checkbox[doQ
 */
 
 import React from 'react'
-import { DefaultFormType } from './settings'
+// import { DefaultScraperFormType } from './settings'
 
 
 interface Props {
-  formData: DefaultFormType
+  // formData: DefaultScraperFormType
 }
 export default function Scrapers({formData}: Props) {
   return (

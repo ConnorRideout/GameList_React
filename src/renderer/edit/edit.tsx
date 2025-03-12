@@ -12,6 +12,8 @@ import { StringSchema, reach as yup_reach } from "yup"
 import Picker, { FormState } from "../shared/picker/picker"
 import ErrorMessage from "../shared/errorMessage"
 import Info from "./info"
+import CreateEditFormSchema from "./edit_schema"
+
 import {
   clearEditGame,
   setError,
@@ -38,7 +40,6 @@ import {
 } from "../../lib/store/gamelibApi"
 
 import { GameEntry, GamelibState, RootState, StringMap } from "../../types"
-import CreateEditFormSchema from "./edit_schema"
 
 
 const EditDiv = styled.div`

@@ -71,7 +71,7 @@ export default function Categories({formData, setFormData}: Props) {
     if (change_type === 'default') {
       oldCat.default_option = oldCat.default_option === value ? null : value
     } else if (change_type === 'name') {
-      oldCat.category_name = value
+      oldCat.category_name = value.toLowerCase()
     } else {
       const opt_idx = parseInt(raw_opt_idx)
       const newOptions = [...oldCat.options]

@@ -170,9 +170,19 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(() => {
+    // enable the devtools
     installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS])
       .then(res => console.log(`Added Extensions:  ${res}`))
       .catch((err) => console.log('An error occurred: ', err))
+
+    // create the app
+    createWindow();
+    // app.on('activate', () => {
+    //   // On macOS it's common to re-create a window in the app when the
+    //   // dock icon is clicked and there are no other windows open.
+    //   if (mainWindow === null) createWindow()
+    // })
+
 
     // handle getting images for img elements
     const imgDir = new Path(
@@ -191,15 +201,6 @@ app
       else
         return new Response('')
     })
-
-    createWindow();
-    app.on('activate', () => {
-      // On macOS it's common to re-create a window in the app when the
-      // dock icon is clicked and there are no other windows open.
-      if (mainWindow === null) createWindow()
-    })
-
-
 
 
     ipcMain.on('open-file-dialog', (event, ...fileArgs) => openDialog(event, mainWindow!, ...fileArgs))

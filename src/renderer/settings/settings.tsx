@@ -1,4 +1,6 @@
+/* eslint-disable promise/catch-or-return */
 /* eslint-disable import/no-cycle */
+// TODO: add a `return & save` button
 import React, { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
@@ -8,9 +10,10 @@ import TabularButton from '../shared/tabularButton'
 import Display from './display'
 import Games from './games/games'
 import Scrapers from './scrapers'
+import CreateGamesFormSchema from './games/games_schema'
 
 
-export interface DefaultFormType {
+export interface DefaultGamesFormType {
   categories: CategoryEntry[],
   statuses: StatusEntry[],
   tags: string[],
@@ -23,19 +26,31 @@ export default function Settings() {
   const tags = useSelector((state: RootState) => state.data.tags)
   const [curTab, setCurTab] = useState<'display' | 'games' | 'scrapers'>('display')
   const [isDisabled, setIsDisabled] = useState(true)
+  const [formErrorsGames, setFormErrorsGames] = useState<string[]>([])
 
-  // FIXME: multiple form states are needed I think
-  const defaultFormData: DefaultFormType = useMemo(() => ({
+  const defaultGamesFormData: DefaultGamesFormType = useMemo(() => ({
     categories,
     statuses,
     tags: tags.map(t => t.tag_name)
   }), [categories, statuses, tags])
-  const [formData, setFormData] = useState<DefaultFormType>(defaultFormData)
+  const [formDataGames, setFormDataGames] = useState<DefaultGamesFormType>(defaultGamesFormData)
 
+  const formSchemaGames = CreateGamesFormSchema()
   useEffect(() => {
-    // TODO: YUP validation of form
-    setIsDisabled(JSON.stringify(formData) === JSON.stringify(defaultFormData))
-  }, [formData, defaultFormData])
+    formSchemaGames.validate(formDataGames, { abortEarly: false })
+      .then(() => {
+          setIsDisabled(JSON.stringify(formDataGames) === JSON.stringify(defaultGamesFormData))
+          if (formErrorsGames.length)
+            setFormErrorsGames([])
+      })
+      .catch(err => {
+        const uniqueErrors: string[] = Array.from(new Set(err.errors))
+        if (JSON.stringify(uniqueErrors) !== JSON.stringify(formErrorsGames)) {
+          setIsDisabled(true)
+          setFormErrorsGames(uniqueErrors)
+        }
+      })
+  }, [formDataGames, defaultGamesFormData, formSchemaGames, formErrorsGames])
 
   const handleClose = () => {
     // TODO: if updated, ask to save
@@ -69,17 +84,22 @@ export default function Settings() {
           <span />
         </div>
         <div className='settings-body'>
-          {curTab === 'display' && <Display formData={formData} />}
-          {curTab === 'games' && <Games formData={formData} setFormData={setFormData} />}
-          {curTab === 'scrapers' && <Scrapers formData={formData} />}
+          {curTab === 'display' && <Display formData={formDataGames} />}
+          {curTab === 'games' && <Games formData={formDataGames} setFormData={setFormDataGames} />}
+          {curTab === 'scrapers' && <Scrapers formData={formDataGames} />}
         </div>
-        <div className='settings-buttons'>
-          <button type='button' onClick={handleClose}>Return</button>
-          <button
-            type='button'
-            onClick={handleSave}
-            disabled={isDisabled}
-          >Save</button>
+        <div className='vertical-container align-center'>
+          {formErrorsGames.length > 0 && formErrorsGames.map(err => (
+            <p className='error'>{err}</p>
+          ))}
+          <div className='settings-buttons'>
+            <button type='button' onClick={handleClose}>Return</button>
+            <button
+              type='button'
+              onClick={handleSave}
+              disabled={isDisabled}
+            >Save</button>
+          </div>
         </div>
       </div>
     </div>
