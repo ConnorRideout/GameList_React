@@ -1,3 +1,4 @@
+/* eslint-disable react/no-array-index-key */
 /* eslint-disable promise/catch-or-return */
 /* eslint-disable import/no-cycle */
 // TODO: add a `return & save` button
@@ -13,10 +14,16 @@ import Scrapers from './scrapers'
 import CreateGamesFormSchema from './games/games_schema'
 
 
+export interface DefaultDisplayFormType {
+
+}
 export interface DefaultGamesFormType {
   categories: CategoryEntry[],
   statuses: StatusEntry[],
   tags: string[],
+}
+export interface DefaultScrapersFormType {
+
 }
 
 export default function Settings() {
@@ -28,11 +35,19 @@ export default function Settings() {
   const [isDisabled, setIsDisabled] = useState(true)
   const [formErrorsGames, setFormErrorsGames] = useState<string[]>([])
 
+  // FORM DATA
+  // display
+  const defaultDisplayFormData = useMemo(() => ({}), [])
+
+  const [formDataDisplay, setFormDataDisplay] = useState(defaultDisplayFormData)
+
+  // games
   const defaultGamesFormData: DefaultGamesFormType = useMemo(() => ({
     categories,
     statuses,
     tags: tags.map(t => t.tag_name)
   }), [categories, statuses, tags])
+
   const [formDataGames, setFormDataGames] = useState<DefaultGamesFormType>(defaultGamesFormData)
 
   const formSchemaGames = CreateGamesFormSchema()
@@ -52,6 +67,13 @@ export default function Settings() {
       })
   }, [formDataGames, defaultGamesFormData, formSchemaGames, formErrorsGames])
 
+  // scrapers
+  const defaultScrapersFormData = useMemo(() => ({}), [])
+
+  const [formDataScrapers, setFormDataScrapers] = useState(defaultScrapersFormData)
+
+
+  // HANDLERS
   const handleClose = () => {
     // TODO: if updated, ask to save
     navigate(-1)
@@ -84,13 +106,13 @@ export default function Settings() {
           <span />
         </div>
         <div className='settings-body'>
-          {curTab === 'display' && <Display formData={formDataGames} />}
+          {curTab === 'display' && <Display formData={formDataDisplay} setFormData={setFormDataDisplay}/>}
           {curTab === 'games' && <Games formData={formDataGames} setFormData={setFormDataGames} />}
-          {curTab === 'scrapers' && <Scrapers formData={formDataGames} />}
+          {curTab === 'scrapers' && <Scrapers formData={formDataScrapers} setFormData={setFormDataScrapers}/>}
         </div>
         <div className='vertical-container align-center'>
-          {formErrorsGames.length > 0 && formErrorsGames.map(err => (
-            <p className='error'>{err}</p>
+          {formErrorsGames.length > 0 && formErrorsGames.map((err, idx) => (
+            <p className='warning' key={`setting-error-${idx}`}>{err}</p>
           ))}
           <div className='settings-buttons'>
             <button type='button' onClick={handleClose}>Return</button>

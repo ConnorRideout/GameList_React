@@ -10,14 +10,37 @@ import { Props } from './games'
 
 export default function Categories({formData, setFormData}: Props) {
   const [newCategoryAdded, setNewCategoryAdded] = useState(false)
-    const categoryRef = useRef<HTMLDivElement>(null)
+  const [newOptionAdded, setNewOptionAdded] = useState(0)
+  const categoryRef = useRef<HTMLDivElement>(null)
 
-    useEffect(() => {
-      if (newCategoryAdded && categoryRef.current) {
-        setNewCategoryAdded(false)
-        categoryRef.current.scrollTop = categoryRef.current.scrollHeight
+  useEffect(() => {
+    if (newCategoryAdded && categoryRef.current) {
+      setNewCategoryAdded(false)
+      setTimeout(() => {
+        // this has to be a timeout because it will always error, making the scroll be incorrect if it doesn't wait for the component to update
+        categoryRef.current!.scrollTop = categoryRef.current!.scrollHeight
+      }, 0)
+
+      const inputs = categoryRef.current.querySelectorAll("input[type='text'][name^='name']")
+      const lastInput = inputs[inputs.length - 1] as HTMLInputElement
+      if (lastInput) {
+        lastInput.focus()
       }
-    }, [newCategoryAdded])
+    }
+  }, [newCategoryAdded])
+
+  useEffect(() => {
+    if (newOptionAdded && categoryRef.current) {
+      const cat_id = newOptionAdded
+      setNewOptionAdded(0)
+
+      const inputs = categoryRef.current.querySelectorAll(`input[type='text'][name^='option-${cat_id}']`)
+      const lastInput = inputs[inputs.length - 1] as HTMLInputElement
+      if (lastInput) {
+        lastInput.focus()
+      }
+    }
+  }, [newOptionAdded])
 
   const handleRemoveCategory = (idx: number) => {
     const newCategories = [...formData.categories]
@@ -31,12 +54,12 @@ export default function Categories({formData, setFormData}: Props) {
     const category_id = Math.max(...category_ids) + 1
     const newCategories = [...formData.categories, {
       category_id,
-      category_name: '',
-      options: [''],
+      category_name: '~~placeholder~~',
+      options: [],
       default_option: null
     }]
-    setNewCategoryAdded(true)
 
+    setNewCategoryAdded(true)
     setFormData(prevValue => ({...prevValue, categories: newCategories}))
   }
 
@@ -53,13 +76,14 @@ export default function Categories({formData, setFormData}: Props) {
   const handleAddOption = (cat_id: number) => {
     const newCategories = formData.categories.map(cat => ({...cat}))
     const newCat = newCategories.find(c => c.category_id === cat_id)!
-    const newOptions = [...newCat.options, '']
+    const newOptions = [...newCat.options, '~~placeholder~~']
     newCat.options = newOptions
 
+    setNewOptionAdded(cat_id)
     setFormData(prevValue => ({...prevValue, categories: newCategories}))
   }
 
-  const handleChange = (evt: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLInputElement>) => {
+  const handleChange = (evt: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLInputElement> | {target: {value: string}}) => {
     const { name, value } = evt.target as HTMLInputElement
 
     const [change_type, raw_cat_id, raw_opt_idx] = name.split('-')
@@ -80,6 +104,12 @@ export default function Categories({formData, setFormData}: Props) {
     }
 
     setFormData(prevData => ({...prevData, categories: oldCategories}))
+  }
+
+  const handleBlur = (evt: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = evt.target
+    const newVal = value.trim()
+    handleChange({target: {value: newVal, name}})
   }
 
   return (
@@ -107,15 +137,17 @@ export default function Categories({formData, setFormData}: Props) {
                 >
                   <MinusSvg />
                 </button>
+
                 <input
                   type="text"
                   name={`name-${category_id}`}
-                  value={category_name}
+                  value={category_name === '~~placeholder~~' ? '' : category_name}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                 />
+
                 <div className='vertical-container'>
-                  {options.map((opt, idx) => {
-                    return (
+                  {options.map((opt, idx) => (
                       // eslint-disable-next-line react/no-array-index-key
                       <div key={`${category_id}-${idx}`} className='horizontal-container align-center'>
                         <button
@@ -125,11 +157,13 @@ export default function Categories({formData, setFormData}: Props) {
                         >
                           <MinusSvg size={17} />
                         </button>
+
                         <input
                           type="text"
                           name={`option-${category_id}-${idx}`}
-                          value={opt}
+                          value={opt === '~~placeholder~~' ? '' : opt}
                           onChange={(evt) => handleChange(evt)}
+                          onBlur={handleBlur}
                         />
                         <input
                           type="radio"
@@ -141,7 +175,8 @@ export default function Categories({formData, setFormData}: Props) {
                         />
                       </div>
                     )
-                  })}
+                  )}
+
                   <button
                     type='button'
                     className='svg-button'

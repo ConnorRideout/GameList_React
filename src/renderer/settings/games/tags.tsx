@@ -16,6 +16,12 @@ export default function Tags({formData, setFormData}: Props) {
     if (newTagAdded && tagRef.current) {
       setNewTagAdded(false)
       tagRef.current.scrollTop = tagRef.current.scrollHeight
+
+      const inputs = tagRef.current.querySelectorAll('input[type="text"]')
+      const lastInput = inputs[inputs.length - 1] as HTMLInputElement
+      if (lastInput) {
+        lastInput.focus()
+      }
     }
   }, [newTagAdded])
 
@@ -26,16 +32,22 @@ export default function Tags({formData, setFormData}: Props) {
   }
 
   const handleAddTag = () => {
-    const newTags = [...formData.tags, '']
+    const newTags = [...formData.tags, '~~placeholder~~']
     setNewTagAdded(true)
     setFormData(prevValue => ({...prevValue, tags: newTags}))
   }
 
-  const handleChange = (evt: React.ChangeEvent<HTMLInputElement>, idx: number) => {
+  const handleChange = (evt: React.ChangeEvent<HTMLInputElement> | {target: {value: string}}, idx: number) => {
     const { value } = evt.target
     const newTags = [...formData.tags]
     newTags[idx] = value
     setFormData(prevValue => ({...prevValue, tags: newTags}))
+  }
+
+  const handleBlur = (evt: React.FocusEvent<HTMLInputElement>, idx: number) => {
+    const { value } = evt.target
+    const newVal = value.trim()
+    handleChange({target: {value: newVal}}, idx)
   }
 
   return (
@@ -54,8 +66,9 @@ export default function Tags({formData, setFormData}: Props) {
           </button>
           <input
             type="text"
-            value={tag}
+            value={tag === '~~placeholder~~' ? '' : tag}
             onChange={(evt) => handleChange(evt, idx)}
+            onBlur={(evt) => handleBlur(evt, idx)}
           />
         </div>
       ))}

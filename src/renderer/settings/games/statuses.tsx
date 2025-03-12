@@ -20,6 +20,12 @@ export default function Statuses({formData, setFormData}: Props) {
     if (newStatusAdded && statusRef.current) {
       setNewStatusAdded(false)
       statusRef.current.scrollTop = statusRef.current.scrollHeight
+
+      const inputs = statusRef.current.querySelectorAll("input[type='text'][name='status_name']")
+      const lastInput = inputs[inputs.length - 1] as HTMLInputElement
+      if (lastInput) {
+        lastInput.focus()
+      }
     }
   }, [newStatusAdded])
 
@@ -36,7 +42,7 @@ export default function Statuses({formData, setFormData}: Props) {
     const status_priority = Math.max(...status_priorities) + 1
     const newStatuses = [...formData.statuses, {
       status_id,
-      status_name: '',
+      status_name: '~~placeholder~~',
       status_priority,
       status_color: defaultFontColor.toUpperCase(),
       status_color_applies_to: 'title'
@@ -45,7 +51,7 @@ export default function Statuses({formData, setFormData}: Props) {
     setFormData(prevValue => ({...prevValue, statuses: newStatuses}))
   }
 
-  const handleChange = (evt: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, idx: number) => {
+  const handleChange = (evt: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | {target: {value: string, name: string}}, idx: number) => {
     // eslint-disable-next-line prefer-const
     let { name, value } = evt.target
     if (name === 'status_color') {
@@ -55,6 +61,12 @@ export default function Statuses({formData, setFormData}: Props) {
     const oldStatuses = formData.statuses.map(status => ({...status}))
     oldStatuses[idx][name] = value
     setFormData(prevValue => ({...prevValue, statuses: oldStatuses}))
+  }
+
+  const handleBlur = (evt: React.FocusEvent<HTMLInputElement>, idx: number) => {
+    const { name, value } = evt.target
+    const newVal = value.trim()
+    handleChange({ target: { value: newVal, name } }, idx)
   }
 
   return (
@@ -83,8 +95,9 @@ export default function Statuses({formData, setFormData}: Props) {
             <input
               type="text"
               name='status_name'
-              value={status_name}
+              value={status_name === '~~placeholder~~' ? '' : status_name}
               onChange={(evt) => handleChange(evt, idx)}
+              onBlur={(evt) => handleBlur(evt, idx)}
             />
             <input
               className='color-input'
