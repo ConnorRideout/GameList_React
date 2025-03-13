@@ -231,10 +231,10 @@ export default function Edit() {
   }
 
   const handleChangeFolder = () => {
-    const newFol = window.electron.openFileDialog({
-      title: `Choose a New Folder for '${title}'`,
-      dialogType: 'openDirectory'
-    })
+    const newFol = window.electron.openFileDialog(
+      `Choose a New Folder for '${title}'`,
+      'openDirectory'
+    )
     if (newFol) {
       // folder path was updated
       setFormData({ ...formData, path: newFol })

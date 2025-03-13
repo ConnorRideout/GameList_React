@@ -75,10 +75,11 @@ export default function Lineitem({gamePickerState, lineData, style}: Props) {
       {label: 'test', trigger: 'TEST', target: game_id}
     ]
 
-    window.electron.showCustomContextMenu({x, y, customTemplates})
+    window.electron.showCustomContextMenu(x, y, customTemplates)
   }
   useEffect(() => {
     if (contextMenuData && contextMenuData.trigger === 'TEST' && contextMenuData.target === game_id) {
+      // TODO: handle context menu
       console.log('Yay', title)
     }
   }, [contextMenuData, game_id, title])

@@ -44,16 +44,15 @@ export interface DefaultScrapersFormType {
 
 export default function Settings() {
   const navigate = useNavigate()
+
   const categories = useSelector((state: RootState) => state.data.categories)
   const statuses = useSelector((state: RootState) => state.data.statuses)
   const tags = useSelector((state: RootState) => state.data.tags)
   const settings = useSelector((state: RootState) => state.data.settings)
+
   const [curTab, setCurTab] = useState<'display' | 'games' | 'scrapers'>('display')
   const [isDisabled, setIsDisabled] = useState({display: true, games: true, scrapers: true})
   const [formErrors, setFormErrors] = useState<{display: string[], games: string[], scrapers: string[]}>({display: [], games: [], scrapers: []})
-  // const [formErrorsGames, setFormErrorsGames] = useState<string[]>([])
-  // const [formErrorsDisplay, setFormErrorsDisplay] = useState<string[]>([])
-  // const [formErrorsScrapers, setFormErrorsScrapers] = useState<string[]>([])
 
   // FORM DATA
   // games
@@ -69,9 +68,13 @@ export default function Settings() {
   useEffect(() => {
     formSchemaGames.validate(formDataGames, { abortEarly: false })
       .then(() => {
-          setIsDisabled(prevValue => ({...prevValue, games: JSON.stringify(formDataGames) === JSON.stringify(defaultGamesFormData)}))
-          if (formErrors.games.length)
-            setFormErrors(prevVal => ({...prevVal, games: []}))
+        setIsDisabled(prevValue => {
+          if (prevValue.games !== (JSON.stringify(formDataGames) === JSON.stringify(defaultGamesFormData)))
+            return {...prevValue, games: JSON.stringify(formDataGames) === JSON.stringify(defaultGamesFormData)}
+          return prevValue
+        })
+        if (formErrors.games.length)
+          setFormErrors(prevVal => ({...prevVal, games: []}))
       })
       .catch(err => {
         const uniqueErrors: string[] = Array.from(new Set(err.errors))
@@ -99,9 +102,13 @@ export default function Settings() {
   useEffect(() => {
     formSchemaDisplay.validate(formDataDisplay, { abortEarly: false })
       .then(() => {
-          setIsDisabled(prevValue => ({...prevValue, display: JSON.stringify(formDataDisplay) === JSON.stringify(defaultDisplayFormData)}))
-          if (formErrors.display.length)
-            setFormErrors(prevVal => ({...prevVal, display: []}))
+        setIsDisabled(prevValue => {
+          if (prevValue.display !== (JSON.stringify(formDataDisplay) === JSON.stringify(defaultDisplayFormData)))
+            return {...prevValue, display: JSON.stringify(formDataDisplay) === JSON.stringify(defaultDisplayFormData)}
+          return prevValue
+        })
+        if (formErrors.display.length)
+          setFormErrors(prevVal => ({...prevVal, display: []}))
       })
       .catch(err => {
         const uniqueErrors: string[] = Array.from(new Set(err.errors))
@@ -135,7 +142,11 @@ export default function Settings() {
   useEffect(() => {
     formSchemaScrapers.validate(formDataScrapers, { abortEarly: false })
       .then(() => {
-          setIsDisabled(prevValue => ({...prevValue, scrapers: JSON.stringify(formDataScrapers) === JSON.stringify(defaultScrapersFormData)}))
+          setIsDisabled(prevValue => {
+            if (prevValue.scrapers !== (JSON.stringify(formDataScrapers) === JSON.stringify(defaultScrapersFormData)))
+              return {...prevValue, scrapers: JSON.stringify(formDataScrapers) === JSON.stringify(defaultScrapersFormData)}
+            return prevValue
+          })
           if (formErrors.scrapers.length)
             setFormErrors(prevVal => ({...prevVal, scrapers: []}))
       })
@@ -150,13 +161,29 @@ export default function Settings() {
 
 
   // HANDLERS
-  const handleClose = () => {
-    // TODO: if updated, ask to save
-    navigate(-1)
-  }
-
   const handleSave = () => {
     // TODO: handle save
+    console.log('saving')
+  }
+
+  const handleClose = () => {
+    if (Object.values(isDisabled).includes(false) && Object.values(formErrors).flat().length === 0) {
+      const doSave = window.electron.showMessageBox(
+        'Save Changes?',
+        'Do you want to save your changes before leaving the settings?',
+        undefined,
+        ['Yes', 'No', 'Cancel'],
+        0
+      )
+      if (doSave === 0) {
+        handleSave()
+        navigate(-1)
+      } else if (doSave === 1) {
+        navigate(-1)
+      }
+    } else {
+      navigate(-1)
+    }
   }
 
   return (
@@ -195,7 +222,7 @@ export default function Settings() {
             <button
               type='button'
               onClick={handleSave}
-              disabled={Object.values(isDisabled).includes(true)}
+              disabled={!(Object.values(isDisabled).includes(false) && Object.values(formErrors).flat().length === 0)}
             >Save</button>
           </div>
         </div>

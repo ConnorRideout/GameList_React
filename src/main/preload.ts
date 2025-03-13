@@ -10,20 +10,15 @@ export type Channels = 'ipc-example';
  * @param title - The title of the dialog (default is dialogTypes's default)
  * @param dialogType - The type of dialog (default is 'openFile')
  * @param initialPath - What folder to open the select dialog to (default is the games_folder in settings)
- * @param extension_filters - If `dialogType` is 'openFile', which type of extensions to allow (default is 'any')
+ * @param extension_filters - If `dialogType` is 'openFile', which type of extensions to allow (default is 'all')
  * @returns The string path that was selected (relative to initialPath if possible without backstepping) or undefined if dialog was canceled
  */
-const openFileDialog = ({
-  title,
-  dialogType,
-  initialPath,
-  extension_filters
-}: {
+const openFileDialog = (
   title?: string,
   dialogType?: 'openFile' | 'openDirectory',
-  initialPath?: string
-  extension_filters?: 'executables' | 'images' | 'all'
-}): string | undefined => (
+  initialPath?: string,
+  extension_filters?: 'executables' | 'images' | 'all',
+): string | undefined => (
   ipcRenderer.sendSync('open-file-dialog', title, dialogType, initialPath, extension_filters)
 )
 
@@ -35,41 +30,31 @@ const openFileDialog = ({
  * @param defaultBtnIdx - Index of the button in the buttons array which will be selected by default when the message box opens
  * @returns The index of the clicked button
  */
-const showMessageBox = ({
-  title,
-  message,
-  type,
-  buttons,
-  defaultBtnIdx
-}: {
+const showMessageBox = (
   title: string,
   message: string,
   type?: MessageBoxSyncOptions['type'],
   buttons?: MessageBoxSyncOptions['buttons'],
   defaultBtnIdx?: number
-}): number => (
+): number => (
   ipcRenderer.sendSync('show-message-dialog', title, message, type, buttons, defaultBtnIdx)
 )
 
 /**
  *
- * @param args.x - The x position of the context menu
- * @param args.y - The y position of the context menu
- * @param args.customTemplates - An array of items to show in the context menu
- * @param args.customTemplates.label - The text to show on the context menu
- * @param args.customTemplates.trigger - The ipcRenderer trigger that will be sent
- * @param args.customTemplates.target - In case `customTemplates.trigger` isn't specific enough, this will allow more specificity
+ * @param x - The x position of the context menu
+ * @param y - The y position of the context menu
+ * @param customTemplates - An array of items to show in the context menu
+ * @param customTemplates.label - The text to show on the context menu
+ * @param customTemplates.trigger - The ipcRenderer trigger that will be sent
+ * @param customTemplates.target - In case `customTemplates.trigger` isn't specific enough, this will allow more specificity
  * @returns Void; if the user clicks a content menu item it will send the signal defined in the customTemplate (with target, if defined)
  */
-const showCustomContextMenu = ({
-  x,
-  y,
-  customTemplates
-}: {
+const showCustomContextMenu = (
   x: number,
   y: number,
   customTemplates: ContextMenuTemplate[]
-}) => (
+) => (
   ipcRenderer.send('show-custom-context-menu', x, y, customTemplates)
 )
 

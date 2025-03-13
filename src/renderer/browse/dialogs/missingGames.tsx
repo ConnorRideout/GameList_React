@@ -53,17 +53,17 @@ export default function MissingGames() {
   }, [missingGames, gameslist, checkForMissingGames, editType, dispatch])
 
   const searchForFolder = (missingGame: GamelibState['missingGames'][0]) => {
-    const newFol = window.electron.openFileDialog({
-      title: `Select Folder for '${missingGame.title}'`,
-      dialogType: 'openDirectory'
-    })
+    const newFol = window.electron.openFileDialog(
+      `Select Folder for '${missingGame.title}'`,
+      'openDirectory'
+    )
     if (newFol) {
       // user selected a folder
       if (newFol === '.') {
         // the games folder was selected
-        const newPath = window.electron.openFileDialog({
-          title: `Select Executable for '${missingGame.title}'`
-        })
+        const newPath = window.electron.openFileDialog(
+          `Select Executable for '${missingGame.title}'`
+        )
         if (newPath) {
           // user selected a file
           const newUpdatedMissingGames = updatedMissingGames.filter(g => g.game_id !== missingGame.game_id)

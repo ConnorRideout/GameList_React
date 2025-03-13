@@ -40,10 +40,11 @@ export default function ProgramPaths({handleFormChange, formData}: Pick<Props, '
   }
 
   const handleFileSearch = (idx: number) => {
-    const filePath = window.electron.openFileDialog({
-      initialPath: formData.path,
-      extension_filters: 'executables'
-    })
+    const filePath = window.electron.openFileDialog(
+      undefined, undefined,
+      formData.path,
+      'executables'
+    )
     if (filePath) {
       const regex = new RegExp(`^.+${formData.path}\\\\?`)
       const relativePath = filePath.replace(regex, '')

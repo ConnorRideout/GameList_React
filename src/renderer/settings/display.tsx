@@ -61,7 +61,7 @@ export default function Display({formData, setFormData}: Props) {
         <div className='label'>
           <span>Executables:<span>?</span></span>
           {formData.file_types.Executables.map((exe, idx) => (
-            <div className='horizontal-container align-center'>
+            <div key={`filetypes-exes-${idx}`} className='horizontal-container align-center'>
               <button
                 type='button'
                 className='svg-button small'
@@ -94,7 +94,7 @@ export default function Display({formData, setFormData}: Props) {
         <div className='label'>
           <span>Ignored executables:<span>?</span></span>
           {formData.ignored_exes.map((ign_exe, idx) => (
-            <div className='horizontal-container align-center'>
+            <div key={`ignored-exes-${idx}`} className='horizontal-container align-center'>
               <button
                 type='button'
                 className='svg-button small'
@@ -127,7 +127,7 @@ export default function Display({formData, setFormData}: Props) {
         <div className='label'>
           <span>Images:<span>?</span></span>
           {formData.file_types.Images.map((img, idx) => (
-            <div className='horizontal-container align-center'>
+            <div key={`filetypes-images-${idx}`} className='horizontal-container align-center'>
               <button
                 type='button'
                 className='svg-button small'

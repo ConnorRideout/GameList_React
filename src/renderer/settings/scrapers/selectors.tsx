@@ -65,7 +65,7 @@ export default function Selectors({formData, setFormData}: Props) {
                 {selectors.map(({type, selector, queryAll, regex, limit_text, remove_regex}, idx) => {
                   const selType = type.replace(/^category_/, 'category > ')
                   return (
-                    <div className='horizontal-container align-center'>
+                    <div key={`scrapers-${index}-${idx}`} className='horizontal-container align-center'>
                       <button
                         type='button'
                         className='svg-button small'
