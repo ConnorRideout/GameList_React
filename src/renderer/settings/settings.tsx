@@ -170,7 +170,7 @@ export default function Settings() {
     if (Object.values(isDisabled).includes(false) && Object.values(formErrors).flat().length === 0) {
       const doSave = window.electron.showMessageBox(
         'Save Changes?',
-        'Do you want to save your changes before leaving the settings?',
+        'Do you want to save your changes before leaving settings?',
         undefined,
         ['Yes', 'No', 'Cancel'],
         0
@@ -179,6 +179,18 @@ export default function Settings() {
         handleSave()
         navigate(-1)
       } else if (doSave === 1) {
+        navigate(-1)
+      }
+    } else if (Object.values(formErrors).flat().length) {
+      // there are changes present
+      const stay = window.electron.showMessageBox(
+        'Discard Changes?',
+        "If you leave now, your changes will be discarded. Continue?",
+        undefined,
+        ['Leave', 'Cancel'],
+        1
+      )
+      if (!stay) {
         navigate(-1)
       }
     } else {
