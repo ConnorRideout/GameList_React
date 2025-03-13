@@ -149,7 +149,7 @@ interface SettingsType {
   site_scrapers: {
     base_url: string;
     selectors: {
-      type: string; // title/description/version/tags | category_<cat_name>/status/tag
+      type: string; // title/description/version/tags | category_<cat_name>/status
       selector: string; // the selector to pass to document.querySelectorAll
       queryAll: boolean; // whether to only look at the first matched result or all of them
       regex: string | null; // if type is tags: if queryAll, will be run on all SELECTOR matches and returns an array of strings if the string.length > 0; otherwise, returns an array of the matches of the pattern

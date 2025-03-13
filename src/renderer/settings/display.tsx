@@ -1,18 +1,15 @@
 /* eslint-disable react/no-array-index-key */
 // TODO: option to hide 'beaten' games from recent lists
-/* TODO: options:
-games folder
-locale emulator
-file types
-  exe
-  image
-ignored exes
-*/
+// TODO: file dialog for game folder and locale emulator
 import React from 'react'
+
+import {
+  MinusSvg,
+  PlusSvg
+} from '../shared/svg'
 
 // eslint-disable-next-line import/no-cycle
 import { DefaultDisplayFormType } from './settings'
-import { MinusSvg, PlusSvg } from '../shared/svg'
 
 
 interface Props {

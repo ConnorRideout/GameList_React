@@ -12,6 +12,8 @@ import Display from './display'
 import Games from './games/games'
 import Scrapers from './scrapers/scrapers'
 import CreateGamesFormSchema from './games/games_schema'
+import CreateDisplayFormSchema from './display_schema'
+import CreateScrapersFormSchema from './scrapers/scrapers_schema'
 
 
 export interface DefaultGamesFormType {
@@ -47,8 +49,11 @@ export default function Settings() {
   const tags = useSelector((state: RootState) => state.data.tags)
   const settings = useSelector((state: RootState) => state.data.settings)
   const [curTab, setCurTab] = useState<'display' | 'games' | 'scrapers'>('display')
-  const [isDisabled, setIsDisabled] = useState(true)
-  const [formErrorsGames, setFormErrorsGames] = useState<string[]>([])
+  const [isDisabled, setIsDisabled] = useState({display: true, games: true, scrapers: true})
+  const [formErrors, setFormErrors] = useState<{display: string[], games: string[], scrapers: string[]}>({display: [], games: [], scrapers: []})
+  // const [formErrorsGames, setFormErrorsGames] = useState<string[]>([])
+  // const [formErrorsDisplay, setFormErrorsDisplay] = useState<string[]>([])
+  // const [formErrorsScrapers, setFormErrorsScrapers] = useState<string[]>([])
 
   // FORM DATA
   // games
@@ -64,18 +69,18 @@ export default function Settings() {
   useEffect(() => {
     formSchemaGames.validate(formDataGames, { abortEarly: false })
       .then(() => {
-          setIsDisabled(JSON.stringify(formDataGames) === JSON.stringify(defaultGamesFormData))
-          if (formErrorsGames.length)
-            setFormErrorsGames([])
+          setIsDisabled(prevValue => ({...prevValue, games: JSON.stringify(formDataGames) === JSON.stringify(defaultGamesFormData)}))
+          if (formErrors.games.length)
+            setFormErrors(prevVal => ({...prevVal, games: []}))
       })
       .catch(err => {
         const uniqueErrors: string[] = Array.from(new Set(err.errors))
-        if (JSON.stringify(uniqueErrors) !== JSON.stringify(formErrorsGames)) {
-          setIsDisabled(true)
-          setFormErrorsGames(uniqueErrors)
+        if (JSON.stringify(uniqueErrors) !== JSON.stringify(formErrors.games)) {
+          setIsDisabled(prevVal => ({...prevVal, games: true}))
+          setFormErrors(prevVal => ({...prevVal, games: uniqueErrors}))
         }
       })
-  }, [formDataGames, defaultGamesFormData, formSchemaGames, formErrorsGames])
+  }, [formDataGames, defaultGamesFormData, formSchemaGames, formErrors.games])
 
   // display
   const defaultDisplayFormData: DefaultDisplayFormType = useMemo(() => {
@@ -89,6 +94,23 @@ export default function Settings() {
   }, [settings])
 
   const [formDataDisplay, setFormDataDisplay] = useState<DefaultDisplayFormType>(defaultDisplayFormData)
+
+  const formSchemaDisplay = CreateDisplayFormSchema()
+  useEffect(() => {
+    formSchemaDisplay.validate(formDataDisplay, { abortEarly: false })
+      .then(() => {
+          setIsDisabled(prevValue => ({...prevValue, display: JSON.stringify(formDataDisplay) === JSON.stringify(defaultDisplayFormData)}))
+          if (formErrors.display.length)
+            setFormErrors(prevVal => ({...prevVal, display: []}))
+      })
+      .catch(err => {
+        const uniqueErrors: string[] = Array.from(new Set(err.errors))
+        if (JSON.stringify(uniqueErrors) !== JSON.stringify(formErrors.display)) {
+          setIsDisabled(prevValue => ({...prevValue, display: true}))
+          setFormErrors(prevVal => ({...prevVal, display: uniqueErrors}))
+        }
+      })
+  }, [defaultDisplayFormData, formDataDisplay, formErrors.display, formSchemaDisplay])
 
   // scrapers
   const defaultScrapersFormData: DefaultScrapersFormType = useMemo(() => {
@@ -108,6 +130,23 @@ export default function Settings() {
   }, [settings])
 
   const [formDataScrapers, setFormDataScrapers] = useState<DefaultScrapersFormType>(defaultScrapersFormData)
+
+  const formSchemaScrapers = CreateScrapersFormSchema()
+  useEffect(() => {
+    formSchemaScrapers.validate(formDataScrapers, { abortEarly: false })
+      .then(() => {
+          setIsDisabled(prevValue => ({...prevValue, scrapers: JSON.stringify(formDataScrapers) === JSON.stringify(defaultScrapersFormData)}))
+          if (formErrors.scrapers.length)
+            setFormErrors(prevVal => ({...prevVal, scrapers: []}))
+      })
+      .catch(err => {
+        const uniqueErrors: string[] = Array.from(new Set(err.errors))
+        if (JSON.stringify(uniqueErrors) !== JSON.stringify(formErrors.scrapers)) {
+          setIsDisabled(prevValue => ({...prevValue, scrapers: true}))
+          setFormErrors(prevVal => ({...prevVal, scrapers: uniqueErrors}))
+        }
+      })
+  }, [defaultScrapersFormData, formDataScrapers, formErrors.scrapers, formSchemaScrapers])
 
 
   // HANDLERS
@@ -148,7 +187,7 @@ export default function Settings() {
           {curTab === 'scrapers' && <Scrapers formData={formDataScrapers} setFormData={setFormDataScrapers}/>}
         </div>
         <div className='vertical-container align-center'>
-          {formErrorsGames.length > 0 && formErrorsGames.map((err, idx) => (
+          {Object.values(formErrors).flat().length > 0 && Object.values(formErrors).flat().map((err, idx) => (
             <p className='warning' key={`setting-error-${idx}`}>{err}</p>
           ))}
           <div className='settings-buttons'>
@@ -156,7 +195,7 @@ export default function Settings() {
             <button
               type='button'
               onClick={handleSave}
-              disabled={isDisabled}
+              disabled={Object.values(isDisabled).includes(true)}
             >Save</button>
           </div>
         </div>
