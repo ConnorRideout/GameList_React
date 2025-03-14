@@ -30,6 +30,20 @@
     margin-bottom: 2px;
     z-index: -1;
   }
+
+  .has-error {
+
+    &::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: -1px;
+      bottom: 0;
+      left: -1px;
+      background-color: #ff440044;
+      clip-path: polygon(0% 100%, 10px 1px, calc(100% - 10px) 1px, 100% 100%);
+    }
+  }
 }
 
 .settings-body {
@@ -96,6 +110,10 @@
 .settings-display-container {
   @extend .vertical-container;
 
+  min-height: 100%;
+  height: 0;
+
+
   div.label,
   label {
     @extend .vertical-container;
@@ -161,6 +179,10 @@
 
     padding-bottom: calc(variables.$spacing * 3);
     margin: variables.$spacing calc(variables.$spacing * 3);
+
+    // &.scrollable {
+    //   max-height: 100%;
+    // }
   }
 }
 

@@ -10,37 +10,28 @@ import { Props } from './games'
 
 export default function Categories({formData, setFormData}: Props) {
   const [newCategoryAdded, setNewCategoryAdded] = useState(false)
-  const [newOptionAdded, setNewOptionAdded] = useState(0)
+  const [newOptionAdded, setNewOptionAdded] = useState(false)
   const categoryRef = useRef<HTMLDivElement>(null)
 
+  // auto scroll to new inputs
   useEffect(() => {
-    if (newCategoryAdded && categoryRef.current) {
-      setNewCategoryAdded(false)
+    if (newCategoryAdded || newOptionAdded) {
+      // using a timeout ensures the component updates and shows any errors before trying to do anything
       setTimeout(() => {
-        // this has to be a timeout because it will always error, making the scroll be incorrect if it doesn't wait for the component to update
-        categoryRef.current!.scrollTop = categoryRef.current!.scrollHeight
+        if (newCategoryAdded)
+          setNewCategoryAdded(false)
+        else
+          setNewOptionAdded(false)
+        const newItem = categoryRef.current!.querySelector("input[type='text'][data-value='~~placeholder~~']") as HTMLInputElement
+        if (newItem) {
+          if (newCategoryAdded)
+            newItem.parentElement?.nextElementSibling?.nextElementSibling?.scrollIntoView({block: 'nearest'})
+          newItem.parentElement?.nextElementSibling?.scrollIntoView({block: 'nearest'})
+          newItem.focus()
+        }
       }, 0)
-
-      const inputs = categoryRef.current.querySelectorAll("input[type='text'][name^='name']")
-      const lastInput = inputs[inputs.length - 1] as HTMLInputElement
-      if (lastInput) {
-        lastInput.focus()
-      }
     }
-  }, [newCategoryAdded])
-
-  useEffect(() => {
-    if (newOptionAdded && categoryRef.current) {
-      const cat_id = newOptionAdded
-      setNewOptionAdded(0)
-
-      const inputs = categoryRef.current.querySelectorAll(`input[type='text'][name^='option-${cat_id}']`)
-      const lastInput = inputs[inputs.length - 1] as HTMLInputElement
-      if (lastInput) {
-        lastInput.focus()
-      }
-    }
-  }, [newOptionAdded])
+  }, [newCategoryAdded, newOptionAdded])
 
   const handleRemoveCategory = (idx: number) => {
     const newCategories = [...formData.categories]
@@ -79,7 +70,7 @@ export default function Categories({formData, setFormData}: Props) {
     const newOptions = [...newCat.options, '~~placeholder~~']
     newCat.options = newOptions
 
-    setNewOptionAdded(cat_id)
+    setNewOptionAdded(true)
     setFormData(prevValue => ({...prevValue, categories: newCategories}))
   }
 
@@ -141,6 +132,7 @@ export default function Categories({formData, setFormData}: Props) {
                 <input
                   type="text"
                   name={`name-${category_id}`}
+                  data-value={category_name}
                   value={category_name === '~~placeholder~~' ? '' : category_name}
                   onChange={handleChange}
                   onBlur={handleBlur}
@@ -161,6 +153,7 @@ export default function Categories({formData, setFormData}: Props) {
                         <input
                           type="text"
                           name={`option-${category_id}-${idx}`}
+                          data-value={opt}
                           value={opt === '~~placeholder~~' ? '' : opt}
                           onChange={(evt) => handleChange(evt)}
                           onBlur={handleBlur}

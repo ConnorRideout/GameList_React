@@ -13,15 +13,15 @@ export default function Tags({formData, setFormData}: Props) {
   const [newTagAdded, setNewTagAdded] = useState(false)
   const tagRef = useRef<HTMLFieldSetElement>(null)
   useEffect(() => {
-    if (newTagAdded && tagRef.current) {
-      setNewTagAdded(false)
-      tagRef.current.scrollTop = tagRef.current.scrollHeight
+    if (newTagAdded) {
+      setTimeout(() => {
+        // using a timeout ensures the component updates and shows any errors before trying to do anything
+        setNewTagAdded(false)
+        tagRef.current!.scrollTop = tagRef.current!.scrollHeight
 
-      const inputs = tagRef.current.querySelectorAll('input[type="text"]')
-      const lastInput = inputs[inputs.length - 1] as HTMLInputElement
-      if (lastInput) {
-        lastInput.focus()
-      }
+        const lastInput = tagRef.current!.querySelector('input[type="text"][data-value="~~placeholder~~"]') as HTMLInputElement
+        lastInput?.focus()
+      }, 0)
     }
   }, [newTagAdded])
 
@@ -66,6 +66,7 @@ export default function Tags({formData, setFormData}: Props) {
           </button>
           <input
             type="text"
+            data-value={tag}
             value={tag === '~~placeholder~~' ? '' : tag}
             onChange={(evt) => handleChange(evt, idx)}
             onBlur={(evt) => handleBlur(evt, idx)}

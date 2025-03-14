@@ -22,19 +22,20 @@ export default function CreateDisplayFormSchema() {
       Images: yup.array()
         .of(
           yup.string()
-            .required('Display Warning: at least one image extension must be defined')
+            .required('Display Warning: image extensions cannot be blank')
         )
         .min(1, 'Display Warning: at least one image extension must be defined'),
       Executables: yup.array()
         .of(
           yup.string()
-            .required('Display Warning: at least one executable extension must be defined')
+            .required('Display Warning: executable extensions cannot be blank')
         )
         .min(1, 'Display Warning: at least one executable extension must be defined'),
     }),
     ignored_exes: yup.array()
       .of(
         yup.string()
+          .required('Display Warning: ignored executables cannot be blank')
       ),
   })
 }

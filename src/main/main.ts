@@ -29,6 +29,7 @@ import {
 } from './dialogs'
 
 
+// function to parse the sass file `variables.scss` for use later
 const getSassVars = async () => {
   const cssFile = new Path('./src/renderer/styles/variables.scss')
   const css = await cssFile.readFile({encoding: 'utf-8'})
@@ -46,6 +47,7 @@ const getSassVars = async () => {
 // }
 
 let mainWindow: BrowserWindow | null = null;
+
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -65,6 +67,7 @@ if (isDebug) {
   require('electron-debug')();
 }
 
+
 const installExtensions = async () => {
   const installer = require('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
@@ -79,6 +82,7 @@ const installExtensions = async () => {
 };
 
 
+// made menuBuilder a global var so that custom context menus could be created on specific elements
 let menuBuilder: MenuBuilder
 
 const createWindow = async () => {

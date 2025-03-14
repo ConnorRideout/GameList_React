@@ -5,12 +5,13 @@ interface Props {
   clickHandler: (event: React.MouseEvent<HTMLButtonElement>) => void,
   active: boolean,
   disabled?: boolean,
+  className?: string
 }
-export default function TabularButton({text, clickHandler, active, disabled=false}: Props) {
+export default function TabularButton({text, clickHandler, active, disabled=false, className=''}: Props) {
   return (
     <button
       type="button"
-      className={`tab-btn-container ${active ? 'tab-active' : ''}`}
+      className={`${className} tab-btn-container ${active ? 'tab-active' : ''}`}
       onClick={clickHandler}
       disabled={disabled}
     >

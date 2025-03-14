@@ -21,11 +21,8 @@ export default function Statuses({formData, setFormData}: Props) {
       setNewStatusAdded(false)
       statusRef.current.scrollTop = statusRef.current.scrollHeight
 
-      const inputs = statusRef.current.querySelectorAll("input[type='text'][name='status_name']")
-      const lastInput = inputs[inputs.length - 1] as HTMLInputElement
-      if (lastInput) {
-        lastInput.focus()
-      }
+      const lastInput = statusRef.current.querySelector("input[type='text'][data-value='~~placeholder~~']") as HTMLInputElement
+      lastInput?.focus()
     }
   }, [newStatusAdded])
 
@@ -95,6 +92,7 @@ export default function Statuses({formData, setFormData}: Props) {
             <input
               type="text"
               name='status_name'
+              data-value={status_name}
               value={status_name === '~~placeholder~~' ? '' : status_name}
               onChange={(evt) => handleChange(evt, idx)}
               onBlur={(evt) => handleBlur(evt, idx)}

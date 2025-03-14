@@ -1,7 +1,7 @@
 /* eslint-disable react/no-array-index-key */
 // TODO: option to hide 'beaten' games from recent lists
 // TODO: file dialog for game folder and locale emulator
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import {
   MinusSvg,
@@ -17,20 +17,68 @@ interface Props {
   setFormData: React.Dispatch<React.SetStateAction<DefaultDisplayFormType>>
 }
 export default function Display({formData, setFormData}: Props) {
-  const handleRemoveItem = (type: 'exe' | 'ign_exe' | 'img', idx: number) => {
+  const [newFiletypeAdded, setNewFiletypeAdded] = useState(false)
+  const filetypesRef = useRef<HTMLFieldSetElement>(null)
 
+  useEffect(() => {
+    if (newFiletypeAdded && filetypesRef.current) {
+      setNewFiletypeAdded(false)
+      const newItem = filetypesRef.current.querySelector("input[type='text'][data-value='~~placeholder~~']") as HTMLInputElement
+      if (newItem) {
+        // scroll the + button into view
+        newItem.parentElement?.nextElementSibling?.scrollIntoView({block: 'nearest'})
+        newItem.focus()
+      }
+    }
+  }, [newFiletypeAdded])
+
+  const handleRemoveItem = (type: 'Executables' | 'ign_exe' | 'Images', idx: number) => {
+    if (type === 'ign_exe') {
+      const newIgnExes = [...formData.ignored_exes]
+      newIgnExes.splice(idx, 1)
+      setFormData(prevVal => ({...prevVal, ignored_exes: newIgnExes}))
+    } else {
+      const newVal = [...formData.file_types[type]]
+      newVal.splice(idx, 1)
+      setFormData(prevVal => ({...prevVal, file_types: {...prevVal.file_types, [type]: newVal}}))
+    }
   }
 
-  const handleAddItem = (type: 'exe' | 'ign_exe' | 'img') => {
+  const handleAddItem = (type: 'Executables' | 'ign_exe' | 'Images') => {
+    setNewFiletypeAdded(true)
 
+    if (type === 'ign_exe') {
+      const newIgnExes = [...formData.ignored_exes, '~~placeholder~~']
+      setFormData(prevVal => ({...prevVal, ignored_exes: newIgnExes}))
+    } else {
+      const newVal = [...formData.file_types[type], '~~placeholder~~']
+      setFormData(prevVal => ({...prevVal, file_types: {...prevVal.file_types, [type]: newVal}}))
+    }
   }
 
-  const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (evt: React.ChangeEvent<HTMLInputElement> | {target: {value: string, name: string}}, idx?: number) => {
+    const { name, value } = evt.target
+    if (['games_folder', 'locale_emulator'].includes(name)) {
+      setFormData(prevVal => ({...prevVal, [name]: value}))
+    } else if (name === 'ignored_exes') {
+      const newIgnExes = [...formData.ignored_exes]
+      newIgnExes[idx!] = value
+      setFormData(prevVal => ({...prevVal, ignored_exes: newIgnExes}))
+    } else {
+      const newVal = [...formData.file_types[name]]
+      newVal[idx!] = value
+      setFormData(prevVal => ({...prevVal, file_types: {...prevVal.file_types, [name]: newVal}}))
+    }
+  }
 
+  const handleBlur = (evt: React.FocusEvent<HTMLInputElement>, idx: number) => {
+    const { name, value } = evt.target
+    const newVal = value.trim()
+    handleChange({target: {name, value: newVal}}, idx)
   }
 
   return (
-    <div className='settings-display-container scrollable'>
+    <div className='settings-display-container'>
       <fieldset>
         <legend><h2>Directories</h2></legend>
         <label>
@@ -56,7 +104,7 @@ export default function Display({formData, setFormData}: Props) {
         </label>
       </fieldset>
 
-      <fieldset>
+      <fieldset className='scrollable' ref={filetypesRef}>
         <legend><h2>File Types</h2></legend>
         <div className='label'>
           <span>Executables:<span>?</span></span>
@@ -65,7 +113,7 @@ export default function Display({formData, setFormData}: Props) {
               <button
                 type='button'
                 className='svg-button small'
-                onClick={() => handleRemoveItem('exe', idx)}
+                onClick={() => handleRemoveItem('Executables', idx)}
               >
                 <MinusSvg size={17} />
               </button>
@@ -73,9 +121,11 @@ export default function Display({formData, setFormData}: Props) {
                 key={`exe-${idx}`}
                 type="text"
                 className='short'
-                name="executable"
-                value={exe}
-                onChange={handleChange}
+                name="Executables"
+                data-value={exe}
+                value={exe === '~~placeholder~~' ? '' : exe}
+                onChange={(evt) => handleChange(evt, idx)}
+                onBlur={(evt) => handleBlur(evt, idx)}
               />
             </div>
           ))}
@@ -83,7 +133,7 @@ export default function Display({formData, setFormData}: Props) {
           <button
             type='button'
             className='svg-button small'
-            onClick={() => handleAddItem('exe')}
+            onClick={() => handleAddItem('Executables')}
           >
             <PlusSvg size={17} />
           </button>
@@ -107,8 +157,10 @@ export default function Display({formData, setFormData}: Props) {
                 type="text"
                 className='medium'
                 name="ignored_exes"
-                value={ign_exe}
-                onChange={handleChange}
+                data-value={ign_exe}
+                value={ign_exe === '~~placeholder~~' ? '' : ign_exe}
+                onChange={(evt) => handleChange(evt, idx)}
+                onBlur={(evt) => handleBlur(evt, idx)}
               />
             </div>
           ))}
@@ -131,7 +183,7 @@ export default function Display({formData, setFormData}: Props) {
               <button
                 type='button'
                 className='svg-button small'
-                onClick={() => handleRemoveItem('img', idx)}
+                onClick={() => handleRemoveItem('Images', idx)}
               >
                 <MinusSvg size={17} />
               </button>
@@ -139,9 +191,11 @@ export default function Display({formData, setFormData}: Props) {
                 key={`img-${idx}`}
                 type="text"
                 className='short'
-                name="image"
-                value={img}
-                onChange={handleChange}
+                name="Images"
+                data-value={img}
+                value={img === '~~placeholder~~' ? '' : img}
+                onChange={(evt) => handleChange(evt, idx)}
+                onBlur={(evt) => handleBlur(evt, idx)}
               />
             </div>
           ))}
@@ -149,7 +203,7 @@ export default function Display({formData, setFormData}: Props) {
           <button
             type='button'
             className='svg-button small'
-            onClick={() => handleAddItem('img')}
+            onClick={() => handleAddItem('Images')}
           >
             <PlusSvg size={17} />
           </button>

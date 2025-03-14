@@ -85,8 +85,8 @@ export default function Selectors({formData, setFormData}: Props) {
                         <option value="version">version</option>
                         <option value="tags">tags</option>
                         <option value="status">status</option>
-                        {categories.map(({category_name}) => (
-                          <option value={`category > ${category_name}`}>{`category > ${category_name}`}</option>
+                        {categories.map(({category_name}, i) => (
+                          <option key={`scrapers-${index}-${idx}-${i}`} value={`category > ${category_name}`}>{`category > ${category_name}`}</option>
                         ))}
                       </select>
 
