@@ -149,8 +149,8 @@
     input {
 
       &.short {
-        min-width: 3em;
-        width: 3em;
+        min-width: 3.3em;
+        width: 3.3em;
       }
 
       &.medium {
@@ -161,6 +161,8 @@
       &.long {
         min-width: 90%;
         width: 90%;
+        background-color: transparent;
+        border: 1px solid variables.$fgDark;
       }
     }
 

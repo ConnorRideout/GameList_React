@@ -9,7 +9,7 @@ export type Channels = 'ipc-example';
 /** Opens a syncronous Electron dialog to select files or folders
  * @param title - The title of the dialog (default is dialogTypes's default)
  * @param dialogType - The type of dialog (default is 'openFile')
- * @param initialPath - What folder to open the select dialog to (default is the games_folder in settings)
+ * @param initialPath - What folder to open the select dialog to. Can be 'documents' to open user's documents fol (default is the games_folder in settings)
  * @param extension_filters - If `dialogType` is 'openFile', which type of extensions to allow (default is 'all')
  * @returns The string path that was selected (relative to initialPath if possible without backstepping) or undefined if dialog was canceled
  */

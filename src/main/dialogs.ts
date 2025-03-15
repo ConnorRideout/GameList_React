@@ -1,4 +1,4 @@
-import { dialog, MessageBoxSyncOptions, IpcMainEvent, BrowserWindow } from 'electron'
+import { dialog, MessageBoxSyncOptions, IpcMainEvent, BrowserWindow, app } from 'electron'
 import axios from 'axios'
 
 import Path from '../parsedPath'
@@ -26,9 +26,16 @@ export function openDialog(
       extension_filters: 'executables' | 'images' | 'any' = 'any'
     ) {
       // if it's a full path, use initialPath, otherwise join it to games_folder
-      const isRelative = !/^[A-Z]:/.test(initialPath)
-      const initPath = (isRelative ? new Path(games_folder, initialPath) : new Path(initialPath))
-      const defaultPath = initPath.path
+      let defaultPath: string
+      let initPath: Path
+      if (initialPath === 'documents') {
+        defaultPath = app.getPath('documents')
+        initPath = new Path(defaultPath)
+      } else {
+        const isRelative = !/^[A-Z]:/.test(initialPath)
+        initPath = (isRelative ? new Path(games_folder, initialPath) : new Path(initialPath))
+        defaultPath = initPath.path
+      }
       // get filters for dialog
       let filters: {
         name: string;
@@ -58,7 +65,7 @@ export function openDialog(
         filters,
       }) || [] // dialog returns undefined if it's closed, do in order to destructure assign filePath, need to return an empty array
       // if path is relative to initialPath and doesn't backstep, return relative. otherwise, don't
-      if (!filePath) event.returnValue = filePath
+      if (!filePath || initialPath === 'documents') event.returnValue = filePath
       else {
         const relativePath = initPath.relative(filePath)
         event.returnValue = relativePath.startsWith('..') ? filePath : (relativePath || '.')
