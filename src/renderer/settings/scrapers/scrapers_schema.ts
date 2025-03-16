@@ -60,7 +60,17 @@ export default function CreateScrapersFormSchema() {
                 selector: yup.string()
                   .required('Scrapers Warning: all JS Selectors must be defined'),
                 queryAll: yup.boolean(),
-                regex: yup.string(),
+                regex: yup.string()
+                  .test('has-group', 'Scrapers Warning: matchers, if defined, must have a regex matcher group', (regex) => {
+                    if (!regex) return true
+                    try {
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      const re = new RegExp(regex)
+                      return /\([^?]/.test(regex)
+                    } catch (e) {
+                      return false
+                    }
+                  }),
                 limit_text: yup.boolean(),
                 remove_regex: yup.string(),
               })

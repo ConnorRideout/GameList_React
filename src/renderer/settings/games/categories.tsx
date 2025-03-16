@@ -18,17 +18,18 @@ export default function Categories({formData, setFormData}: Props) {
     if (newCategoryAdded || newOptionAdded) {
       // using a timeout ensures the component updates and shows any errors before trying to do anything
       setTimeout(() => {
-        if (newCategoryAdded)
-          setNewCategoryAdded(false)
-        else
-          setNewOptionAdded(false)
         const newItem = categoryRef.current!.querySelector("input[type='text'][data-value='~~placeholder~~']") as HTMLInputElement
         if (newItem) {
           if (newCategoryAdded)
             newItem.parentElement?.nextElementSibling?.nextElementSibling?.scrollIntoView({block: 'nearest'})
-          newItem.parentElement?.nextElementSibling?.scrollIntoView({block: 'nearest'})
+          else
+            newItem.parentElement?.nextElementSibling?.scrollIntoView({block: 'nearest'})
           newItem.focus()
         }
+        if (newCategoryAdded)
+          setNewCategoryAdded(false)
+        else
+          setNewOptionAdded(false)
       }, 0)
     }
   }, [newCategoryAdded, newOptionAdded])

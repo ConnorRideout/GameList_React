@@ -8,7 +8,7 @@ export const settingsApi = createApi({
   tagTypes: ['Settings'],
   endpoints: builder => ({
     getSettings: builder.query<SettingsType, void>({
-      query: () => '/',
+      query: () => '',
       providesTags: ['Settings']
     }),
   })
@@ -16,4 +16,5 @@ export const settingsApi = createApi({
 
 export const {
   useGetSettingsQuery,
+  useLazyGetSettingsQuery
 } = settingsApi

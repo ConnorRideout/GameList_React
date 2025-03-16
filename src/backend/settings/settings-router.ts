@@ -55,6 +55,8 @@ function parseRawSettings(settings: RawSettings) {
   const parsedSiteScrapers = settings.site_scrapers.reduce((acc: SettingsType['site_scrapers'], cur) => {
     const {website_id, base_url, ...rest} = cur
     const oldAcc = acc[website_id - 1]
+    rest.queryAll = Boolean(rest.queryAll)
+    rest.limit_text = Boolean(rest.limit_text)
     if (oldAcc === undefined) {
       acc[website_id - 1] = {base_url, selectors: [rest]}
     } else {

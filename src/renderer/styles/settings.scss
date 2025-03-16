@@ -198,6 +198,11 @@
 
   height: 100%;
 
+  .tooltip {
+    font-size: variables.$fontDefault;
+    min-width: 25em;
+  }
+
   .scraper-header {
     @extend .horizontal-container;
 
@@ -207,6 +212,32 @@
       text-align: center;
       justify-content: center;
       align-items: center;
+
+      span {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        width: 14px;
+        height: 14px;
+        padding: 0.18em 0.05em 0 0;
+        border: 1px solid currentColor;
+        border-radius: 50%;
+        margin-top: calc(variables.$spacing / 2);
+        margin-left: variables.$spacing;
+        font-family: 'Times New Roman';
+        font-size: 8pt;
+        font-weight: bold;
+        cursor: default;
+        filter: opacity(0.8);
+
+        &:hover {
+          filter: opacity(1);
+        }
+      }
+    }
+
+    h4 {
+      flex-direction: column;
     }
 
     .btn-span {

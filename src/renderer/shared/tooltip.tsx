@@ -9,7 +9,7 @@ import { RootState } from "../../lib/store/store"
 
 // docs: https://react-tooltip.com/docs/examples/basic-examples
 interface TooltipProps extends ITooltip {
-  children: React.ReactNode
+  children?: React.ReactNode
 }
 export default function Tooltip({ children, ...props }: TooltipProps) {
   const styleVars = useSelector((state: RootState) => state.data.styleVars)

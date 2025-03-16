@@ -14,11 +14,18 @@ function getFiletypes() {
 function getWebsiteScrapers() {
   /*
   SELECT
-     w.*,
-     s.type, s.selector, s.queryAll, s.regex, s.limit_text, s.remove_regex
+    w.*,
+    s.type, s.selector, s.queryAll, s.regex, s.limit_text, s.remove_regex
   FROM websites AS w
   LEFT JOIN
     selectors AS s ON w.website_id = s.website_id
+  ORDER BY
+    CASE s.type
+      WHEN 'title' THEN 1
+      WHEN 'version' THEN 2
+      WHEN 'description' THEN 3
+      ELSE 4
+    END, s.type
   */
   return settingsdb('websites as w')
     .select(
@@ -26,6 +33,14 @@ function getWebsiteScrapers() {
       's.type', 's.selector', 's.queryAll', 's.regex', 's.limit_text', 's.remove_regex'
     )
     .leftJoin('selectors AS s', 'w.website_id', 's.website_id')
+    .orderByRaw(`
+        CASE s.type
+          WHEN 'title' THEN 1
+          WHEN 'version' THEN 2
+          WHEN 'description' THEN 3
+          ELSE 4
+        END, s.type
+      `)
 }
 
 async function getWebsiteScraperAliases() {

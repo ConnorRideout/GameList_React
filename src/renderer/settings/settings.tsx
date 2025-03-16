@@ -15,6 +15,8 @@ import CreateGamesFormSchema from './games/games_schema'
 import CreateDisplayFormSchema from './display_schema'
 import CreateScrapersFormSchema from './scrapers/scrapers_schema'
 
+import { useLazyGetSettingsQuery } from '../../lib/store/settingsApi'
+
 
 export interface DefaultGamesFormType {
   categories: CategoryEntry[],
@@ -43,6 +45,10 @@ export interface DefaultScrapersFormType {
 }
 
 export default function Settings() {
+  const [getSettings] = useLazyGetSettingsQuery()
+  useEffect(() => {
+    getSettings()
+  }, [getSettings])
   const navigate = useNavigate()
 
   const categories = useSelector((state: RootState) => state.data.categories)
