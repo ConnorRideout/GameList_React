@@ -1,6 +1,5 @@
 /* eslint-disable react/no-array-index-key */
 // TODO: option to hide 'beaten' games from recent lists
-// TODO: file dialog for game folder and locale emulator
 import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
@@ -10,6 +9,7 @@ import {
   FolderSearchSvg,
   FileSearchSvg
 } from '../shared/svg'
+import Tooltip from '../shared/tooltip'
 
 // eslint-disable-next-line import/no-cycle
 import { DefaultDisplayFormType } from './settings'
@@ -142,7 +142,14 @@ export default function Display({formData, setFormData}: Props) {
       <fieldset className='scrollable' ref={filetypesRef}>
         <legend><h2>File Types</h2></legend>
         <div className='label'>
-          <span>Executables:<span>?</span></span>
+          <span>Executables:<span id='display-exe-info'>?</span></span>
+          <Tooltip
+            anchorSelect='#display-exe-info'
+            place='top-start'
+          >
+            The file extensions that will be used to find any game&apos;s executable. This is used for auto- AND manual-search
+          </Tooltip>
+
           {formData.file_types.Executables.map((exe, idx) => (
             <div key={`filetypes-exes-${idx}`} className='horizontal-container align-center'>
               <button
@@ -177,7 +184,14 @@ export default function Display({formData, setFormData}: Props) {
         <span className='separator' />
 
         <div className='label'>
-          <span>Ignored executables:<span>?</span></span>
+          <span>Ignored executables:<span id='display-ign_exe-info'>?</span></span>
+          <Tooltip
+            anchorSelect='#display-ign_exe-info'
+            place='top-start'
+          >
+            During auto-search, these are the regex matchers that will be ignored when searching for game executables
+          </Tooltip>
+
           {formData.ignored_exes.map((ign_exe, idx) => (
             <div key={`ignored-exes-${idx}`} className='horizontal-container align-center'>
               <button
@@ -212,7 +226,14 @@ export default function Display({formData, setFormData}: Props) {
         <span className='separator' />
 
         <div className='label'>
-          <span>Images:<span>?</span></span>
+          <span>Images:<span id="display-images-info">?</span></span>
+          <Tooltip
+            anchorSelect='#display-images-info'
+            place='top-start'
+          >
+            The file extensions that will be used when searching for a game&apos;s image
+          </Tooltip>
+
           {formData.file_types.Images.map((img, idx) => (
             <div key={`filetypes-images-${idx}`} className='horizontal-container align-center'>
               <button
