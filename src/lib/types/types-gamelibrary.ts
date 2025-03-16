@@ -159,9 +159,16 @@ interface SettingsType {
     }[];
   }[];
   site_scraper_aliases: {
-    [k in 'tags' | 'categories' | 'statuses']: {
+    tags: {
       [base_url: string]: [string, string][];
     };
+    categories: {
+      [base_url: string]: [string, string][];
+    };
+    statuses: {
+      [base_url: string]: [string, string][];
+    };
+    [key: string]: {[base_url: string]: [string, string][]};
   };
   [key: string]: string | string[] | {[key: string]: string[] | {[base_url: string]: [string, string][]}} | {
     base_url: string;

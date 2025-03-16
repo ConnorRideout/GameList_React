@@ -11,9 +11,14 @@ function createAliasTest(type: string) {
           yup.array()
             .of(
               yup.string()
-              .required(`Scrapers Warning: ${type} aliases need text from the website`)
             )
             .length(2)
+            .test('site-text-check', `Scrapers > Scraper Aliases Warning: ${type} aliases need text from the website`,
+              (site_text) => !!(site_text && site_text[0])
+            )
+            .test('native-name-check', `Scrapers > Scraper Aliases Warning: ${type} aliases need a native name`,
+              (nat_name) => !!(nat_name && nat_name[1])
+            )
         )
       const newEntries = Object.keys(value).reduce((acc, cur) => ({
         ...acc,
@@ -51,17 +56,17 @@ export default function CreateScrapersFormSchema() {
       .of(
         yup.object().shape({
           base_url: yup.string()
-            .required('Scrapers Warning: a base url is required'),
+            .required('Scrapers > Site Scrapers Warning: a base url is required'),
           selectors: yup.array()
             .of(
               yup.object().shape({
                 type: yup.string()
-                  .required('Scrapers Warning: all Reference Types must be defined'),
+                  .required('Scrapers > Site Scrapers Warning: all Reference Types must be defined'),
                 selector: yup.string()
-                  .required('Scrapers Warning: all JS Selectors must be defined'),
+                  .required('Scrapers > Site Scrapers Warning: all JS Selectors must be defined'),
                 queryAll: yup.boolean(),
                 regex: yup.string()
-                  .test('has-group', 'Scrapers Warning: matchers, if defined, must have a regex matcher group', (regex) => {
+                  .test('has-group', 'Scrapers > Site Scrapers Warning: matchers, if defined, must have a regex matcher group', (regex) => {
                     if (!regex) return true
                     try {
                       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -75,7 +80,7 @@ export default function CreateScrapersFormSchema() {
                 remove_regex: yup.string(),
               })
             )
-            .min(1, 'Scrapers Warning: all base urls need at least 1 JS Selector'),
+            .min(1, 'Scrapers > Site Scrapers Warning: all base urls need at least 1 JS Selector'),
         })
       ),
     site_scraper_aliases: yup.object().shape({

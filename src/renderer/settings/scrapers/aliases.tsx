@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 import { MinusSvg, PlusSvg } from '../../shared/svg'
@@ -14,18 +14,59 @@ export default function Aliases({formData, setFormData}: Props) {
   const statuses = useSelector((state: RootState) => state.data.statuses)
   const categories = useSelector((state: RootState) => state.data.categories)
   const category_options = categories.flatMap(c => c.options.map(o => [c.category_name, o]))
+  const aliasRef = useRef<HTMLDivElement>(null)
+  const [newAliasAdded, setNewAliasAdded] = useState(false)
 
-  const handleAddAlias = () => {
+  useEffect(() => {
+    if (newAliasAdded) {
+      // using a timeout ensures the component updates and shows any errors before trying to do anything
+      setTimeout(() => {
+        const newItem = aliasRef.current!.querySelector("input[type='text'][data-value='~~placeholder~~']") as HTMLInputElement
+        newItem?.parentElement?.nextElementSibling?.scrollIntoView({block: 'nearest'})
+        newItem?.focus()
+        setNewAliasAdded(false)
+      }, 0)
+    }
+  }, [newAliasAdded])
 
+  const handleAddAlias = (type: 'tags' | 'categories' | 'statuses', site: string) => {
+    const type_aliases = {...formData.site_scraper_aliases[type]}
+    const aliases = [...type_aliases[site]]
+    aliases.push(["~~placeholder~~", ""])
+    type_aliases[site] = aliases
+
+    setNewAliasAdded(true)
+    setFormData(prevVal => ({...prevVal, site_scraper_aliases: {...prevVal.site_scraper_aliases, [type]: type_aliases}}))
   }
 
-  const handleRemoveAlias = (idx: number) => {
+  const handleRemoveAlias = (type: 'tags' | 'categories' | 'statuses', site: string, alias_idx: number) => {
+    const type_aliases = {...formData.site_scraper_aliases[type]}
+    const aliases = [...type_aliases[site]]
+    aliases.splice(alias_idx, 1)
+    type_aliases[site] = aliases
 
+    setFormData(prevVal => ({...prevVal, site_scraper_aliases: {...prevVal.site_scraper_aliases, [type]: type_aliases}}))
   }
 
-  const handleChange = (evt: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (evt: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | {target: {name: string, value: string}}) => {
+    const {name, type, value} = evt.target as HTMLInputElement
+    const [alias_type, site, str_idx] = name.split('-')
+    const idx = parseInt(str_idx)
+    const new_alias_types = {...formData.site_scraper_aliases[alias_type]}
+    const new_aliases: [string, string][] = new_alias_types[site].map(alias => ([...alias]))
+    // type will be undefined if it's the selector, i.e. the el of the array at idx 1
+    new_aliases[idx][Number(type !== 'text')] = value
+    new_alias_types[site] = new_aliases
 
+    setFormData(prevVal => ({...prevVal, site_scraper_aliases: {...prevVal.site_scraper_aliases, [alias_type]: new_alias_types}}))
   }
+
+  const handleBlur = (evt: React.FocusEvent<HTMLInputElement>) => {
+    const {name, type, value} = evt.target
+    const newVal = value.trim()
+    handleChange({target: {name, type, value: newVal}})
+  }
+
   return (
     <fieldset className='aliases'>
       <legend><h1>SCRAPER ALIASES</h1></legend>
@@ -38,7 +79,7 @@ export default function Aliases({formData, setFormData}: Props) {
       </div>
       <span className='separator' />
 
-      <div className='vertical-container scrollable'>
+      <div className='vertical-container scrollable' ref={aliasRef}>
         <fieldset>
           <legend><h2>Tags</h2></legend>
           {Object.entries(formData.site_scraper_aliases.tags).map(([site, aliases], index) => (
@@ -49,7 +90,6 @@ export default function Aliases({formData, setFormData}: Props) {
                   className='short'
                   name='aliases-base_url'
                   value={site}
-                  onChange={handleChange}
                   disabled
                 />
 
@@ -59,7 +99,7 @@ export default function Aliases({formData, setFormData}: Props) {
                       <button
                         type='button'
                         className='svg-button small'
-                        onClick={() => handleRemoveAlias(idx)}
+                        onClick={() => handleRemoveAlias('tags', site, idx)}
                       >
                         <MinusSvg size={17} />
                       </button>
@@ -70,6 +110,9 @@ export default function Aliases({formData, setFormData}: Props) {
                         value={tag}
                         onChange={handleChange}
                       >
+                        {formData.site_scraper_aliases.tags[site][idx][1] === "" && (
+                          <option value="">{}</option>
+                        )}
                         {tags.map(({tag_name, tag_id}) => (
                           <option key={`tag-${tag_id}`} value={tag_name}>{tag_name}</option>
                         ))}
@@ -78,8 +121,10 @@ export default function Aliases({formData, setFormData}: Props) {
                       <input
                         type="text"
                         name={`tags-${site}-${idx}`}
-                        value={site_text}
+                        data-value={site_text}
+                        value={site_text === "~~placeholder~~" ? "" : site_text}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                       />
                     </div>
                   ))}
@@ -87,7 +132,7 @@ export default function Aliases({formData, setFormData}: Props) {
                   <button
                     type='button'
                     className='svg-button small'
-                    onClick={handleAddAlias}
+                    onClick={() => handleAddAlias('tags', site)}
                   >
                     <PlusSvg size={17} />
                   </button>
@@ -118,17 +163,20 @@ export default function Aliases({formData, setFormData}: Props) {
                       <button
                         type='button'
                         className='svg-button small'
-                        onClick={() => handleRemoveAlias(idx)}
+                        onClick={() => handleRemoveAlias('categories', site, idx)}
                       >
                         <MinusSvg size={17} />
                       </button>
 
                       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                       <select
-                        name={`categories-${index}-${idx}`}
+                        name={`categories-${site}-${idx}`}
                         value={category}
                         onChange={handleChange}
                       >
+                        {formData.site_scraper_aliases.categories[site][idx][1] === "" && (
+                          <option value="">{}</option>
+                        )}
                         {category_options.map(([category_name, option], i) => (
                           <option key={`tag-${index}-${i}`} value={option}>{`${category_name} > ${option}`}</option>
                         ))}
@@ -136,9 +184,11 @@ export default function Aliases({formData, setFormData}: Props) {
 
                       <input
                         type="text"
-                        name={`categories-${index}-${idx}`}
-                        value={site_text}
+                        name={`categories-${site}-${idx}`}
+                        data-value={site_text}
+                        value={site_text === "~~placeholder~~" ? "" : site_text}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                       />
                     </div>
                   ))}
@@ -146,7 +196,7 @@ export default function Aliases({formData, setFormData}: Props) {
                   <button
                     type='button'
                     className='svg-button small'
-                    onClick={handleAddAlias}
+                    onClick={() => handleAddAlias('categories', site)}
                   >
                     <PlusSvg size={17} />
                   </button>
@@ -173,21 +223,24 @@ export default function Aliases({formData, setFormData}: Props) {
 
                 <div className='vertical-container'>
                   {aliases.map(([site_text, tag], idx) => (
-                    <div key={`statuses-${index}-${idx}`} className='horizontal-container align-center'>
+                    <div key={`statuses-${site}-${idx}`} className='horizontal-container align-center'>
                       <button
                         type='button'
                         className='svg-button small'
-                        onClick={() => handleRemoveAlias(idx)}
+                        onClick={() => handleRemoveAlias('statuses', site, idx)}
                       >
                         <MinusSvg size={17} />
                       </button>
 
                       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                       <select
-                        name={`statuses-${index}-${idx}`}
+                        name={`statuses-${site}-${idx}`}
                         value={tag}
                         onChange={handleChange}
                       >
+                        {formData.site_scraper_aliases.statuses[site][idx][1] === "" && (
+                          <option value="">{}</option>
+                        )}
                         {statuses.map(({status_name, status_id}) => (
                           <option key={`tag-${index}-${status_id}`} value={status_name}>{status_name}</option>
                         ))}
@@ -195,9 +248,11 @@ export default function Aliases({formData, setFormData}: Props) {
 
                       <input
                         type="text"
-                        name={`statuses-${index}-${idx}`}
-                        value={site_text}
+                        name={`statuses-${site}-${idx}`}
+                        data-value={site_text}
+                        value={site_text === "~~placeholder~~" ? "" : site_text}
                         onChange={handleChange}
+                        onBlur={handleBlur}
                       />
                     </div>
                   ))}
@@ -205,7 +260,7 @@ export default function Aliases({formData, setFormData}: Props) {
                   <button
                     type='button'
                     className='svg-button small'
-                    onClick={handleAddAlias}
+                    onClick={() => handleAddAlias('statuses', site)}
                   >
                     <PlusSvg size={17} />
                   </button>

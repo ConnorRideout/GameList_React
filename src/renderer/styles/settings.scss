@@ -51,6 +51,11 @@
   width: 100%;
   height: 0;
   padding: variables.$spacing;
+
+  input:disabled {
+    background-color: transparent;
+    border: 1px solid variables.$fgDark;
+  }
 }
 
 .settings-buttons {
@@ -166,8 +171,6 @@
       &.long {
         min-width: 90%;
         width: 90%;
-        background-color: transparent;
-        border: 1px solid variables.$fgDark;
       }
     }
 
@@ -186,10 +189,6 @@
 
     padding-bottom: calc(variables.$spacing * 3);
     margin: variables.$spacing calc(variables.$spacing * 3);
-
-    // &.scrollable {
-    //   max-height: 100%;
-    // }
   }
 }
 

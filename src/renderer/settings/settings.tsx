@@ -33,12 +33,13 @@ export interface DefaultScrapersFormType {
   site_scrapers: {
     base_url: string,
     selectors: {
-        type: string,
-        selector: string,
-        queryAll: boolean,
-        regex: string,
-        limit_text: boolean,
-        remove_regex: string,
+      type: string,
+      selector: string,
+      queryAll: boolean,
+      regex: string,
+      limit_text: boolean,
+      remove_regex: string,
+      [key: string]: string | boolean
     }[]
   }[],
   site_scraper_aliases: SettingsType['site_scraper_aliases']
