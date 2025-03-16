@@ -1,7 +1,6 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable promise/catch-or-return */
 /* eslint-disable import/no-cycle */
-// TODO: add a `return & save` button
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
@@ -228,6 +227,11 @@ export default function Settings() {
     }
   }
 
+  const handleSaveAndClose = () => {
+    handleSave()
+    navigate(-1)
+  }
+
   return (
     <div className="main-container center">
       <h1>Settings</h1>
@@ -263,7 +267,15 @@ export default function Settings() {
             <p className='warning' key={`setting-error-${idx}`}>{err}</p>
           ))}
           <div className='settings-buttons'>
-            <button type='button' onClick={handleClose}>Return</button>
+            <button
+              type='button'
+              onClick={handleClose}
+            >Return</button>
+            <button
+              type='button'
+              onClick={handleSaveAndClose}
+              disabled={isDisabled}
+            >Save & Return</button>
             <button
               type='button'
               onClick={handleSave}
