@@ -29,12 +29,17 @@ const SearchFieldset = styled.fieldset`
   padding: 0 7px;
 `
 
+const HideCheckbox = styled.label`
+  align-self: flex-start;
+`
+
 export default function Browse() {
   const dispatch = useDispatch()
   const sortedGamelib = useSelector((state: RootState) => state.data.sortedGamelib)
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
   const searchRestraints = useSelector((state: RootState) => state.data.searchRestraints)
   const status = useSelector((state: RootState) => state.data.status)
+  const [hideBeatenInRecents, setHideBeatenInRecents] = useState(false)
   // new games
   const newGames = useSelector((state: RootState) => state.data.newGames)
   const [handleNewGames, setHandleNewGames] = useState(false)
@@ -128,8 +133,16 @@ export default function Browse() {
     if (Object.keys(excl.categories).length) {
       if (Object.keys(excl.categories).every(k => g.categories[k] === excl.categories[k])) return false
     }
+    if (hideBeatenInRecents) {
+      if (Object.values(g.categories).find(c => c.toLowerCase() === 'beaten')) return false
+    }
     return true
   })
+
+  const hideBeatenChangeHandler = (evt: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = evt.target
+    setHideBeatenInRecents(checked)
+  }
 
   // ask about new games
   useEffect(() => {
@@ -180,6 +193,15 @@ export default function Browse() {
         />
         <TextSearch scrollToItem={scrollToItem} />
       </SearchFieldset>
+
+      <HideCheckbox>
+        <input
+          type="checkbox"
+          checked={hideBeatenInRecents}
+          onChange={hideBeatenChangeHandler}
+        />
+        Hide beaten games in recent lists
+      </HideCheckbox>
 
       <BrowseNav scrollToItem={scrollToItem} />
 

@@ -7,13 +7,13 @@ import { promises as fs } from 'fs'
 
 import * as Games from './games-model'
 
-import { GameEntry, StringMap } from '../../types'
+import { CategoryEntry, GameEntry, StringMap } from '../../types'
 import Path from '../../parsedPath'
 
 
 const router = Router()
 
-function parseRawGameData(game: Games.RawGameEntry) {
+function parseRawGameData(game: Games.RawGameEntry, catOrder: CategoryEntry[]) {
   // format program_path
   game.program_path = JSON.parse(game.program_path);
   // format tags
@@ -21,11 +21,14 @@ function parseRawGameData(game: Games.RawGameEntry) {
   // format categories
   const { categories, protagonist } = game
   delete (game as any).protagonist
-  const parsedCats: StringMap = { protagonist }
-  categories.split(',').forEach(category => {
+  const parsedCats: StringMap = {}
+  categories.split(',').sort((a, b) => (
+    catOrder.find(c => a.startsWith(c.category_name))!.category_id - catOrder.find(c => b.startsWith(c.category_name))!.category_id
+  )).forEach(category => {
     const [cat, val] = category.split(':')
     parsedCats[cat] = val
-  });
+  })
+  parsedCats.protagonist = protagonist;
   (game as any).categories = parsedCats;
   // format status
   (game as any).status = game.status !== null ? game.status.split(',') : []
@@ -61,9 +64,10 @@ function handleImage(img: string) {
 
 router.get('/games', (req, res, next) => {
   Games.getAll()
-    .then(games => {
+    .then(async games => {
+      const category_order = await Games.getCategories()
       games.forEach(game => {
-        parseRawGameData(game)
+        parseRawGameData(game, category_order)
       })
       res.status(200).json(games)
     })
@@ -82,8 +86,9 @@ router.get('/timestamps/:type', (req, res, next) => {
 
 router.get('/games/:game_id', (req, res, next) => {
   Games.getById(req.params.game_id)
-    .then(game => {
-      parseRawGameData(game)
+    .then(async game => {
+      const category_order = await Games.getCategories()
+      parseRawGameData(game, category_order)
       res.status(200).json(game)
     })
     .catch(next)
@@ -137,11 +142,12 @@ router.post('/games/new', async (req, res, next) => {
   game.program_path = JSON.stringify(game.program_path)
   // insert it
   Games.insertNewGame(game)
-    .then(newGame => {
+    .then(async newGame => {
       if (newGame.error) {
         next(newGame)
       } else {
-        parseRawGameData(newGame)
+        const category_order = await Games.getCategories()
+        parseRawGameData(newGame, category_order)
         res.status(201).json(newGame)
       }
     })
@@ -151,8 +157,9 @@ router.post('/games/new', async (req, res, next) => {
 router.delete('/games/:game_id', (req, res, next) => {
   const {game_id} = req.params
   Games.deleteGame(game_id)
-    .then(delGame => {
-      parseRawGameData(delGame)
+    .then(async delGame => {
+      const category_order = await Games.getCategories()
+      parseRawGameData(delGame, category_order)
       res.status(200).json(delGame)
     })
     .catch(next)
@@ -162,8 +169,9 @@ router.put('/timestamps/:type/:game_id', (req, res, next) => {
   const {type, game_id} = req.params
   const timeType = type.endsWith('_at') ? type : `${type}_at`
   Games.updateTimestamp(game_id, timeType)
-    .then(updatedGame => {
-      parseRawGameData(updatedGame)
+    .then(async updatedGame => {
+      const category_order = await Games.getCategories()
+      parseRawGameData(updatedGame, category_order)
       res.status(200).json(updatedGame)
     })
     .catch(next)
@@ -175,7 +183,8 @@ router.put('/games/:game_id', async (req, res, next) => {
   const updatedGameData = {...req.body, game_id}
   // get old game data
   const oldGameData = await Games.getById(parseInt(game_id))
-  parseRawGameData(oldGameData)
+  const category_order = await Games.getCategories()
+  parseRawGameData(oldGameData, category_order)
   // overwrite oldGameData with updatedGameData
   const game = {...oldGameData, ...updatedGameData}
   // properly format the game data
@@ -189,7 +198,7 @@ router.put('/games/:game_id', async (req, res, next) => {
       if (updatedGame.error) {
         next(updatedGame)
       } else {
-        parseRawGameData(updatedGame)
+        parseRawGameData(updatedGame, category_order)
         res.status(200).json(updatedGame)
       }
     })
