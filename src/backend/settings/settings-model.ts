@@ -1,6 +1,35 @@
+/* eslint-disable import/no-relative-packages */
 import { settingsdb } from "../data/db-config"
 
+import { StringMap } from "../../types"
 
+
+type BaseScraperAlias = {
+  website_id: number,
+  base_url: string,
+  website_tag: string,
+  [key: string]: number | string
+}
+export interface RawSettings {
+  defaults: {name: string, value: string}[],
+  file_types: {filetype_id: number, name: string, filetypes: string}[],
+  ignored_exes: StringMap[],
+  site_scrapers: {
+    website_id: number,
+    base_url: string,
+    type: string,
+    selector: string,
+    queryAll: boolean,
+    regex: string | null,
+    limit_text: boolean,
+    remove_regex: string | null,
+  }[],
+  site_scraper_aliases: {
+    tags: (BaseScraperAlias & {tag_name: string})[],
+    categories: (BaseScraperAlias & {category_option_name: string})[],
+    statuses: (BaseScraperAlias & {status_name: string})[]
+  }
+}
 function getIgnoredExes() {
   // SELECT * FROM ignored_exes
   return settingsdb('ignored_exes')
@@ -89,10 +118,16 @@ async function getAll() {
   return {defaults, file_types, ignored_exes, site_scrapers, site_scraper_aliases}
 }
 
+async function updateSettings(newSettings: RawSettings) {
+  console.log(newSettings)
+  return newSettings
+}
+
 
 export {
   getIgnoredExes,
   getFiletypes,
   getWebsiteScrapers,
   getAll,
+  updateSettings,
 }

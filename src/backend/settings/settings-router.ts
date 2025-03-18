@@ -8,33 +8,7 @@ import { StringMap, SettingsType } from '../../types'
 
 const router = Router()
 
-type BaseScraperAlias = {
-  website_id: number,
-  base_url: string,
-  website_tag: string,
-  [key: string]: number | string
-}
-interface RawSettings {
-  defaults: {name: string, value: string}[],
-  file_types: {filetype_id: number, name: string, filetypes: string}[],
-  ignored_exes: StringMap[],
-  site_scrapers: {
-    website_id: number,
-    base_url: string,
-    type: string,
-    selector: string,
-    queryAll: boolean,
-    regex: string | null,
-    limit_text: boolean,
-    remove_regex: string | null,
-  }[],
-  site_scraper_aliases: {
-    tags: (BaseScraperAlias & {tag_name: string})[],
-    categories: (BaseScraperAlias & {category_option_name: string})[],
-    statuses: (BaseScraperAlias & {status_name: string})[]
-  }
-}
-function parseRawSettings(settings: RawSettings) {
+function parseRawSettings(settings: Settings.RawSettings) {
   // parse defaults
   const { games_folder, locale_emulator } = settings.defaults.reduce((acc: StringMap, { name, value }) => {
     acc[name] = value
@@ -87,7 +61,17 @@ router.get('/', (req, res, next) => {
   Settings.getAll()
     .then(settings => {
       parseRawSettings(settings)
-      res.json(settings)
+      res.status(200).json(settings)
+    })
+    .catch(next)
+})
+
+router.put('/', (req, res, next) => {
+  const newSettings = req.body
+  Settings.updateSettings(newSettings)
+    .then(updatedSettings => {
+      parseRawSettings(updatedSettings)
+      res.status(200).json(updatedSettings)
     })
     .catch(next)
 })

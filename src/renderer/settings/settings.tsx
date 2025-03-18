@@ -4,7 +4,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
-import { CategoryEntry, RootState, SettingsType, StatusEntry } from '../../types'
 
 import TabularButton from '../shared/tabularButton'
 import Display from './display'
@@ -14,7 +13,9 @@ import CreateGamesFormSchema from './games/games_schema'
 import CreateDisplayFormSchema from './display_schema'
 import CreateScrapersFormSchema from './scrapers/scrapers_schema'
 
-import { useLazyGetSettingsQuery } from '../../lib/store/settingsApi'
+import { useLazyGetSettingsQuery, useUpdateSettingsMutation } from '../../lib/store/settingsApi'
+
+import { CategoryEntry, RootState, SettingsType, StatusEntry } from '../../types'
 
 
 export interface DefaultGamesFormType {
@@ -49,6 +50,7 @@ export default function Settings() {
   useEffect(() => {
     getSettings()
   }, [getSettings])
+  const [updateSettings] = useUpdateSettingsMutation()
   const navigate = useNavigate()
 
   const categories = useSelector((state: RootState) => state.data.categories)
@@ -191,8 +193,36 @@ export default function Settings() {
 
   // HANDLERS
   const handleSave = () => {
-    // TODO: handle save
-    console.log('saving')
+    // handle saving settings
+    const {
+      games_folder,
+      locale_emulator,
+      file_types,
+      ignored_exes,
+    } = formDataDisplay
+    const {
+      site_scrapers: raw_site_scrapers,
+      site_scraper_aliases
+    } = formDataScrapers
+    // parse site scrapers to the correct type
+    const site_scrapers = raw_site_scrapers.map(scraper => {
+      scraper.selectors = scraper.selectors.map(sel => {
+        if (!sel.regex.length) (sel.regex as any) = null
+        if (!sel.remove_regex.length) (sel.remove_regex as any) = null
+        return sel
+      })
+      return scraper as SettingsType['site_scrapers'][0]
+    })
+    const updatedSettings: SettingsType = {
+      games_folder,
+      locale_emulator,
+      file_types,
+      ignored_exes,
+      site_scraper_aliases,
+      site_scrapers,
+    }
+    updateSettings(updatedSettings)
+    // TODO: handle saving categories/statuses/tags
   }
 
   const handleClose = () => {

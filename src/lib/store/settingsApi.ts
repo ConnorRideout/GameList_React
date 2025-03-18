@@ -11,10 +11,19 @@ export const settingsApi = createApi({
       query: () => '',
       providesTags: ['Settings']
     }),
+    updateSettings: builder.mutation<void, SettingsType>({
+      query: (updatedSettings: SettingsType) => ({
+        url: '',
+        method: 'PUT',
+        body: {updatedSettings}
+      }),
+      invalidatesTags: ['Settings']
+    })
   })
 })
 
 export const {
   useGetSettingsQuery,
-  useLazyGetSettingsQuery
+  useLazyGetSettingsQuery,
+  useUpdateSettingsMutation,
 } = settingsApi
