@@ -133,7 +133,7 @@ export default function Browse() {
     if (Object.keys(excl.categories).length) {
       if (Object.keys(excl.categories).every(k => g.categories[k] === excl.categories[k])) return false
     }
-    if (hideBeatenInRecents) {
+    if (hideBeatenInRecents && sortOrder.startsWith('recent')) {
       if (Object.values(g.categories).find(c => c.toLowerCase() === 'beaten')) return false
     }
     return true
