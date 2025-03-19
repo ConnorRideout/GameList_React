@@ -29,6 +29,7 @@ export interface DefaultDisplayFormType {
   file_types: SettingsType['file_types'],
   ignored_exes: SettingsType['ignored_exes']
 }
+
 export interface DefaultScrapersFormType {
   site_scrapers: {
     base_url: string,
@@ -44,6 +45,8 @@ export interface DefaultScrapersFormType {
   }[],
   site_scraper_aliases: SettingsType['site_scraper_aliases']
 }
+export type UpdatedSettingsType = Pick<SettingsType, 'games_folder' | 'locale_emulator' | 'file_types' | 'ignored_exes' | 'site_scraper_aliases' | 'site_scrapers'> & DefaultGamesFormType
+
 
 export default function Settings() {
   const [getSettings] = useLazyGetSettingsQuery()
@@ -213,13 +216,14 @@ export default function Settings() {
       })
       return scraper as SettingsType['site_scrapers'][0]
     })
-    const updatedSettings: SettingsType = {
+    const updatedSettings: UpdatedSettingsType = {
       games_folder,
       locale_emulator,
       file_types,
       ignored_exes,
       site_scraper_aliases,
       site_scrapers,
+      ...formDataGames
     }
     updateSettings(updatedSettings)
     // TODO: handle saving categories/statuses/tags

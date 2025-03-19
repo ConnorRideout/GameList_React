@@ -1,7 +1,7 @@
 /* eslint-disable import/no-relative-packages */
-import { settingsdb } from "../data/db-config"
+import { settingsdb, gamesdb } from "../data/db-config"
 
-import { StringMap } from "../../types"
+import { DefaultGamesFormType, StringMap } from "../../types"
 
 
 type BaseScraperAlias = {
@@ -118,8 +118,9 @@ async function getAll() {
   return {defaults, file_types, ignored_exes, site_scrapers, site_scraper_aliases}
 }
 
-async function updateSettings(newSettings: RawSettings) {
+async function updateSettings(newSettings: RawSettings & DefaultGamesFormType) {
   console.log(newSettings)
+  gamesdb()
   return newSettings
 }
 

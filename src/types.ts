@@ -15,8 +15,9 @@ export {
 export type MenuAction = {
   type: 'OPEN_GAMES_FOLDER' | 'OPEN_SETTINGS' | 'CHECK_MISSING' | 'CHECK_NEW' | 'CHECK_UPDATED',
 }
-export type ContextMenuTemplate = {
+export interface ContextMenuTemplate {
   label: string,
   trigger: string,
   target: string | number,
 }
+export { DefaultGamesFormType, UpdatedSettingsType } from './renderer/settings/settings'

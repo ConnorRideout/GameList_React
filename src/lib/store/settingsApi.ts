@@ -1,5 +1,7 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
-import { SettingsType } from '../types/types-gamelibrary'
+
+import { UpdatedSettingsType, SettingsType } from '../../types'
+
 
 
 export const settingsApi = createApi({
@@ -11,8 +13,8 @@ export const settingsApi = createApi({
       query: () => '',
       providesTags: ['Settings']
     }),
-    updateSettings: builder.mutation<void, SettingsType>({
-      query: (updatedSettings: SettingsType) => ({
+    updateSettings: builder.mutation<void, UpdatedSettingsType>({
+      query: (updatedSettings: UpdatedSettingsType) => ({
         url: '',
         method: 'PUT',
         body: {updatedSettings}

@@ -3,7 +3,7 @@
 import { Router } from 'express'
 import * as Settings from './settings-model'
 
-import { StringMap, SettingsType } from '../../types'
+import { StringMap, SettingsType, UpdatedSettingsType, DefaultGamesFormType } from '../../types'
 
 
 const router = Router()
@@ -66,12 +66,17 @@ router.get('/', (req, res, next) => {
     .catch(next)
 })
 
+function parseUpdatedSettings(settings: UpdatedSettingsType): Settings.RawSettings & DefaultGamesFormType {
+  return settings as unknown as Settings.RawSettings & DefaultGamesFormType
+}
+
 router.put('/', (req, res, next) => {
-  const newSettings = req.body
-  Settings.updateSettings(newSettings)
-    .then(updatedSettings => {
-      parseRawSettings(updatedSettings)
-      res.status(200).json(updatedSettings)
+  const updatedSettings: UpdatedSettingsType = req.body
+  const rawUpdatedSettings = parseUpdatedSettings(updatedSettings)
+  Settings.updateSettings(rawUpdatedSettings)
+    .then(newSettings => {
+      parseRawSettings(newSettings)
+      res.status(200).json(newSettings)
     })
     .catch(next)
 })
