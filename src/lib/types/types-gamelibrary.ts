@@ -19,7 +19,7 @@ interface GameEntry {
   "path": "GamePath0",
   "title": "[ad eiusmod 0",
   "url": "https://itch.io",
-  "image": "game0.jpg",
+  "image": ["game0.jpg"],
   "version": "81.60",
   "description": "Nulla elit esse officia anim cupidatat ullamco exercitation dolore officia fugiat do fugiat ipsum minim. In voluptate duis aute quis adipisicing qui consequat laborum. Fugiat dolor cillum. Laborum commodo quis deserunt ullamco fugiat elit irure laboris excepteur eiusmod culpa magna cupidatat. Consectetur aute in adipisicing sit qui ad. Fugiat fugiat proident culpa ut irure id. Cillum deserunt fugiat adipisicing duis. Ad irure deserunt anim.",
   "program_path": {
@@ -66,7 +66,7 @@ interface GameEntry {
   path: string;
   title: string;
   url: string;
-  image: string;
+  image: string[];
   version: string;
   description: string;
   program_path: StringMap;

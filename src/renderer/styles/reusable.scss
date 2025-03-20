@@ -24,28 +24,6 @@
   font-size: variables.$fontHeader;
 }
 
-div.tooltip {
-  width: variables.$tooltipWidth;
-  background: variables.$bgDark;
-  color: variables.$fgHighlightedText;
-  text-align: start;
-  padding: 5px;
-  z-index: 1000;
-}
-
-div.tooltip-image {
-  max-width: 77vw;
-  max-height: calc(100vh - variables.$spacing);
-  width: max-content;
-  padding: variables.$spacing variables.$spacing 0 variables.$spacing;
-
-  img {
-    padding: 0;
-    width: 100%;
-    max-height: 70vh;
-  }
-}
-
 .container-centered {
   justify-content: center;
   align-items: center;

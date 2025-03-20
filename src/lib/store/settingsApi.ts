@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
 
 import { UpdatedSettingsType, SettingsType } from '../../types'

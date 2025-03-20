@@ -1,10 +1,11 @@
+/* eslint-disable import/no-cycle */
 /* eslint-disable react/jsx-props-no-spreading */
 import React from "react"
 import { useSelector } from "react-redux"
 import { Tooltip as RTooltip } from "react-tooltip"
 // types
 import { ITooltip } from 'react-tooltip/dist/react-tooltip'
-import { RootState } from "../../lib/store/store"
+import { RootState } from "../../types"
 
 
 // docs: https://react-tooltip.com/docs/examples/basic-examples

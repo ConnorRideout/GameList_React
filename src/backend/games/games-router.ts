@@ -14,6 +14,8 @@ import Path from '../../parsedPath'
 const router = Router()
 
 function parseRawGameData(game: Games.RawGameEntry, catOrder: CategoryEntry[]) {
+  // format image
+  game.image = JSON.parse(game.image)
   // format program_path
   game.program_path = JSON.parse(game.program_path);
   // format tags
@@ -47,6 +49,7 @@ function parseRawGameData(game: Games.RawGameEntry, catOrder: CategoryEntry[]) {
 }
 
 function handleImage(img: string) {
+  // TODO: convert image if necessary, handle gifs
   if (/^[A-Z]:/.test(img)) {
     // image is absolute, should be moved
     const imgPath = new Path(img)
@@ -57,9 +60,9 @@ function handleImage(img: string) {
     )
     const newImagePath = img_dir.join(imgPath.basename)
     imgPath.moveSync(newImagePath)
-    return imgPath.basename
+    return [imgPath.basename]
   }
-  return img
+  return [img]
 }
 
 router.get('/games', (req, res, next) => {

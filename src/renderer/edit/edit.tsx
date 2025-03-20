@@ -90,7 +90,7 @@ export default function Edit() {
       path: '',
       title: '',
       url: '',
-      image: '',
+      image: [''],
       version: '',
       description: '',
       program_path: { "": "" },
@@ -115,7 +115,9 @@ export default function Edit() {
   }, [formData, formSchema])
 
   const handleFormChange = (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string, value: string | [string, string][] } }) => {
-    const { name, value } = evt.target
+    // FIXME: if formdata image array already has 2 elements, handle updating the old gif/image
+    const { name, value: rawVal } = evt.target
+    const value = name === 'image' ? [rawVal] : rawVal
     const schema = yup_reach(formSchema, name) as StringSchema
     schema.validate(value)
       .then(() => {
@@ -241,26 +243,30 @@ export default function Edit() {
     }
   }
 
-  const [additionalFormData, setAdditionalFormData] = useState({
-    defaults: { tags, status, categories },
+  const [additionalFormDataDefaults, setAdditionalFormDataDefaults] = useState({ tags, status, categories})
+  // const [additionalFormData, setAdditionalFormData] = useState({
+  //   defaults: { tags, status, categories },
+  //   disabledState: submitDisabled,
+  //   formErrors
+  // })
+  const additionalFormData = {
+    defaults: additionalFormDataDefaults,
     disabledState: submitDisabled,
     formErrors
-  })
+  }
 
   const updatePickerDefaults = (newDefaults: {[type: string]: string | string[] | StringMap}) => {
     // ensure other categories aren't destroyed
     const updateDefaults = {
       ...newDefaults,
       ...(newDefaults.categories
-        ? {...additionalFormData.defaults.categories, ...(newDefaults.categories as StringMap)}
+        ? {...additionalFormDataDefaults.categories, ...(newDefaults.categories as StringMap)}
         : {}
       )
     }
-    setAdditionalFormData({
-      ...additionalFormData, defaults: {
-        ...additionalFormData.defaults,
-        ...updateDefaults
-      }
+    setAdditionalFormDataDefaults({
+      ...additionalFormDataDefaults,
+      ...updateDefaults
     })
   }
 
@@ -296,7 +302,7 @@ export default function Edit() {
             }
             reader.readAsText(file)
           } else if (file.type.startsWith('image/')) {
-            setFormData({ ...formData, image: filePath })
+            setFormData({ ...formData, image: [filePath] })
           }
         }
       }

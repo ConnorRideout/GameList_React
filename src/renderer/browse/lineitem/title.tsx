@@ -1,6 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
+
 import Tooltip from '../../shared/tooltip'
 
 const TitleFieldset = styled.fieldset`
@@ -29,14 +30,20 @@ const TitleP = styled.p`
 interface Props {
   game_id: number,
   title: string,
-  img: string,
+  img: string[],
   status_color: string,
 }
 export default function Title({game_id, title, img, status_color}: Props) {
-  const imgPath = img.replaceAll(' ', '_')
-  // TODO: handle gifs in both (first frame for preview?)
+  const imgPaths = img.map(i => i.replaceAll(' ', '_'))
+  // TODO: handle gifs; need to change the value of `image` in the database to be an array with
   return (
     <TitleFieldset id={`title-${game_id}`}>
+      <legend>Title</legend>
+      <img
+        className='preview'
+        src={`load-image://${imgPaths[0]}`}
+        alt="Dynamic Local Resource"
+      />
       <Tooltip
         float
         className='tooltip-image'
@@ -45,12 +52,10 @@ export default function Title({game_id, title, img, status_color}: Props) {
         anchorSelect={`#title-${game_id}`}
       >
         <img
-          src={`load-image://${imgPath}`}
+          src={`load-image://${imgPaths.at(-1)}`}
           alt="Dynamic Local Resource Tooltip"
         />
       </Tooltip>
-      <legend>Title</legend>
-      <img className='preview' src={`load-image://${imgPath}`} alt="Dynamic Local Resource" />
       <TitleP style={{color: status_color}}>{title}</TitleP>
     </TitleFieldset>
   )

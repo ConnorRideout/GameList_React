@@ -22,7 +22,7 @@ export interface Props {
     path: string;
     title: string;
     url: string;
-    image: string;
+    image: string[];
     version: string;
     description: string;
     program_path: [string, string][];
@@ -47,7 +47,6 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
       setIsLoading(true)
       try {
         const scraper_result = await autoFillFromWebsite({base_url, url}).unwrap()
-        console.log(scraper_result)
         const newEditFormData: StringMap = {}
         const newPickerFormData: {[type: string]: string | string[] | StringMap} = {}
         scraper_result.forEach(({type, parsed}) => {
@@ -97,13 +96,13 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
         anchorSelect='#imagePreview'
       >
         <img
-          src={`load-image://${formData.image.replaceAll(' ', '_')}`}
+          src={`load-image://${formData.image[0].replaceAll(' ', '_')}`}
           alt="Dynamic Local Resource Tooltip"
         />
       </Tooltip>
       <img
         id="imagePreview"
-        src={`load-image://${formData.image.replaceAll('\\', '/').replaceAll(' ', '_')}`}
+        src={`load-image://${formData.image[0].replaceAll('\\', '/').replaceAll(' ', '_')}`}
         alt="[image preview]"
         className="grid-column-4 grid-row-1 grid-row-span-4"
       />

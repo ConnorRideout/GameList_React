@@ -5,9 +5,9 @@ import * as yup from 'yup'
 export default function CreateEditFormSchema(existingTitles: string[], currentTitle?: string) {
   return yup.object().shape({
     path: yup.string()
-      .required("path is required"),
+      .required("Path is required"),
     title: yup.string()
-      .required("title is required")
+      .required("Title is required")
       .test('check-unique', 'Title must be unique (or the same it used to be)', function (value) {
         const { createError } = this
         if ((currentTitle && value === currentTitle) || !existingTitles.includes(value)) {
@@ -16,13 +16,17 @@ export default function CreateEditFormSchema(existingTitles: string[], currentTi
         return createError({ message: 'title must be unique' })
       }),
     url: yup.string()
-      .required("url is required"),
-    image: yup.string()
-      .required("image is required"),
+      .required("Url is required"),
+    image: yup.array()
+      .of(
+        yup.string()
+          .required("Image is required"),
+      )
+      .min(1, "Image is required"),
     version: yup.string()
-      .required("version is required"),
+      .required("Version is required"),
     description: yup.string()
-      .required("description is required"),
+      .required("Description is required"),
     program_path: yup.array()
       .of(
         yup.array()
