@@ -80,6 +80,7 @@ router.post('/open/:type', async (req, res, next) => {
       }
     })
   } else if (type === 'folder') {
+    // FIXME: doesn't work
     const filepath = new Path(path)
     if (filepath.existsSync()) run(new Path("explorer.exe"), [filepath.path])
     else run(new Path("explorer.exe"), [games_folder])

@@ -35,58 +35,78 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
   const settings = useSelector((state: RootState) => state.data.settings)
   const [autoFillFromWebsite] = useAutofillFromWebsiteMutation()
 
+  const handleImageSearch = () => {
+    // TODO: handle image search
+  }
+
+  const handleAutoExeSearch = () => {
+    // TODO: handle auto exe search
+  }
+
   const handleAutoFill = async () => {
     // TODO: when updating, show differences in tags/categories/etc and allow user to pick which ones to keep/change
     // TODO: move protagonist to categories, and make a selector for it. Have the database be ordered by preference? IDK how to have 'multiple' be an option
-    // TODO: auto search for exes
-    // TODO: tooltip explaining what auto fill will attempt
-    // TODO? disable autofill button if the url isn't in the scrapers
     const { url } = formData
-    const base_url = settings.site_scrapers.find(scraper => url.includes(scraper.base_url))?.base_url
-    if (base_url) {
-      setIsLoading(true)
-      try {
-        const scraper_result = await autoFillFromWebsite({base_url, url}).unwrap()
-        const newEditFormData: StringMap = {}
-        const newPickerFormData: {[type: string]: string | string[] | StringMap} = {}
-        scraper_result.forEach(({type, parsed}) => {
-          if (['title', 'description', 'version'].includes(type)) {
-            // type is title, description, or version from Edit FormData
-            // console.log('changing edit', type)
-            newEditFormData[type] = (parsed as string)
-          } else {
-            // type is tags, tag, status, or category_<cat_name> from Picker FormData
-            const updateType = type.includes('tag')
-              ? 'tags'
-              : type.includes('category')
-                ? 'categories'
-                : 'status'
-            const newValues = updateType === 'categories'
-              ? {[type.match(/_(.+)$/)![1]]: parsed[0], ...((newPickerFormData.categories as StringMap | undefined) || {})}
-              : parsed
-            // console.log('changing picker', updateType, newValues)
-            newPickerFormData[updateType] = newValues
-          }
-        })
-        setFormData({...formData, ...newEditFormData})
-        updatePickerDefaults(newPickerFormData)
-      } catch (error: any) {
-        dispatch(setError(error.message))
-      }
-      setIsLoading(false)
-    } else {
-      // TODO: open dialog asking if wants to open website since there are no scrapers defined for this website
+    const { base_url } = settings.site_scrapers.find(scraper => url.includes(scraper.base_url))!
+    setIsLoading(true)
+    try {
+      const scraper_result = await autoFillFromWebsite({base_url, url}).unwrap()
+      const newEditFormData: StringMap = {}
+      const newPickerFormData: {[type: string]: string | string[] | StringMap} = {}
+      scraper_result.forEach(({type, parsed}) => {
+        if (['title', 'description', 'version'].includes(type)) {
+          // type is title, description, or version from Edit FormData
+          newEditFormData[type] = (parsed as string)
+        } else {
+          // type is tags, tag, status, or category_<cat_name> from Picker FormData
+          const updateType = type.includes('tag')
+            ? 'tags'
+            : type.includes('category')
+              ? 'categories'
+              : 'status'
+          const newValues = updateType === 'categories'
+            ? {[type.match(/_(.+)$/)![1]]: parsed[0], ...((newPickerFormData.categories as StringMap | undefined) || {})}
+            : parsed
+          // console.log('changing picker', updateType, newValues)
+          newPickerFormData[updateType] = newValues
+        }
+      })
+      setFormData({...formData, ...newEditFormData})
+      updatePickerDefaults(newPickerFormData)
+    } catch (error: any) {
+      dispatch(setError(error.message))
     }
+    setIsLoading(false)
+    handleAutoExeSearch()
   }
+
+  const autofillIsDisabled = !settings.site_scrapers.find(s => formData.url.includes(s.base_url))
 
   return (
     <fieldset className="info-container">
       <legend>Info</legend>
       <button
+        id="autoFillButton"
         className="grid-column-1 grid-row-1"
         type="button"
         onClick={handleAutoFill}
+        disabled={autofillIsDisabled}
       >Auto-fill info from URL</button>
+      <Tooltip
+        className="wide"
+        place='top-start'
+        anchorSelect="#autoFillButton"
+      >
+        {autofillIsDisabled ? (
+          <p>The URL provided does not have a site scraper defined within settings. Please manually enter the information instead</p>
+        ) : (
+            <ul>
+              Attempt to retrieve various data from the provided url.
+              <li>- Data may include the <u>title</u>, <u>version</u>, <u>description</u>, <u>categories</u>, <u>statuses</u>, and/or <u>tags</u></li>
+              <li>- This will also run the auto-search for program path(s)</li>
+            </ul>
+        )}
+      </Tooltip>
 
       <Tooltip
         float
@@ -126,8 +146,11 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
         onChange={handleFormChange}
         value={formData.image}
       />
-      <button type='button' className="grid-column-3 grid-row-3 svg-button">
-        {/* TODO: implement image search */}
+      <button
+        type='button'
+        className="grid-column-3 grid-row-3 svg-button"
+        onClick={handleImageSearch}
+      >
         <ImageSearchSvg
           color="currentColor"
         />
@@ -148,8 +171,11 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
         <u>Executable Path</u>
       </span>
       <span className="grid-column-3 grid-row-5 grid-column-span-2"><u>Viewable Name</u></span>
-      {/* TODO: implement file auto search */}
-      <button type='button' className="svg-button grid-column-1 grid-row-6">
+      <button
+        type='button'
+        className="svg-button grid-column-1 grid-row-6"
+        onClick={handleAutoExeSearch}
+      >
         <FileAutoSearchSvg />
         Auto search
       </button>

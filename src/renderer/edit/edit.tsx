@@ -114,10 +114,16 @@ export default function Edit() {
       })
   }, [formData, formSchema])
 
-  const handleFormChange = (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string, value: string | [string, string][] } }) => {
+  const handleFormChange = (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string, value: string | string[] | [string, string][] } }) => {
     // FIXME: if formdata image array already has 2 elements, handle updating the old gif/image
     const { name, value: rawVal } = evt.target
-    const value = name === 'image' ? [rawVal] : rawVal
+    let value: string | string[] | [string, string][]
+    if (name === 'image') {
+      value = [...formData.image]
+      value[0] = rawVal as string
+    } else {
+      value = rawVal
+    }
     const schema = yup_reach(formSchema, name) as StringSchema
     schema.validate(value)
       .then(() => {
@@ -244,11 +250,6 @@ export default function Edit() {
   }
 
   const [additionalFormDataDefaults, setAdditionalFormDataDefaults] = useState({ tags, status, categories})
-  // const [additionalFormData, setAdditionalFormData] = useState({
-  //   defaults: { tags, status, categories },
-  //   disabledState: submitDisabled,
-  //   formErrors
-  // })
   const additionalFormData = {
     defaults: additionalFormDataDefaults,
     disabledState: submitDisabled,
@@ -413,7 +414,6 @@ export default function Edit() {
 
         <fieldset className="horizontal-container">
           {/* TODO: button to check for updated url */}
-          {/* TODO? warn if url is invalid */}
           <legend>URL</legend>
           <input
             type="text"

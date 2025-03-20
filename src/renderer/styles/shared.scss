@@ -9,6 +9,10 @@ div.tooltip {
   text-align: start;
   padding: 5px;
   z-index: 1000;
+
+  &.wide {
+    width: calc(variables.$tooltipWidth * 2)
+  }
 }
 
 div.tooltip-image {

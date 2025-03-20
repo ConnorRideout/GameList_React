@@ -72,15 +72,15 @@ export default function Lineitem({gamePickerState, lineData, style}: Props) {
     const x = evt.clientX
     const y = evt.clientY
     const customTemplates: ContextMenuTemplate[] = [
-      {label: 'test', trigger: 'TEST', target: game_id}
+      {label: 'Mark as uninterested', trigger: 'DISLIKE', target: game_id}
     ]
 
     window.electron.showCustomContextMenu(x, y, customTemplates)
   }
   useEffect(() => {
-    if (contextMenuData && contextMenuData.trigger === 'TEST' && contextMenuData.target === game_id) {
-      // TODO: handle context menu
-      console.log('Yay', title)
+    if (contextMenuData && contextMenuData.trigger === 'DISLIKE' && contextMenuData.target === game_id) {
+      // TODO: handle dislike
+      console.log('marking as uninterested', title)
     }
   }, [contextMenuData, game_id, title])
 

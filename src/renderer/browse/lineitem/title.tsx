@@ -35,7 +35,6 @@ interface Props {
 }
 export default function Title({game_id, title, img, status_color}: Props) {
   const imgPaths = img.map(i => i.replaceAll(' ', '_'))
-  // TODO: handle gifs; need to change the value of `image` in the database to be an array with
   return (
     <TitleFieldset id={`title-${game_id}`}>
       <legend>Title</legend>
@@ -54,6 +53,7 @@ export default function Title({game_id, title, img, status_color}: Props) {
         <img
           src={`load-image://${imgPaths.at(-1)}`}
           alt="Dynamic Local Resource Tooltip"
+          loading='lazy'
         />
       </Tooltip>
       <TitleP style={{color: status_color}}>{title}</TitleP>

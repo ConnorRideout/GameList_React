@@ -66,7 +66,7 @@ interface GameEntry {
   path: string;
   title: string;
   url: string;
-  image: string[];
+  image: string[]; // if the array has length 2, the first item is an image and the second item is a gif
   version: string;
   description: string;
   program_path: StringMap;
