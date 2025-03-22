@@ -1,5 +1,4 @@
 // TODO: when updating, auto fill info
-// TODO: add checkbox that will prevent the `updated_at` timestamp from updating even if version changes
 
 /* eslint-disable no-use-before-define */
 /* eslint-disable promise/catch-or-return */
@@ -83,6 +82,7 @@ export default function Edit() {
     program_path: '',
   }
   const [formErrors, setFormErrors] = useState(emptyFormErrors)
+  const [ignoreUpdatedVersion, setIgnoreUpdatedVersion] = useState(false)
 
   const game_data = useSelector((state: RootState) => state.data.editGame)
   const { path, title, url, image, version, description, program_path: prog_obj, tags, status, categories }: Omit<GameEntry, 'game_id' | 'timestamps' | 'timestamps_sec'> = useMemo(() => (
@@ -220,7 +220,7 @@ export default function Edit() {
         timestamps_sec
       }
       await updateGame({ game_id, updatedGameData: updatedGame })
-      if (version !== updatedData.version)
+      if (version !== updatedData.version && !ignoreUpdatedVersion)
         await updateTimestamp({ game_id, type: 'updated_at' })
       if (urlFile.current) {
         deleteUrlFile(urlFile.current)
@@ -437,6 +437,8 @@ export default function Edit() {
           setFormData={setFormData}
           updatePickerDefaults={updatePickerDefaults}
           setIsLoading={setIsLoading}
+          ignoreUpdatedVersion={ignoreUpdatedVersion}
+          setIgnoreUpdatedVersion={setIgnoreUpdatedVersion}
         />
 
         <Picker

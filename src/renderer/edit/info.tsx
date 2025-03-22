@@ -28,9 +28,11 @@ export interface Props {
     program_path: [string, string][];
   }>>,
   updatePickerDefaults: (newDefaults: {[type: string]: string | string[] | StringMap}) => void,
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  ignoreUpdatedVersion: boolean,
+  setIgnoreUpdatedVersion: React.Dispatch<React.SetStateAction<boolean>>
 }
-export default function Info({handleFormChange, formData, setFormData, updatePickerDefaults, setIsLoading}: Props) {
+export default function Info({handleFormChange, formData, setFormData, updatePickerDefaults, setIsLoading, ignoreUpdatedVersion, setIgnoreUpdatedVersion}: Props) {
   const dispatch = useDispatch()
   const settings = useSelector((state: RootState) => state.data.settings)
   const [autoFillFromWebsite] = useAutofillFromWebsiteMutation()
@@ -78,6 +80,10 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
     }
     setIsLoading(false)
     handleAutoExeSearch()
+  }
+
+  const toggleIgnoreVersion = () => {
+    setIgnoreUpdatedVersion(prev => !prev)
   }
 
   const autofillIsDisabled = !settings.site_scrapers.find(s => formData.url.includes(s.base_url))
@@ -156,15 +162,28 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
         />
       </button>
 
-      <label htmlFor="versionField" className="info-column 1 grid-row-4">Version:</label>
+      <label htmlFor="versionField" className="grid-column-1 grid-row-4">Version:</label>
       <input
         type="text"
         id="versionField"
-        className="grid-column-2 grid-row-4 grid-column-span-2 info-justify-stretch"
+        className="grid-column-2 grid-row-4 info-justify-stretch"
         name="version"
         onChange={handleFormChange}
         value={formData.version}
       />
+      <label id="versionIgnoreCheckbox" className="grid-column-3 grid-row-4">
+        <input
+          type="checkbox"
+          checked={ignoreUpdatedVersion}
+          onChange={toggleIgnoreVersion}
+        />
+        Ignore
+      </label>
+      <Tooltip
+        anchorSelect="#versionIgnoreCheckbox"
+      >
+        If this is selected, the &quot;updated at&quot; timestamp won&apos;t be changed, even if the version changes
+      </Tooltip>
 
       <span className="grid-column-1 grid-row-5">Program Path(s):</span>
       <span className="grid-column-2 grid-row-5">

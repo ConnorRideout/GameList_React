@@ -1,5 +1,5 @@
+/* eslint-disable import/no-cycle */
 /* eslint-disable react/no-array-index-key */
-// TODO: option to hide 'beaten' games from recent lists
 import React, { useEffect, useRef, useState } from 'react'
 import styled from 'styled-components'
 
