@@ -18,59 +18,66 @@ axios.get('http://localhost:9000/settings')
 
 
 export function openDialog(
-      event: IpcMainEvent,
-      mainWindow: BrowserWindow,
-      title=undefined,
-      dialogType: 'openFile' | 'openDirectory' = 'openFile',
-      initialPath: string = games_folder,
-      extension_filters: 'executables' | 'images' | 'any' = 'any'
-    ) {
-      // if it's a full path, use initialPath, otherwise join it to games_folder
-      let defaultPath: string
-      let initPath: Path
-      if (initialPath === 'documents') {
-        defaultPath = app.getPath('documents')
-        initPath = new Path(defaultPath)
-      } else {
-        const isRelative = !/^[A-Z]:/.test(initialPath)
-        initPath = (isRelative ? new Path(games_folder, initialPath) : new Path(initialPath))
-        defaultPath = initPath.path
-      }
-      // get filters for dialog
-      let filters: {
-        name: string;
-        extensions: string[];
-      }[] | undefined
-      if (dialogType === 'openFile') {
-        filters = []
-        if (extension_filters === 'executables') {
-          filters.push({
-            name: `Executables (${file_types.Executables.map(e => `*.${e}`).join(', ')})`,
-            extensions: file_types.Executables
-          })
-        }
-        else if (extension_filters === 'images') {
-          filters.push({
-            name: `Images (${file_types.Images.map(e => `*.${e}`).join(', ')})`,
-            extensions: file_types.Images
-          })
-        }
-        filters.push({ name: 'All Files', extensions: ['*'] })
-      }
-      // prompt for picking file or folder
-      const [filePath] = dialog.showOpenDialogSync(mainWindow, {
-        properties: [dialogType, 'dontAddToRecent'],
-        defaultPath,
-        title,
-        filters,
-      }) || [] // dialog returns undefined if it's closed, do in order to destructure assign filePath, need to return an empty array
-      // if path is relative to initialPath and doesn't backstep, return relative. otherwise, don't
-      if (!filePath || initialPath === 'documents') event.returnValue = filePath
-      else {
-        const relativePath = initPath.relative(filePath)
-        event.returnValue = relativePath.startsWith('..') ? filePath : (relativePath || '.')
-      }
+  event: IpcMainEvent,
+  mainWindow: BrowserWindow,
+  title=undefined,
+  dialogType: 'openFile' | 'openDirectory' = 'openFile',
+  initialPath: string = games_folder,
+  extension_filters: 'executables' | 'images' | 'any' = 'any'
+) {
+  // if it's a full path, use initialPath, otherwise join it to games_folder
+  let defaultPath: string
+  let initPath: Path
+  if (initialPath === 'documents') {
+    defaultPath = app.getPath('documents')
+    initPath = new Path(defaultPath)
+  } else if (initialPath === games_folder && extension_filters === 'images') {
+    initPath = new Path(
+      __dirname,
+      '../../src/backend/data',
+      process.env.SHOWCASING ? 'showcase/gameImages' : 'development/gameImages'
+    )
+    defaultPath = initPath.path
+  } else {
+    const isRelative = !/^[A-Z]:/.test(initialPath)
+    initPath = (isRelative ? new Path(games_folder, initialPath) : new Path(initialPath))
+    defaultPath = initPath.path
+  }
+  // get filters for dialog
+  let filters: {
+    name: string;
+    extensions: string[];
+  }[] | undefined
+  if (dialogType === 'openFile') {
+    filters = []
+    if (extension_filters === 'executables') {
+      filters.push({
+        name: `Executables (${file_types.Executables.map(e => `*.${e}`).join(', ')})`,
+        extensions: file_types.Executables
+      })
     }
+    else if (extension_filters === 'images') {
+      filters.push({
+        name: `Images (${file_types.Images.map(e => `*.${e}`).join(', ')})`,
+        extensions: file_types.Images
+      })
+    }
+    filters.push({ name: 'All Files', extensions: ['*'] })
+  }
+  // prompt for picking file or folder
+  const [filePath] = dialog.showOpenDialogSync(mainWindow, {
+    properties: [dialogType, 'dontAddToRecent'],
+    defaultPath,
+    title,
+    filters,
+  }) || [] // dialog returns undefined if it's closed, do in order to destructure assign filePath, need to return an empty array
+  // if path is relative to initialPath and doesn't backstep, return relative. otherwise, don't
+  if (!filePath || initialPath === 'documents') event.returnValue = filePath
+  else {
+    const relativePath = initPath.relative(filePath)
+    event.returnValue = relativePath.startsWith('..') ? filePath : (relativePath || '.')
+  }
+}
 
 export function messageBox(
   event: IpcMainEvent,

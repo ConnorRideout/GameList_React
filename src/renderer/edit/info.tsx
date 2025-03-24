@@ -38,7 +38,15 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
   const [autoFillFromWebsite] = useAutofillFromWebsiteMutation()
 
   const handleImageSearch = () => {
-    // TODO: handle image search
+    const img = window.electron.openFileDialog(
+      `Select the Image for "${formData.title}"`,
+      'openFile',
+      undefined,
+      'images'
+    )
+    if (img !== undefined) {
+      setFormData(prevVal => ({...prevVal, image: [img]}))
+    }
   }
 
   const handleAutoExeSearch = () => {

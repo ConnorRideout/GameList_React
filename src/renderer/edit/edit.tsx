@@ -1,4 +1,6 @@
 // TODO: when updating, auto fill info
+// TODO: disable the save button when the formdata hasn't changed while editing/updating
+// TODO: get form errors from the setDisabled effect rather than on update, so if the initial data is somehow incorrect, errors will still show
 
 /* eslint-disable no-use-before-define */
 /* eslint-disable promise/catch-or-return */
