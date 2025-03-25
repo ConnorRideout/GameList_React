@@ -10,6 +10,7 @@ import {
 import ProgramPaths from "./programPaths"
 
 import { useAutofillFromWebsiteMutation } from "../../lib/store/websitesApi"
+import { useGetExecutablesMutation } from "../../lib/store/filesystemApi"
 import { setError } from "../../lib/store/gamelibrary"
 
 import { GameEntry, RootState, StringMap } from "../../types"
@@ -36,6 +37,7 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
   const dispatch = useDispatch()
   const settings = useSelector((state: RootState) => state.data.settings)
   const [autoFillFromWebsite] = useAutofillFromWebsiteMutation()
+  const [getExecutables] = useGetExecutablesMutation()
 
   const handleImageSearch = () => {
     const img = window.electron.openFileDialog(
@@ -50,7 +52,14 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
   }
 
   const handleAutoExeSearch = () => {
-    // TODO: handle auto exe search
+    // TODO: handle auto exe search; filepaths is an array of path strings that are relative to the top path. should show a comparison to current vals if they are defined
+    getExecutables(formData.path).unwrap()
+      .then(({filepaths}: {filepaths: string[]}) => {
+        console.log(filepaths)
+      })
+      .catch(err => {
+        console.error(err)
+      })
   }
 
   const handleAutoFill = async () => {

@@ -38,9 +38,16 @@ export const filesystemApi = createApi({
     }),
     deleteFile: builder.mutation({
       query: (file: string) => ({
-        url: 'deletefile',
-        method: 'POST',
+        url: 'file',
+        method: 'DELETE',
         body: { file }
+      })
+    }),
+    getExecutables: builder.mutation({
+      query: (top_path: string) => ({
+        url: 'getexecutables',
+        method: 'POST',
+        body: { top_path }
       })
     })
   })
@@ -53,4 +60,5 @@ export const {
   useCheckMissingGamesMutation,
   useLazyCheckNewGamesQuery,
   useDeleteFileMutation,
+  useGetExecutablesMutation,
 } = filesystemApi

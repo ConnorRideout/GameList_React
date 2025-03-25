@@ -127,7 +127,7 @@ router.get('/newgames', async (req, res, next) => {
     .catch(next)
 })
 
-router.post('/deletefile', (req, res, next) => {
+router.delete('/file', (req, res, next) => {
   try {
     const { file } = req.body
     const filePath = new Path(file)
@@ -135,6 +135,43 @@ router.post('/deletefile', (req, res, next) => {
   } catch (error) {
     next({ message: error })
   }
+})
+
+router.post('/getexecutables', async (req, res) => {
+  const settings = await getSettings()
+
+  const { top_path }: { top_path: string } = req.body
+  const parent_path = new Path(settings.games_folder, top_path)
+  const file_extensions = settings.file_types.Executables.map(ext => ext.toLowerCase())
+  const regex_tests = settings.ignored_exes.map(re_str => new RegExp(re_str))
+
+  const getFilepathsNLevelsAway = async (n: number) => {
+    const all_filepaths = await parent_path.getPathsNLevelsAway(n, false, { onlyFiles: true })
+    const valid_files = all_filepaths.filter(p => {
+      if (!file_extensions.includes(p.ext.toLowerCase().slice(1)))
+        return false
+      // eslint-disable-next-line no-restricted-syntax
+      for (const re of regex_tests) {
+        if (re.test(p.basename))
+          return false
+      }
+      return true
+    })
+    const valid_filepaths = valid_files.map(p => parent_path.relative(p))
+    return valid_filepaths
+  }
+
+  let filepaths = await getFilepathsNLevelsAway(1)
+  if (!filepaths.length) {
+    filepaths = await getFilepathsNLevelsAway(2)
+  }
+  if (!filepaths.length) {
+    filepaths = await getFilepathsNLevelsAway(3)
+  }
+
+  res.status(200).json({
+    filepaths
+  })
 })
 
 

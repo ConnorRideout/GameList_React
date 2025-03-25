@@ -189,7 +189,7 @@ export default function Display({formData, setFormData}: Props) {
             anchorSelect='#display-ign_exe-info'
             place='top-start'
           >
-            During auto-search, these are the regex matchers that will be ignored when searching for game executables
+            During auto-search, these are the regex matchers that will be ignored when searching for game executables (case sensitive)
           </Tooltip>
 
           {formData.ignored_exes.map((ign_exe, idx) => (
