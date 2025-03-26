@@ -53,7 +53,8 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
 
   const handleAutoExeSearch = () => {
     // TODO: handle auto exe search; filepaths is an array of path strings that are relative to the top path. should show a comparison to current vals if they are defined
-    getExecutables(formData.path).unwrap()
+    const existing_paths = formData.program_path.map(([,prog_pth]) => prog_pth)
+    getExecutables({top_path: formData.path, existing_paths}).unwrap()
       .then(({filepaths}: {filepaths: string[]}) => {
         console.log(filepaths)
       })

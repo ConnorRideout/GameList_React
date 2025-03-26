@@ -140,8 +140,9 @@ router.delete('/file', (req, res, next) => {
 router.post('/getexecutables', async (req, res) => {
   const settings = await getSettings()
 
-  const { top_path }: { top_path: string } = req.body
+  const { top_path, existing_paths }: { top_path: string, existing_paths: string[] } = req.body
   const parent_path = new Path(settings.games_folder, top_path)
+  // get new paths
   const file_extensions = settings.file_types.Executables.map(ext => ext.toLowerCase())
   const regex_tests = settings.ignored_exes.map(re_str => new RegExp(re_str))
 
@@ -168,6 +169,26 @@ router.post('/getexecutables', async (req, res) => {
   if (!filepaths.length) {
     filepaths = await getFilepathsNLevelsAway(3)
   }
+
+  // check existing paths, and if they still exist, insert them in the same order where they previously were
+  existing_paths.forEach((str_path, idx) => {
+    const pth = parent_path.join(str_path)
+    const relative_pth = parent_path.relative(pth)
+    if (pth.existsSync()) {
+      if (!filepaths.includes(relative_pth)) {
+        if (filepaths.length > idx)
+          filepaths.splice(idx, 0, relative_pth)
+        else
+          filepaths.push(relative_pth)
+      } else if (filepaths.indexOf(str_path) !== idx) {
+        filepaths.splice(filepaths.indexOf(str_path), 1)
+        if (filepaths.length > idx)
+          filepaths.splice(idx, 0, relative_pth)
+        else
+          filepaths.push(relative_pth)
+      }
+    }
+  })
 
   res.status(200).json({
     filepaths

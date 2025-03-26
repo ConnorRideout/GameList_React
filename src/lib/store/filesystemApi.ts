@@ -44,10 +44,10 @@ export const filesystemApi = createApi({
       })
     }),
     getExecutables: builder.mutation({
-      query: (top_path: string) => ({
+      query: ({top_path, existing_paths}: {top_path: string, existing_paths: string[]}) => ({
         url: 'getexecutables',
         method: 'POST',
-        body: { top_path }
+        body: { top_path, existing_paths }
       })
     })
   })
