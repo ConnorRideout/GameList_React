@@ -25,69 +25,58 @@ router.post('/open/:type', async (req, res, next) => {
   const { type } = req.params
   const { path, useLE } = req.body
 
-  const run = (filepath: Path, args: string[] = []) => {
-    const workingdir = filepath.dirname
-    const relativePath = new Path(workingdir).relative(filepath)
-
-    const nircmd = new Path(__dirname, '../../../', 'nircmd-x64.exe')
-
-    let commandArgs = ''
+  const run = (filepath: Path | 'notepad' | 'explorer.exe' | 'start', args: string = '') => {
     let command = ''
-    if (/(swf|exe|jar)$/.test(relativePath)) {
-      if (useLE) {
-        commandArgs = `"${settings.locale_emulator}" "${relativePath}"`
+
+    if (filepath instanceof Path) {
+      const workingdir = filepath.dirname
+      const relativePath = new Path(workingdir).relative(filepath)
+
+      const nircmd = new Path(__dirname, '../../../', 'nircmd-x64.exe')
+
+      let commandArgs = ''
+      if (/(swf|exe|jar)$/.test(relativePath)) {
+        if (useLE) {
+          commandArgs = `"${settings.locale_emulator}" "${relativePath}"`
+        } else {
+          commandArgs = `"${filepath.path}"`
+        }
+        command = `"${nircmd.path}" exec2 show "${workingdir}" ${commandArgs}`
       } else {
-        commandArgs = `"${filepath.path}" ${args.length ? `"${args.join('" "')}"` : ''}`
+        command = `"${nircmd.path}" shexec "open" "${filepath.path}"`
       }
-      command = `"${nircmd.path}" exec2 show "${workingdir}" ${commandArgs}`
     } else {
-      command = `"${nircmd.path}" shexec "open" "${filepath.path}"`
+      command = `${filepath} ${args}`
     }
     console.log(command)
 
-    const process = exec(command, (err) => {
-      if (err) {
-        next({ message: `Failed to start url "${path}": ${err}` })
-      }
-    })
-
-    process.on('error', err => {
-      console.error(`Failed to start process "${filepath}": ${err}`)
-      next({ message: `Failed to start process "${filepath}": ${err}` })
-    })
-    process.on('exit', () => {
-      res.status(200).json({ 'message': 'started game' })
-    })
-    process.unref()
+    exec(command)
   }
 
   const { games_folder } = settings
   if (type === 'game') {
     const filepath = (process.env.SHOWCASING || process.env.NODE_ENV === 'showcasing')
-      ? new Path('notepad')
+      ? 'notepad'
       : new Path(games_folder, path)
-    if (filepath.path === 'notepad' || filepath.existsSync()) {
-      // if (filepath === 'notepad' || fs.existsSync(filepath)) {
+    if (filepath === 'notepad' || filepath.existsSync()) {
       run(filepath)
     } else {
       next({ status: 404, message: `file ${filepath.path} does not exist` })
-      // next({status: 404, message: `file ${filepath} does not exist`})
     }
   } else if (type === 'webpage') {
-    exec(`start "" "${path}"`, (err) => {
-      if (err) {
-        next({ message: `Failed to start url "${path}": ${err}` })
-      }
-    })
+    run('start', `"" "${path}"`)
   } else if (type === 'folder') {
-    // FIXME: doesn't work
     const filepath = new Path(path)
-    if (filepath.existsSync()) run(new Path("explorer.exe"), [filepath.path])
-    else run(new Path("explorer.exe"), [games_folder])
+    if (filepath.existsSync())
+      run("explorer.exe", `"${filepath.path}"`)
+    else
+      run("explorer.exe", `"${games_folder}"`)
   } else if (type === 'openatfile') {
     const filepath = new Path(path)
-    if (filepath.existsSync()) run(new Path("explorer.exe"), ['/select,', `\`\\"${filepath.path}\`\\"`])
-    else run(new Path('explorer.exe'), [games_folder])
+    if (filepath.existsSync())
+      run("explorer.exe", `/select, "${filepath.path}"`)
+    else
+      run('explorer.exe', `"${games_folder}"`)
   }
 })
 
