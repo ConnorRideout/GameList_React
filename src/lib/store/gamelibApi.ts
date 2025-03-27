@@ -1,6 +1,13 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
 
-import { CategoryEntry, GameEntry, StatusEntry, StringMap, TagEntry } from '../types/types-gamelibrary'
+import {
+  CategoryEntry,
+  GameEntry,
+  StatusEntry,
+  StringMap,
+  TagEntry,
+  DislikedGamesType
+} from '../../types'
 
 export const gamelibApi = createApi({
   reducerPath: 'gamelibApi',
@@ -10,6 +17,7 @@ export const gamelibApi = createApi({
     'Categories',
     'Statuses',
     'Tags',
+    'Dislikes',
   ],
   endpoints: builder => ({
     getGames: builder.query<GameEntry[], void>({
@@ -30,6 +38,10 @@ export const gamelibApi = createApi({
     }),
     getStyleVars: builder.query<StringMap, void>({
       query: () => 'styles'
+    }),
+    getDislikedGames: builder.query<DislikedGamesType[], void>({
+      query: () => 'dislikes',
+      providesTags: ['Dislikes']
     }),
     editGame: builder.query<GameEntry, number>({
       query: (game_id: number) => `games/${game_id}`
@@ -56,6 +68,36 @@ export const gamelibApi = createApi({
         body: game,
       }),
       invalidatesTags: ['Games']
+    }),
+    deleteGame: builder.mutation({
+      query: (game_id: number) => ({
+        url: `games/${game_id}`,
+        method: 'DELETE'
+      }),
+      invalidatesTags: ['Games']
+    }),
+    newDislike: builder.mutation({
+      query: ({game_title, dislike_reason}: {game_title: string, dislike_reason: string}) => ({
+        url: 'dislikes',
+        method: 'POST',
+        body: {game_title, dislike_reason}
+      }),
+      invalidatesTags: ['Dislikes']
+    }),
+    updateDislike: builder.mutation({
+      query: ({dislike_id, game_title, dislike_reason}: {dislike_id: number, game_title: string, dislike_reason: string}) => ({
+        url: `dislikes/${dislike_id}`,
+        method: 'PUT',
+        body: {game_title, dislike_reason}
+      }),
+      invalidatesTags: ['Dislikes']
+    }),
+    deleteDislike: builder.mutation({
+      query: (dislike_id: number) => ({
+        url: `dislikes/${dislike_id}`,
+        method: 'DELETE'
+      }),
+      invalidatesTags: ['Dislikes']
     })
   })
 })
@@ -66,8 +108,13 @@ export const {
   useGetStatusesQuery,
   useGetTagsQuery,
   useGetStyleVarsQuery,
+  useGetDislikedGamesQuery,
   useLazyEditGameQuery,
   useUpdateTimestampMutation,
   useUpdateGameMutation,
   useNewGameMutation,
+  useDeleteGameMutation,
+  useNewDislikeMutation,
+  useUpdateDislikeMutation,
+  useDeleteDislikeMutation,
 } = gamelibApi

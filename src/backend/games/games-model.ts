@@ -1,3 +1,4 @@
+// TODO? type the returns of all the database functions
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable promise/always-return */
@@ -365,6 +366,40 @@ async function updateGame(game: {
   }
 }
 
+function getDislikes() {
+  return gamesdb('disliked_games')
+}
+
+function getDislikeById(dislike_id: number) {
+  return gamesdb('disliked_games')
+    .where({dislike_id})
+}
+
+function insertNewDislike(game_title: string, dislike_reason: string) {
+  return gamesdb('disliked_games')
+    .insert({game_title, dislike_reason})
+    .then(([dislike_id]) => {
+      return getDislikeById(dislike_id)
+    })
+}
+
+function updateDislike(dislike_id: number, game_title: string, dislike_reason: string) {
+  return gamesdb('disliked_games')
+    .where({dislike_id})
+    .update({game_title, dislike_reason})
+    .then(() => {
+      return getDislikeById(dislike_id)
+    })
+}
+
+async function deleteDislike(dislike_id: number) {
+  const deleted_record = await getDislikeById(dislike_id)
+  await gamesdb('disliked_games')
+    .where({dislike_id})
+    .del()
+  return deleted_record
+}
+
 export {
   getAll,
   getById,
@@ -377,4 +412,8 @@ export {
   deleteGame,
   updateTimestamp,
   updateGame,
+  getDislikes,
+  insertNewDislike,
+  updateDislike,
+  deleteDislike,
 }

@@ -18,6 +18,7 @@ import {
   useGetStatusesQuery,
   useGetTagsQuery,
   useGetStyleVarsQuery,
+  useGetDislikedGamesQuery,
 } from '../lib/store/gamelibApi'
 import {
   useCheckMissingGamesMutation,
@@ -38,6 +39,7 @@ function Wrapper({children}: {children: React.ReactNode}) {
   useGetCategoriesQuery()
   useGetStatusesQuery()
   useGetTagsQuery()
+  useGetDislikedGamesQuery()
   const {data: settings} = useGetSettingsQuery()
   const {data: games} = useGetGamesQuery()
   const [blockCheckMissing, setBlockCheckMissing] = useState(false)

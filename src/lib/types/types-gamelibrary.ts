@@ -182,13 +182,23 @@ interface SettingsType {
     }[];
   }[];
 }
-type MissingGamesType = {game_id: number, title: string, path: string}[]
+type MissingGamesType = {
+  game_id: number,
+  title: string,
+  path: string
+}[]
+interface DislikedGamesType {
+  dislike_id: number,
+  game_title: string,
+  dislike_reason: string
+}
 interface GamelibState {
   gamelib: GameEntry[];
   editGame: { [K in keyof GameEntry]?: GameEntry[K] } | null;
   editGameType: 'edit' | 'update' | 'new';
   missingGames: MissingGamesType;
   newGames: string[];
+  dislikedGames: DislikedGamesType[];
   sortedGamelib: SortedGamelib;
   sortOrder: SortOrders;
   searchRestraints: SearchRestraints;
@@ -212,4 +222,5 @@ export {
   SearchRestraints,
   SettingsType,
   MissingGamesType,
+  DislikedGamesType,
 }

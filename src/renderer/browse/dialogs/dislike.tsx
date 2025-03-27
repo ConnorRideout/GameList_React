@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 
 import InputBox from '../../shared/inputBox'
 
+import { useDeleteGameMutation, useNewDislikeMutation } from '../../../lib/store/gamelibApi'
+
 
 interface Props {
   dislikedGame: {game_id: number, title: string},
@@ -10,6 +12,8 @@ interface Props {
 export default function DislikeGame({dislikedGame, clearDislikedGame}: Props) {
   const {game_id, title} = dislikedGame
   const [ note, setNote ] = useState('')
+  const [deleteGame] = useDeleteGameMutation()
+  const [addNewDislike] = useNewDislikeMutation()
 
   const handleChange = (evt: React.ChangeEvent<HTMLTextAreaElement>) => {
     const {value} = evt.target
@@ -17,8 +21,9 @@ export default function DislikeGame({dislikedGame, clearDislikedGame}: Props) {
   }
 
   const handleMarkDislike = () => {
-    // TODO: handle saving the dislike note and deleting the game
-    console.log('note is', note)
+    addNewDislike({game_title: title, dislike_reason: note})
+    deleteGame(game_id)
+
     clearDislikedGame()
   }
 
@@ -31,7 +36,11 @@ export default function DislikeGame({dislikedGame, clearDislikedGame}: Props) {
       title="Marking Game as Uninterested"
       buttons={[
         {text: 'Cancel', clickHandler: handleClose},
-        {text: 'Save Dislike Note and Delete Game', clickHandler: handleMarkDislike, disabledState: !note.trim().length},
+        {
+          text: 'Save Dislike Note and Delete Game',
+          clickHandler: handleMarkDislike,
+          disabledState: !note.trim().length
+        },
       ]}
       className='dislike-game-container'
     >

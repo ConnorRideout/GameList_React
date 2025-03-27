@@ -208,5 +208,41 @@ router.put('/games/:game_id', async (req, res, next) => {
     .catch(next)
 })
 
+router.get('/dislikes', (req, res, next) => {
+  Games.getDislikes()
+    .then(dislikes => {
+      res.status(200).json(dislikes)
+    })
+    .catch(next)
+})
+
+router.post('/dislikes', (req, res, next) => {
+  const {game_title, dislike_reason} = req.body
+  Games.insertNewDislike(game_title, dislike_reason)
+    .then(new_dislike => {
+      res.status(201).json(new_dislike)
+    })
+    .catch(next)
+})
+
+router.put('/dislikes/:dislike_id', (req, res, next) => {
+  const { dislike_id } = req.params
+  const {game_title, dislike_reason} = req.body
+  Games.updateDislike(parseInt(dislike_id), game_title, dislike_reason)
+    .then(updated_dislike => {
+      res.status(200).json(updated_dislike)
+    })
+    .catch(next)
+})
+
+router.delete('/dislikes/:dislike_id', (req, res, next) => {
+  const { dislike_id } = req.params
+  Games.deleteDislike(parseInt(dislike_id))
+    .then(deleted_dislike => {
+      res.status(200).json(deleted_dislike)
+    })
+    .catch(next)
+})
+
 
 module.exports = router

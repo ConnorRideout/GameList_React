@@ -11,6 +11,7 @@ export {
   SearchRestraints,
   SettingsType,
   MissingGamesType,
+  DislikedGamesType,
 } from "./lib/types/types-gamelibrary"
 
 export type MenuAction = {

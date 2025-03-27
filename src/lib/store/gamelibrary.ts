@@ -50,6 +50,7 @@ const initialState: GamelibState = {
   editGameType: 'edit',
   missingGames: [],
   newGames: [],
+  dislikedGames: [],
   // sorting states
   sortedGamelib: {
     recentlyPlayed: [],
@@ -186,6 +187,12 @@ const slice = createSlice({
         gamelibApi.endpoints.getTags.matchFulfilled,
         (state, action) => {
           state.tags = action.payload
+        }
+      )
+      .addMatcher(
+        gamelibApi.endpoints.getDislikedGames.matchFulfilled,
+        (state, action) => {
+          state.dislikedGames = action.payload
         }
       )
       // VARIABLES
