@@ -5,8 +5,13 @@
 .info-container {
   display: grid;
   justify-items: center;
-  align-items: start;
+  align-items: center;
   grid-template-columns: max-content 1fr min-content min-content;
+  grid-template-rows: repeat(5, min-content) 1fr min-content;
+
+  .align-start {
+    align-self: flex-start
+  }
 
   img {
     border: 1px solid variables.$fgDark;
@@ -36,7 +41,10 @@
   button {
     font-size: variables.$fontSmall;
     text-align: center;
-    padding: variables.$spacing;
+
+    &.pad {
+      padding: variables.$spacing;
+    }
   }
 }
 
@@ -46,19 +54,27 @@
 
 .info-prog-paths-container {
   @extend .vertical-container;
-  justify-content: start;
-  align-items: start;
-  border: 1px solid black;
   justify-self: stretch;
-  padding: variables.$spacing;
-  min-height: 15vh;
-  max-height: 15vh;
-  margin-bottom: calc(variables.$spacing * 2);
-  overflow-y: auto;
+  min-height: calc(15vh + 1em);
+  height: calc(15vh + 1em);
 
-  .svg-button {
-    min-width: min-content;
-    padding: 0;
+  >div.horizontal-container {
+    justify-content: space-around;
+
+    span {
+      margin-left: 7%;
+    }
+  }
+
+  >div.vertical-container {
+    justify-content: start;
+    align-items: start;
+    border: 1px solid black;
+    justify-self: stretch;
+    padding: variables.$spacing;
+    flex-grow: 1;
+    margin-bottom: calc(variables.$spacing * 2);
+    overflow-y: auto;
   }
 
   input {

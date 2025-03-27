@@ -53,7 +53,7 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
   }
 
   const handleAutoExeSearch = () => {
-    const existing_paths = formData.program_path.map(([,prog_pth]) => prog_pth)
+    const existing_paths = formData.program_path.map(([,prog_pth]) => prog_pth).filter(p => p.trim())
     getExecutables({top_path: formData.path, existing_paths}).unwrap()
       .then(({filepaths}: {filepaths: string[]}) => {
         const program_path: [string, string][] = filepaths.map(pth => {
@@ -116,7 +116,7 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
       <legend>Info</legend>
       <button
         id="autoFillButton"
-        className="grid-column-1 grid-row-1"
+        className="grid-column-1 grid-row-1 pad"
         type="button"
         onClick={handleAutoFill}
         disabled={autofillIsDisabled}
@@ -208,14 +208,10 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
         If this is selected, the &quot;updated at&quot; timestamp won&apos;t be changed, even if the version changes
       </Tooltip>
 
-      <span className="grid-column-1 grid-row-5">Program Path(s):</span>
-      <span className="grid-column-2 grid-row-5">
-        <u>Executable Path</u>
-      </span>
-      <span className="grid-column-3 grid-row-5 grid-column-span-2"><u>Viewable Name</u></span>
+      <span className="grid-column-1 grid-row-5 align-start">Program Path(s):</span>
       <button
         type='button'
-        className="svg-button grid-column-1 grid-row-6"
+        className="svg-button grid-column-1 grid-row-6 align-start"
         onClick={handleAutoExeSearch}
       >
         <FileAutoSearchSvg />
@@ -226,7 +222,7 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
         formData={formData}
       />
 
-      <label htmlFor="descriptionField" className="grid-column-1 grid-row-7">Description:</label>
+      <label htmlFor="descriptionField" className="grid-column-1 grid-row-7 align-start">Description:</label>
       <textarea
         name="description"
         id="descriptionField"

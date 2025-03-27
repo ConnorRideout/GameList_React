@@ -59,57 +59,68 @@ export default function ProgramPaths({handleFormChange, formData}: Pick<Props, '
   }
 
   return(
-    <div className="info-prog-paths-container grid-column-2 grid-row-6 grid-column-span-3">
-      {formData.program_path.map(([exe_name, exe_path], idx) => (
-        <div className="info-prog-path-horizontal-container" key={`progPath${idx}`}>
-          <button
-            type="button"
-            className="svg-button"
-            onClick={() => handleAddRow(idx)}
-          >
-            <PlusSvg />
-          </button>
+    <div className="info-prog-paths-container grid-column-2 grid-row-5 grid-column-span-3 grid-row-span-2">
+      <div className="horizontal-container">
+        <span className="exe-path">
+          <u>Executable Path</u>
+        </span>
+        <span className="exe-viewable-name">
+          <u>Viewable Name</u>
+        </span>
+      </div>
 
-          <input
-            type="text"
-            name="exe_path"
-            className="grow-3"
-            onChange={(evt) => handleProgramChange(evt, idx)}
-            value={exe_path}
-          />
+      <div className="vertical-container">
+        {formData.program_path.map(([exe_name, exe_path], idx) => (
+          <div className="info-prog-path-horizontal-container" key={`progPath${idx}`}>
+            <button
+              type="button"
+              className="svg-button small"
+              onClick={() => handleAddRow(idx)}
+            >
+              <PlusSvg />
+            </button>
 
-          <button
-            type="button"
-            className="svg-button"
-            onClick={() => handleFileSearch(idx)}
-          >
-            <FileSearchSvg />
-          </button>
+            <input
+              type="text"
+              name="exe_path"
+              className="grow-3"
+              onChange={(evt) => handleProgramChange(evt, idx)}
+              value={exe_path}
+            />
 
-          <input
-            type="text"
-            name="exe_name"
-            className="grow-2"
-            onChange={(evt) => handleProgramChange(evt, idx)}
-            value={exe_name}
-          />
+            <button
+              type="button"
+              className="svg-button small"
+              onClick={() => handleFileSearch(idx)}
+            >
+              <FileSearchSvg />
+            </button>
 
-          <button
-            type="button"
-            className="svg-button"
-            onClick={() => handleRemoveRow(idx)}
-          >
-            <MinusSvg />
-          </button>
-        </div>
-      ))}
-      <button
-        type="button"
-        className="svg-button with-margin"
-        onClick={() => handleAddRow(-1)}
-      >
-        <PlusSvg />
-      </button>
+            <input
+              type="text"
+              name="exe_name"
+              className="grow-2"
+              onChange={(evt) => handleProgramChange(evt, idx)}
+              value={exe_name}
+            />
+
+            <button
+              type="button"
+              className="svg-button small"
+              onClick={() => handleRemoveRow(idx)}
+            >
+              <MinusSvg />
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          className="svg-button small with-margin"
+          onClick={() => handleAddRow(-1)}
+        >
+          <PlusSvg />
+        </button>
+      </div>
     </div>
   )
 }

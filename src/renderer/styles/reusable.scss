@@ -258,20 +258,20 @@
   height: min-content;
   margin: 0 variables.$spacing;
 
-  &.with-margin {
-    margin: variables.$spacing calc(variables.$spacing * 2);
-  }
-
-  &.center {
-    align-self: center;
-  }
-
   &.small {
     min-width: min-content;
     width: min-content;
     padding: 0;
     margin: 0;
     border-radius: 4px;
+  }
+
+  &.with-margin {
+    margin: variables.$spacing;
+  }
+
+  &.center {
+    align-self: center;
   }
 }
 
