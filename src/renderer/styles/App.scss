@@ -192,6 +192,23 @@ input[type=color] {
   cursor: pointer;
 }
 
+textarea {
+  overflow-y: auto;
+  resize: none;
+  // max-width subtractions are width-tools, width-title, width-version, width-categories, width-tags, margins-desc, margins-between, margins-around, arbitrary extra
+  width: calc(95vw - (26px - 2px - variables.$spacing * 4 - 5px) - (205px) - (90px) - (170px) - (230px) - (variables.$spacing * 2) - (6 * 2 * 1px) - (variables.$spacing * 4));
+  line-height: 1.1em;
+  height: calc(5 * 1.1em + variables.$spacing * 3);
+  background-color: variables.$bgLight;
+  border: none;
+  outline: 1px solid transparent;
+  transition: outline ease-in-out 150ms;
+
+  &:focus {
+    outline: 1px solid variables.$highlightActive;
+  }
+}
+
 ::-webkit-scrollbar {
   // width: 15px;
   background-image: linear-gradient(to right, color.adjust(variables.$bgDark, $lightness: -5%), color.adjust(variables.$bgLight, $lightness: 3%));

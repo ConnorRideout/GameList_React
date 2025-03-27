@@ -37,9 +37,13 @@ export interface GamePickerState {
 interface Props {
   gamePickerState: GamePickerState,
   lineData: GameEntry,
+  setDislikedGame: React.Dispatch<React.SetStateAction<{
+    game_id: number;
+    title: string;
+} | null>>,
   style: CSSProperties
 }
-export default function Lineitem({gamePickerState, lineData, style}: Props) {
+export default function Lineitem({gamePickerState, lineData, setDislikedGame, style}: Props) {
   const {game_id, path, title, url, image, version, description, program_path, tags, status, categories, timestamps} = lineData
 
   const statuses = useSelector((state: RootState) => state.data.statuses)
@@ -65,7 +69,7 @@ export default function Lineitem({gamePickerState, lineData, style}: Props) {
   const [status_color_title, status_color_version] = getStatusColors(status)
 
   // Context Menu
-  const contextMenuData = useContextMenu()
+  const {contextMenuData, clearContextMenuData} = useContextMenu()
 
   const handleContextMenu = (evt: React.MouseEvent<HTMLDivElement>) => {
     evt.preventDefault()
@@ -79,10 +83,10 @@ export default function Lineitem({gamePickerState, lineData, style}: Props) {
   }
   useEffect(() => {
     if (contextMenuData && contextMenuData.trigger === 'DISLIKE' && contextMenuData.target === game_id) {
-      // TODO: handle dislike
-      console.log('marking as uninterested', title)
+      setDislikedGame({game_id, title})
+      clearContextMenuData()
     }
-  }, [contextMenuData, game_id, title])
+  }, [clearContextMenuData, contextMenuData, game_id, setDislikedGame, title])
 
 
   return (

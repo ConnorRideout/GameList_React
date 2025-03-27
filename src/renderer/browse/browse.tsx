@@ -10,8 +10,7 @@ import styled from 'styled-components'
 
 import {
   setSearchRestraints,
-  clearSearchRestraints,
-  setError, // FIXME: Dev dependency
+  clearSearchRestraints
 } from '../../lib/store/gamelibrary'
 import Picker, { FormState } from '../shared/picker/picker'
 import Lineitem from './lineitem/lineitem'
@@ -20,6 +19,7 @@ import ErrorMessage from '../shared/errorMessage'
 import TextSearch from './textSearch'
 import GamePicker from './dialogs/gamePicker'
 import MissingGames from './dialogs/missingGames'
+import DislikeGame from './dialogs/dislike'
 
 import { SearchRestraints, RootState } from '../../types'
 import NewGames from './dialogs/newGames'
@@ -49,6 +49,9 @@ export default function Browse() {
   // edit games
   const navigate = useNavigate()
   const editGame = useSelector((state: RootState) => state.data.editGame)
+  // dislike game
+  const [dislikedGame, setDislikedGame] = useState<{game_id: number, title: string} | null>(null)
+
 
   useEffect(() => {
     // navigate to /edit if editGame is updated
@@ -144,6 +147,10 @@ export default function Browse() {
     setHideBeatenInRecents(checked)
   }
 
+  const clearDislikedGame = () => {
+    setDislikedGame(null)
+  }
+
   // ask about new games
   useEffect(() => {
     setHandleNewGames(newGames.length > 0)
@@ -168,6 +175,12 @@ export default function Browse() {
       {handleNewGames && !handleMissingGames && (
         <NewGames />
       )}
+      {dislikedGame && (
+        <DislikeGame
+          dislikedGame={dislikedGame}
+          clearDislikedGame={clearDislikedGame}
+        />
+      )}
 
       <GamePicker
         isVisible={showGamePicker}
@@ -176,7 +189,7 @@ export default function Browse() {
         clickHandler={gamePickerClickHandler}
       />
 
-      <button style={{ position: 'fixed', left: 0 }} type='button' onClick={() => dispatch(setError('test error'))}>Test</button>
+      {/* <button style={{ position: 'fixed', left: 0 }} type='button' onClick={() => dispatch(setError('test error'))}>Test</button> */}
 
       <SearchFieldset className='vertical-container'>
         <legend className='header-max'>Search</legend>
@@ -229,6 +242,7 @@ export default function Browse() {
                   key={currentGamlib[index].game_id}
                   gamePickerState={gamePickerState}
                   lineData={currentGamlib[index]}
+                  setDislikedGame={setDislikedGame}
                   style={style}
                 />
               )}

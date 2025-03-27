@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
 // Define the type for the context menu data
 interface ContextMenuData {
@@ -7,7 +7,10 @@ interface ContextMenuData {
 }
 
 // Create the context with a default value of null
-const ContextMenuContext = createContext<ContextMenuData | null>(null);
+const ContextMenuContext = createContext<{
+  contextMenuData: ContextMenuData | null,
+  clearContextMenuData: () => void
+} | null>(null);
 
 export default function ContextMenuProvider({ children }: {children: React.ReactNode}) {
   const [contextMenuData, setContextMenuData] = useState<ContextMenuData | null>(null);
@@ -23,8 +26,14 @@ export default function ContextMenuProvider({ children }: {children: React.React
     };
   }, []);
 
+  const clearContextMenuData = () => {
+    setContextMenuData(null)
+  }
+
+  const value = useMemo(() => ({contextMenuData, clearContextMenuData}), [contextMenuData])
+
   return (
-    <ContextMenuContext.Provider value={contextMenuData}>
+    <ContextMenuContext.Provider value={value}>
       {children}
     </ContextMenuContext.Provider>
   );
@@ -33,7 +42,7 @@ export default function ContextMenuProvider({ children }: {children: React.React
 // Custom hook to use the context
 export const useContextMenu = () => {
   const context = useContext(ContextMenuContext);
-  if (context === undefined) {
+  if (context === undefined || context === null) {
     throw new Error('useContextMenu must be used within a ContextMenuProvider');
   }
   return context;
