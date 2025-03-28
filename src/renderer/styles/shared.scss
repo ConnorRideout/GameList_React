@@ -126,3 +126,58 @@ button.tab-active:not(:disabled) {
     border-bottom: 2px solid variables.$bgNormal;
   }
 }
+
+.disliked-games-container {
+  div.inputbox {
+    min-width: 70vw;
+
+    div.inputbox-content {
+      margin: 0;
+    }
+
+    .column-headers {
+      @extend .horizontal-container;
+
+      h2 {
+        text-align: center;
+
+        &:nth-child(1) {
+          flex-grow: 1;
+        }
+
+        &:nth-child(2) {
+          width: calc(95vw - 7px - 205px - 90px - 170px - 230px - 6px - 12px - 12px);
+        }
+      }
+    }
+
+    .scroll-area {
+      @extend .vertical-container;
+
+      overflow-y: auto;
+
+      * {
+        margin: variables.$spacing;
+      }
+    }
+
+    .game-container {
+      @extend .horizontal-container;
+
+      textarea:nth-child(1) {
+        align-self: flex-start;
+        flex-grow: 1;
+        min-width: 0;
+        min-height: 0;
+        height: auto;
+        field-sizing: content;
+      }
+
+      textarea:nth-child(2) {
+        min-width: 500px;
+        max-width: 500px;
+      }
+    }
+
+  }
+}

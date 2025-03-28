@@ -10,7 +10,7 @@ import './styles/App.scss'
 import Browse from './browse/browse'
 import Edit from './edit/edit'
 import Settings from './settings/settings'
-import DislikeNotes from './dislikeNotes'
+import DislikeNotes from './shared/dislikeNotes'
 import ContextMenuProvider from './ContextMenuProvider'
 
 import {
@@ -93,7 +93,6 @@ function Wrapper({children}: {children: React.ReactNode}) {
   }, [games, settings, blockCheckMissing, navigate, dispatch, checkForMissingGames, checkForNewGames, openFolder])
 
   return (
-    // eslint-disable-next-line react/jsx-no-useless-fragment
     <>
       {showNotes && (
         <DislikeNotes
