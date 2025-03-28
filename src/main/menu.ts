@@ -204,6 +204,7 @@ export default class MenuBuilder {
     //   },
     // ];
 
+    /* the menu actions are handled in App.tsx. The trigger types are defined in the types file */
     const templateDefault: MenuItemConstructorOptions[] = [
       {
         label: '&File',
@@ -221,6 +222,13 @@ export default class MenuBuilder {
             click: () => {
               this.sendMenuTrigger('OPEN_SETTINGS');
             },
+          },
+          {
+            label: '&Dislike Notes',
+            accelerator: 'Ctrl+D',
+            click: () => {
+              this.sendMenuTrigger('OPEN_DISLIKE_NOTES')
+            }
           },
         ],
       },

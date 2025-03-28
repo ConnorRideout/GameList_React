@@ -10,6 +10,7 @@ import './styles/App.scss'
 import Browse from './browse/browse'
 import Edit from './edit/edit'
 import Settings from './settings/settings'
+import DislikeNotes from './dislikeNotes'
 import ContextMenuProvider from './ContextMenuProvider'
 
 import {
@@ -48,6 +49,8 @@ function Wrapper({children}: {children: React.ReactNode}) {
   const [checkForNewGames] = useLazyCheckNewGamesQuery()
   const [openFolder] = useOpenFolderMutation()
 
+  const [showNotes, setShowNotes] = useState(false)
+
   // startup state
   useEffect(() => {
     if (!blockCheckMissing && games && settings) {
@@ -79,6 +82,10 @@ function Wrapper({children}: {children: React.ReactNode}) {
             // TODO: check for updated urls for all games
             break
           }
+          case 'OPEN_DISLIKE_NOTES': {
+            setShowNotes(true)
+            break
+          }
           default:
         }
       })
@@ -88,6 +95,11 @@ function Wrapper({children}: {children: React.ReactNode}) {
   return (
     // eslint-disable-next-line react/jsx-no-useless-fragment
     <>
+      {showNotes && (
+        <DislikeNotes
+          close={() => setShowNotes(false)}
+        />
+      )}
       {children}
     </>
   )
@@ -97,15 +109,15 @@ function Wrapper({children}: {children: React.ReactNode}) {
 export default function App() {
   return (
     <Router>
-      <Wrapper>
-        <ContextMenuProvider>
+      <ContextMenuProvider>
+        <Wrapper>
           <Routes>
             <Route path="/" element={<Browse />} />
             <Route path="/edit" element={<Edit />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
-        </ContextMenuProvider>
-      </Wrapper>
+        </Wrapper>
+      </ContextMenuProvider>
     </Router>
   );
 }

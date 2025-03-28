@@ -53,6 +53,7 @@ export default function MissingGames() {
   }, [missingGames, gameslist, checkForMissingGames, editType, dispatch])
 
   const searchForFolder = (missingGame: GamelibState['missingGames'][0]) => {
+    // TODO: fuzzy search for possible new folder
     const newFol = window.electron.openFileDialog(
       `Select Folder for '${missingGame.title}'`,
       'openDirectory'
