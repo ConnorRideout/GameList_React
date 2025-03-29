@@ -108,6 +108,8 @@
     }
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
     "@electron/notarize": "^2.3.2",
     "@reduxjs/toolkit": "^2.5.0",
     "axios": "^1.7.9",
