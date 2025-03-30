@@ -276,6 +276,15 @@
     min-width: 500px;
   }
 
+  .tooltip {
+    min-width: 250px;
+
+    &.missing-status {
+      min-width: 400px;
+      max-width: 400px;
+    }
+  }
+
   div.inputbox-content>div {
     @extend .horizontal-container;
 
@@ -307,6 +316,13 @@
         min-width: fit-content;
         font-size: variables.$fontSmall;
         border-radius: 5px;
+
+        &.delete-button {
+          margin: 0;
+          background: transparent;
+          border: none;
+          min-width: 1.2em;
+        }
       }
 
     }
@@ -353,7 +369,7 @@
     div.inputbox-content {
       position: relative;
 
-      div {
+      >div {
         @extend .vertical-container;
 
         max-height: 100%;
