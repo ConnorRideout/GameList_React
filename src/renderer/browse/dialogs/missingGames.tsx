@@ -19,14 +19,41 @@ export default function MissingGames() {
   const gameslist = useSelector((state: RootState) => state.data.gamelib)
   const editType = useSelector((state: RootState) => state.data.editGameType)
   const [updatedMissingGames, setUpdatedMissingGames] = useState<GamelibState['missingGames']>([])
+  const [deletedGames, setDeletedGames] = useState<number[]>([])
 
   const [disableSubmit, setDisableSubmit] = useState(true)
 
+  const toggleDeleted = (game_id: number) => {
+    let updateDeleted: number[]
+    if (deletedGames.includes(game_id)) {
+      const idx = deletedGames.indexOf(game_id)
+      updateDeleted = [...deletedGames]
+      updateDeleted.splice(idx, 1)
+    } else {
+      updateDeleted = [...deletedGames, game_id]
+    }
+    setDeletedGames(updateDeleted)
+  }
+
   const handleSubmit = () => {
-    // update missing games, then trigger edit
-    dispatch(setMissingGames(updatedMissingGames))
-    dispatch(setEditType('update'))
-    navigate('/edit')
+    if (deletedGames.length) {
+      const stopDelete = window.electron.showMessageBox(
+        "Delete Games?",
+        "Are you sure you want to delete these games? This cannot be undone!",
+        'warning',
+        ['Delete Games', 'Cancel'],
+        1
+      )
+      if (stopDelete) return
+      // TODO: delete marked games
+    }
+    if (updatedMissingGames.length) {
+      // update missing games, then trigger edit
+      const updatedAndNotDeleted = updatedMissingGames.filter(upG => !deletedGames.includes(upG.game_id))
+      dispatch(setMissingGames(updatedAndNotDeleted))
+      dispatch(setEditType('update'))
+      navigate('/edit')
+    }
   }
 
   const handleCancel = () => {
@@ -37,8 +64,8 @@ export default function MissingGames() {
 
   useEffect(() => {
     // show the submit button if any game has an updated path
-    if (updatedMissingGames.length) setDisableSubmit(false)
-  }, [updatedMissingGames])
+    setDisableSubmit(!(updatedMissingGames.length || deletedGames.length))
+  }, [updatedMissingGames, deletedGames])
 
   useEffect(() => {
     // if returning from edit, make sure updatedMissingGames is still correct
@@ -88,7 +115,7 @@ export default function MissingGames() {
       title="Games with Missing Folders..."
       buttons={[
         {text: disableSubmit ? 'Skip' : 'Cancel', clickHandler: handleCancel},
-        ...(disableSubmit ? [] : [{text: 'Open Edit to Finish Updates', clickHandler: handleSubmit}])
+        ...(disableSubmit ? [] : [{text: `${updatedMissingGames.length ? 'Open Edit to Finish Update' : 'Delete Marked Game'}${updatedMissingGames.length > 1 || deletedGames.length > 1 ? 's' : ''}`, clickHandler: handleSubmit}])
       ]}
     >
       {missingGames.map(g => {
@@ -96,25 +123,50 @@ export default function MissingGames() {
         return (
           <div key={`missingGame-${g.game_id}`}>
             <p
-              className={ isUpdated ? 'updated' : 'error' }
+              className={ isUpdated ? 'updated' : deletedGames.includes(g.game_id) ? 'error' : 'warning' }
               id={`missingGames-${g.game_id}`}
             >
-              {isUpdated ? 'Updated' : 'Missing'}
+              {isUpdated ? 'Updated' : deletedGames.includes(g.game_id) ? 'Deleting' : 'Missing'}
             </p>
-            <Tooltip
-              anchorSelect={`#missingGames-${g.game_id}`}
-              place="bottom-start"
-            >
-              <p className={ isUpdated ? 'updated' : 'error' }>
-                {isUpdated
-                  ? `<games>\\${updatedMissingGames.find(upG => g.game_id === upG.game_id)?.path}`
-                  : `<games>\\${missingGames.find(miss => g.game_id === miss.game_id)?.path}`
-                }
-              </p>
-            </Tooltip>
+            {!deletedGames.includes(g.game_id) && (
+              <Tooltip
+                anchorSelect={`#missingGames-${g.game_id}`}
+                place="bottom-start"
+                className="missing-status."
+              >
+                Current pointer:
+                <p className={ isUpdated ? 'updated' : deletedGames.includes(g.game_id) ? 'error' : 'warning' }>
+                  {isUpdated
+                    ? `<games>\\${updatedMissingGames.find(upG => g.game_id === upG.game_id)?.path}`
+                    : `<games>\\${missingGames.find(miss => g.game_id === miss.game_id)?.path}`
+                  }
+                </p>
+              </Tooltip>
+            )}
             <span>
+              <button
+                type="button"
+                id={`missingGames-delete-btn-${g.game_id}`}
+                onClick={() => toggleDeleted(g.game_id)}
+                className={`delete-button ${deletedGames.includes(g.game_id) ? 'updated' : 'error'}`}
+              >
+                {deletedGames.includes(g.game_id) ? 'O' : 'X'}
+              </button>
+              <Tooltip
+                anchorSelect={`#missingGames-delete-btn-${g.game_id}`}
+                place="top"
+              >
+                {deletedGames.includes(g.game_id)
+                  ? "Re-add this game to the game library."
+                  : "Delete this game from the game library."}
+              </Tooltip>
               <h2>{`"${g.title}"`}</h2>
-              <button type="button" onClick={() => searchForFolder(g)}>Update Folder...</button>
+              {!deletedGames.includes(g.game_id) && (
+                <button
+                  type="button"
+                  onClick={() => searchForFolder(g)}
+                >Update Folder...</button>
+              )}
             </span>
           </div>
         )

@@ -245,6 +245,10 @@
       align-self: center;
       justify-content: space-evenly;
       align-items: center;
+
+      button {
+        padding: 0 4px 2px;
+      }
     }
   }
 }

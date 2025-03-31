@@ -97,7 +97,7 @@ export default function NewGames() {
       title='Add New Games...'
       buttons={[
         {text: 'Cancel', clickHandler: handlerCancel},
-        ...(disableSubmit ? [] : [{text: 'Open Edit with New Games', clickHandler: handlerSubmit}])
+        ...(disableSubmit ? [] : [{text: `Open Edit with New Game${Object.values(addedNewGames).filter(v => v).length > 1 ? 's' : ''}`, clickHandler: handlerSubmit}])
       ]}
     >
       <div className='legend'>
