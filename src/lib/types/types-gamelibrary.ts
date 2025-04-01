@@ -185,7 +185,8 @@ interface SettingsType {
 type MissingGamesType = {
   game_id: number,
   title: string,
-  path: string
+  path: string,
+  possible_new_path: string | undefined
 }[]
 interface DislikedGamesType {
   dislike_id: number,

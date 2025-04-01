@@ -5,6 +5,7 @@
 import { exec } from 'child_process'
 import { Router } from 'express'
 import axios from 'axios'
+import Fuse from 'fuse.js'
 
 import Path from '../../parsedPath'
 import { getGamePaths } from '../games/games-model'
@@ -82,12 +83,23 @@ router.post('/open/:type', async (req, res, next) => {
 
 router.post('/missinggames', async (req, res) => {
   const settings = await getSettings()
+  const games_folder = new Path(settings.games_folder)
+  const all_games = (await games_folder.getPathsNLevelsAway(1, false)).map(p => ({basename: p.basename}))
+  const fuzzy = new Fuse(all_games, {keys: ['basename']})
   const { games }: { games: MissingGamesType } = req.body
   // check for missing games
   const missingGames = games.filter(({ path }) => {
-    const gamefol = new Path(settings.games_folder, path)
+    const gamefol = games_folder.join(path)
     return !gamefol.existsSync()
   })
+    .map(missing => {
+      let fuzzy_search = fuzzy.search(missing.path)
+      if (!fuzzy_search.length) {
+        fuzzy_search = fuzzy.search(missing.title)
+      }
+      missing.possible_new_path = fuzzy_search[0]?.item.basename
+      return missing
+    })
   res.status(200).json(missingGames)
 })
 

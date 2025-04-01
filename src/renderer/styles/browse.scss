@@ -290,7 +290,32 @@
 
     align-items: center;
 
-    span {
+    span.btn-container {
+      @extend .horizontal-container;
+
+      border: 1px solid variables.$fgNormal;
+      border-radius: 1.2em;
+      padding: 0 variables.$spacing;
+      margin-right: 2px;
+
+      button {
+        display: flex;
+        height: fit-content;
+        min-width: fit-content;
+        font-size: variables.$fontSmall;
+        border-radius: 5px;
+
+        &.symbol-button {
+          margin: 0;
+          background: transparent;
+          border: none;
+          min-width: 1.2em;
+        }
+
+      }
+    }
+
+    span.title-container {
       @extend .horizontal-container;
 
       align-items: center;
@@ -308,21 +333,6 @@
       h2 {
         padding: 0;
         color: variables.$fgLight;
-      }
-
-      button {
-        display: flex;
-        height: fit-content;
-        min-width: fit-content;
-        font-size: variables.$fontSmall;
-        border-radius: 5px;
-
-        &.delete-button {
-          margin: 0;
-          background: transparent;
-          border: none;
-          min-width: 1.2em;
-        }
       }
 
     }

@@ -76,7 +76,7 @@ export default function MissingGames() {
     if (missingGames && missingGames.length && editType === 'update') {
       dispatch(setEditType('edit'));
       (async () => {
-        await checkForMissingGames(gameslist.map(({game_id, title, path}) => ({game_id, title, path})))
+        await checkForMissingGames(gameslist.map(({ game_id, title, path }) => ({ game_id, title, path })))
         const updated = missingGames.filter(miss => gameslist.find(g => g.game_id === miss.game_id)!.path !== miss.path)
         setUpdatedMissingGames(updated)
       })()
@@ -84,7 +84,6 @@ export default function MissingGames() {
   }, [missingGames, gameslist, checkForMissingGames, editType, dispatch])
 
   const searchForFolder = (missingGame: GamelibState['missingGames'][0]) => {
-    // TODO: fuzzy search for possible new folder
     const newFol = window.electron.openFileDialog(
       `Select Folder for '${missingGame.title}'`,
       'openDirectory'
@@ -94,23 +93,31 @@ export default function MissingGames() {
       if (newFol === '.') {
         // the games folder was selected
         const newPath = window.electron.openFileDialog(
-          `Select Executable for '${missingGame.title}'`
+          `Select Executable for '${missingGame.title}'`,
+          'openFile'
         )
         if (newPath) {
           // user selected a file
           const newUpdatedMissingGames = updatedMissingGames.filter(g => g.game_id !== missingGame.game_id)
-          newUpdatedMissingGames.push({...missingGame, path: newPath})
+          newUpdatedMissingGames.push({ ...missingGame, path: newPath })
           setUpdatedMissingGames(newUpdatedMissingGames)
         }
         // if user doesn't select a file, nothing changes
       } else {
         // user selected a specific folder
         const newUpdatedMissingGames = updatedMissingGames.filter(g => g.game_id !== missingGame.game_id)
-        newUpdatedMissingGames.push({...missingGame, path: newFol})
+        newUpdatedMissingGames.push({ ...missingGame, path: newFol })
         setUpdatedMissingGames(newUpdatedMissingGames)
       }
       // if user doesn't select a folder, nothing changes
     }
+  }
+
+  const updateFolderToFuzzy = (missingGame: GamelibState['missingGames'][0]) => {
+    console.log('up')
+    const newUpdatedMissingGames = updatedMissingGames.filter(g => g.game_id !== missingGame.game_id)
+    newUpdatedMissingGames.push({ ...missingGame, path: missingGame.possible_new_path! })
+    setUpdatedMissingGames(newUpdatedMissingGames)
   }
 
   return (
@@ -118,41 +125,20 @@ export default function MissingGames() {
       className="missing-games-container"
       title="Games with Missing Folders..."
       buttons={[
-        {text: disableSubmit ? 'Skip' : 'Cancel', clickHandler: handleCancel},
-        ...(disableSubmit ? [] : [{text: `${updatedMissingGames.length ? 'Open Edit to Finish Update' : 'Delete Marked Game'}${updatedMissingGames.length > 1 || deletedGames.length > 1 ? 's' : ''}`, clickHandler: handleSubmit}])
+        { text: disableSubmit ? 'Skip' : 'Cancel', clickHandler: handleCancel },
+        ...(disableSubmit ? [] : [{ text: `${updatedMissingGames.length ? 'Open Edit to Finish Update' : 'Delete Marked Game'}${updatedMissingGames.length > 1 || deletedGames.length > 1 ? 's' : ''}`, clickHandler: handleSubmit }])
       ]}
     >
       {missingGames.map(g => {
         const isUpdated = updatedMissingGames.findIndex(upG => g.game_id === upG.game_id) !== -1
         return (
           <div key={`missingGame-${g.game_id}`}>
-            <p
-              className={ isUpdated ? 'updated' : deletedGames.includes(g.game_id) ? 'error' : 'warning' }
-              id={`missingGames-${g.game_id}`}
-            >
-              {isUpdated ? 'Updated' : deletedGames.includes(g.game_id) ? 'Deleting' : 'Missing'}
-            </p>
-            {!deletedGames.includes(g.game_id) && (
-              <Tooltip
-                anchorSelect={`#missingGames-${g.game_id}`}
-                place="bottom-start"
-                className="missing-status."
-              >
-                Current pointer:
-                <p className={ isUpdated ? 'updated' : deletedGames.includes(g.game_id) ? 'error' : 'warning' }>
-                  {isUpdated
-                    ? `<games>\\${updatedMissingGames.find(upG => g.game_id === upG.game_id)?.path}`
-                    : `<games>\\${missingGames.find(miss => g.game_id === miss.game_id)?.path}`
-                  }
-                </p>
-              </Tooltip>
-            )}
-            <span>
+            <span className="btn-container">
               <button
                 type="button"
                 id={`missingGames-delete-btn-${g.game_id}`}
                 onClick={() => toggleDeleted(g.game_id)}
-                className={`delete-button ${deletedGames.includes(g.game_id) ? 'updated' : 'error'}`}
+                className={`symbol-button ${deletedGames.includes(g.game_id) ? 'updated' : 'error'}`}
               >
                 {deletedGames.includes(g.game_id) ? 'O' : 'X'}
               </button>
@@ -164,6 +150,51 @@ export default function MissingGames() {
                   ? "Re-add this game to the game library."
                   : "Delete this game from the game library."}
               </Tooltip>
+              {!deletedGames.includes(g.game_id) && (
+                <button
+                  type="button"
+                  id={`missingGames-check-btn-${g.game_id}`}
+                  onClick={() => updateFolderToFuzzy(g)}
+                  className='symbol-button updated'
+                  disabled={!g.possible_new_path || (updatedMissingGames.find(upg => upg.game_id === g.game_id)?.path === g.possible_new_path)}
+                >
+                  ✓
+                </button>
+              )}
+              {g.possible_new_path && (updatedMissingGames.find(upg => upg.game_id === g.game_id)?.path !== g.possible_new_path) && (
+                <Tooltip
+                  anchorSelect={`#missingGames-check-btn-${g.game_id}`}
+                  place="top"
+                >
+                  Set new path to the close matched folder:
+                  <p className="updated">
+                    {`<games>\\${g.possible_new_path}`}
+                  </p>
+                </Tooltip>
+              )}
+            </span>
+            <p
+              className={isUpdated ? 'updated' : deletedGames.includes(g.game_id) ? 'error' : 'warning'}
+              id={`missingGames-${g.game_id}`}
+            >
+              {isUpdated ? 'Updated' : deletedGames.includes(g.game_id) ? 'Deleting' : 'Missing'}
+            </p>
+            {!deletedGames.includes(g.game_id) && (
+              <Tooltip
+                anchorSelect={`#missingGames-${g.game_id}`}
+                place="bottom-start"
+                className="missing-status."
+              >
+                Current pointer:
+                <p className={isUpdated ? 'updated' : deletedGames.includes(g.game_id) ? 'error' : 'warning'}>
+                  {isUpdated
+                    ? `<games>\\${updatedMissingGames.find(upG => g.game_id === upG.game_id)?.path}`
+                    : `<games>\\${missingGames.find(miss => g.game_id === miss.game_id)?.path}`
+                  }
+                </p>
+              </Tooltip>
+            )}
+            <span className="title-container">
               <h2>{`"${g.title}"`}</h2>
               {!deletedGames.includes(g.game_id) && (
                 <button
