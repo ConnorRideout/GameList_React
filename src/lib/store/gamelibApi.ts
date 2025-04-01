@@ -1,5 +1,6 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
 
+// eslint-disable-next-line import/no-cycle
 import {
   CategoryEntry,
   GameEntry,

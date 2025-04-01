@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom"
 // store
 import { clearMissingGames, setEditType, setMissingGames } from "../../../lib/store/gamelibrary"
 import { useCheckMissingGamesMutation } from "../../../lib/store/filesystemApi"
+import { useDeleteGameMutation } from "../../../lib/store/gamelibApi"
 // components
 import InputBox from "../../shared/inputBox"
 import Tooltip from "../../shared/tooltip"
@@ -20,6 +21,7 @@ export default function MissingGames() {
   const editType = useSelector((state: RootState) => state.data.editGameType)
   const [updatedMissingGames, setUpdatedMissingGames] = useState<GamelibState['missingGames']>([])
   const [deletedGames, setDeletedGames] = useState<number[]>([])
+  const [deleteGame] = useDeleteGameMutation()
 
   const [disableSubmit, setDisableSubmit] = useState(true)
 
@@ -44,8 +46,10 @@ export default function MissingGames() {
         ['Delete Games', 'Cancel'],
         1
       )
-      if (stopDelete) return
-      // TODO: delete marked games
+      if (stopDelete) return // if dialog was cancelled, don't do anything else
+      deletedGames.forEach(g_id => {
+        deleteGame(g_id)
+      })
     }
     if (updatedMissingGames.length) {
       // update missing games, then trigger edit
