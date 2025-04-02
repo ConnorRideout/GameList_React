@@ -2,7 +2,7 @@ import React, { useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import {
   DndContext,
-  KeyboardSensor,
+  // KeyboardSensor,
   PointerSensor,
   useSensor,
   useSensors
@@ -11,7 +11,7 @@ import type { Active, UniqueIdentifier } from "@dnd-kit/core";
 import {
   SortableContext,
   arrayMove,
-  sortableKeyboardCoordinates
+  // sortableKeyboardCoordinates
 } from "@dnd-kit/sortable";
 
 import { DragHandle, SortableItem } from "./sortableItem";
@@ -39,9 +39,9 @@ export default function SortableList<T extends BaseItem>({
   );
   const sensors = useSensors(
     useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates
-    })
+    // useSensor(KeyboardSensor, {
+    //   coordinateGetter: sortableKeyboardCoordinates
+    // })
   );
 
   return (
