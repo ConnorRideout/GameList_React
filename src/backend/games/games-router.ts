@@ -60,9 +60,9 @@ function handleImage(img: string) {
     )
     const newImagePath = img_dir.join(imgPath.basename)
     imgPath.moveSync(newImagePath)
-    return [imgPath.basename]
+    return JSON.stringify([imgPath.basename])
   }
-  return [img]
+  return JSON.stringify([img])
 }
 
 router.get('/games', (req, res, next) => {
@@ -139,7 +139,7 @@ router.get('/styles', (req, res, next) => {
 router.post('/games/new', async (req, res, next) => {
   const game = req.body
   // properly format the game data
-  game.image = handleImage(game.image)
+  game.image = handleImage(game.image[0])
   game.protagonist = game.categories.protagonist
   delete game.categories.protagonist
   game.program_path = JSON.stringify(game.program_path)
@@ -191,7 +191,7 @@ router.put('/games/:game_id', async (req, res, next) => {
   // overwrite oldGameData with updatedGameData
   const game = {...oldGameData, ...updatedGameData}
   // properly format the game data
-  game.image = handleImage(game.image)
+  game.image = handleImage(game.image[0])
   game.protagonist = game.categories.protagonist
   delete game.categories.protagonist
   game.program_path = JSON.stringify(game.program_path)
