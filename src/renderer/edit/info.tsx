@@ -7,7 +7,7 @@ import {
   FileAutoSearchSvg,
 } from "../shared/svg"
 // eslint-disable-next-line import/no-cycle
-import ProgramPaths from "./programPaths"
+import ProgramPaths from "./dnd/programPaths"
 import { toTitleCase } from "../../lib/helperFunctions"
 
 import { useAutofillFromWebsiteMutation } from "../../lib/store/websitesApi"
@@ -18,8 +18,8 @@ import { GameEntry, RootState, StringMap } from "../../types"
 
 
 export interface Props {
-  handleFormChange: (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | {target: {name: string, value: string | [string, string][]}}) => void,
-  formData: Pick<GameEntry, 'path' | 'title' | 'url' | 'image' | 'version' | 'description'> & {program_path: [string, string][]},
+  handleFormChange: (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | {target: {name: string, value: string | {id: number, paths: [string, string]}[]}}) => void,
+  formData: Pick<GameEntry, 'path' | 'title' | 'url' | 'image' | 'version' | 'description'> & {program_path: {id: number, paths: [string, string]}[]},
   setFormData: React.Dispatch<React.SetStateAction<{
     path: string;
     title: string;
@@ -27,8 +27,11 @@ export interface Props {
     image: string[];
     version: string;
     description: string;
-    program_path: [string, string][];
-  }>>,
+    program_path: {
+        id: number;
+        paths: [string, string];
+    }[];
+}>>,
   updatePickerDefaults: (newDefaults: {[type: string]: string | string[] | StringMap}) => void,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
   ignoreUpdatedVersion: boolean,
@@ -53,13 +56,13 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
   }
 
   const handleAutoExeSearch = () => {
-    const existing_paths = formData.program_path.map(([,prog_pth]) => prog_pth).filter(p => p.trim())
+    const existing_paths = formData.program_path.map(({paths: [,prog_pth]}) => prog_pth).filter(p => p.trim())
     getExecutables({top_path: formData.path, existing_paths}).unwrap()
       .then(({filepaths}: {filepaths: string[]}) => {
-        const program_path: [string, string][] = filepaths.map(pth => {
+        const program_path: {id: number, paths: [string, string]}[] = filepaths.map((pth, id) => {
           const basepath = pth.replace(/\.[^.]*?$/, '')
           const split_path = basepath.replaceAll(/(?<=[a-z])(?=[A-Z])|_/g, ' ')
-          return [toTitleCase(split_path).trim(), pth]
+          return {id, paths: [toTitleCase(split_path).trim(), pth]}
         })
         setFormData(prevVal => ({...prevVal, program_path}))
       })

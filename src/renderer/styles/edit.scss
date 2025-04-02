@@ -58,11 +58,46 @@
     flex-grow: 1;
     margin-bottom: calc(variables.$spacing * 2);
     overflow-y: auto;
+
+    .sortable-list {
+      @extend .vertical-container;
+      align-items: start;
+      width: 100%;
+      padding: 0;
+    }
   }
 
   input {
     font-size: variables.$fontSmall;
     height: 2em;
+  }
+
+  .drag-handle {
+    @extend .svg-button;
+    @extend .small;
+    padding: 0 variables.$spacing;
+    margin-left: calc(variables.$spacing * 2);
+    flex: 0 0 auto;
+    touch-action: none;
+    border-radius: 5px;
+    border: none;
+    cursor: move;
+    appearance: none;
+    background: transparent;
+    -webkit-tap-highlight-color: transparent;
+    height: 100%;
+
+    svg {
+      flex: 0 0 auto;
+      margin: auto;
+      height: 100%;
+      overflow: visible;
+      fill: #919eab;
+    }
+
+    &:hover {
+      cursor: move;
+    }
   }
 }
 
@@ -70,5 +105,5 @@
   @extend .horizontal-container;
   align-items: center;
   width: calc(100% - variables.$spacing*2);
-  margin: variables.$spacing;
+  padding-right: 0;
 }

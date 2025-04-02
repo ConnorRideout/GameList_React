@@ -102,7 +102,7 @@ export default function Edit() {
       ...game_data
     }
   ), [game_data])
-  const program_path = Object.entries(prog_obj)
+  const program_path = Object.entries(prog_obj).map((paths, id) => ({id, paths}))
   const [formData, setFormData] = useState({ path, title, url, image, version, description, program_path })
 
   // Form Validation
@@ -110,16 +110,16 @@ export default function Edit() {
   const existingTitles = useMemo(() => (gamelib.map(g => g.title)), [gamelib])
   const formSchema = CreateEditFormSchema(existingTitles, title)
   useEffect(() => {
-    formSchema.isValid(formData)
+    formSchema.isValid(formData, {context: formData.program_path})
       .then(isEditValid => {
         setSubmitDisabled(!isEditValid)
       })
   }, [formData, formSchema])
 
-  const handleFormChange = (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string, value: string | string[] | [string, string][] } }) => {
+  const handleFormChange = (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string, value: string | string[] | {id: number, paths: [string, string]}[] } }) => {
     // FIXME: if formdata image array already has 2 elements, handle updating the old gif/image
     const { name, value: rawVal } = evt.target
-    let value: string | string[] | [string, string][]
+    let value: string | string[] | {id: number, paths: [string, string]}[]
     if (name === 'image') {
       value = [...formData.image]
       value[0] = rawVal as string
@@ -127,7 +127,8 @@ export default function Edit() {
       value = rawVal
     }
     const schema = yup_reach(formSchema, name) as StringSchema
-    schema.validate(value)
+    const kwargs = name === 'program_path' ? {context: (value as {id: number, paths: [string, string]}[])} : {}
+    schema.validate(value, kwargs)
       .then(() => {
         setFormErrors({ ...formErrors, [name]: '' })
       })
@@ -159,7 +160,7 @@ export default function Edit() {
       image: string,
       version: string,
       description: string,
-      program_path: [string, string][]
+      program_path: {id: number, [string, string]}[]
     }
     needs to be: {
       path: string,
@@ -193,7 +194,7 @@ export default function Edit() {
     // parse formData
     const updatedData = {
       ...formData,
-      program_path: formData.program_path.reduce((acc: { [key: string]: string }, [progPath, progPathName]) => {
+      program_path: formData.program_path.reduce((acc: { [key: string]: string }, {paths: [progPath, progPathName]}) => {
         acc[progPath] = progPathName
         return acc
       }, {})

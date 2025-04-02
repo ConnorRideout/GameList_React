@@ -29,51 +29,57 @@ export default function CreateEditFormSchema(existingTitles: string[], currentTi
       .required("Description is required"),
     program_path: yup.array()
       .of(
-        yup.array()
-          .of(yup.string())
-          .length(2)
-          .test('custom-test', 'If parent array has length 1, only the exe path must have length. Otherwise, every exe path must be unique and every viewable name must be unique', function (value) {
-            // innerArray = [exe_name, exe_path]
-            const {path, createError} = this
-            const outerArrayLength = this.parent.length
+        yup.object().shape({
+          id: yup.number(),
+          paths: yup.array()
+            .of(yup.string())
+            .length(2)
+            .test('custom-test', 'Validation failed', function (paths) {
+              // innerArray = [exe_name, exe_path]
+              const {path, createError} = this
 
+              const outerArray = this.options.context!
 
-            if (!value) {
-              return createError({ path, message: `At path ${path}, the inner array must be defined` })
-            }
+              const outerArrayLength = outerArray.length
 
-            const progPathIdx = parseInt(path.slice(1, -1)) + 1
-            if (outerArrayLength === 1) {
-              // if outerArray only has 1 item, only the second string of innerArray must have length > 0
-              if (!value[1] || value[1].length === 0) {
-                return createError({ path, message: `At the [${progPathIdx}] program path, the Executable Path cannot be blank` });
-              }
-            } else if (outerArrayLength > 1) {
-              // There are more than 1 executable
-              // Check for uniqueness of first and second values of inner arrays
-              const viewableNames = this.parent.map((innerArray: [string, string]) => innerArray[0]);
-              const exePaths = this.parent.map((innerArray: [string, string]) => innerArray[1]);
-              // Sets remove duplicates, so if the array and the set have a different length, there was a duplicate
-              const hasDuplicateName = viewableNames.length !== new Set(viewableNames).size;
-              const hasDuplicatePath = exePaths.length !== new Set(exePaths).size;
-
-              if (hasDuplicateName) {
-                return createError({ path, message: `The Viewable Names must be unique` });
+              if (!paths) {
+                return createError({ path, message: `At path ${path}, the paths must be defined` })
               }
 
-              if (hasDuplicatePath) {
-                return createError({ path, message: `The Executable Paths must be unique` });
+              const progPathIdx = parseInt(path.slice(1, -2)) + 1
+
+              if (outerArrayLength === 1) {
+                // if outerArray only has 1 item, only the second string of paths must have length > 0
+                if (!paths[1] || paths[1].length === 0) {
+                  return createError({ path, message: `At program path [${progPathIdx}], the Executable Path cannot be blank` });
+                }
+              } else if (outerArrayLength > 1) {
+                // There are more than 1 executable
+                // Check for uniqueness of first and second values of inner arrays
+                const viewableNames = outerArray.map((item: {paths: [string, string]}) => item.paths[0]);
+                const exePaths = outerArray.map((item: {paths: [string, string]}) => item.paths[1]);
+                // Sets remove duplicates, so if the array and the set have a different length, there was a duplicate
+                const hasDuplicateName = viewableNames.length !== new Set(viewableNames).size;
+                const hasDuplicatePath = exePaths.length !== new Set(exePaths).size;
+
+                if (hasDuplicateName) {
+                  return createError({ path, message: `The Viewable Names must be unique` });
+                }
+
+                if (hasDuplicatePath) {
+                  return createError({ path, message: `The Executable Paths must be unique` });
+                }
+                // Both strings must have length
+                if (paths[0] === undefined || paths[0].length === 0) {
+                  return createError({ path, message: `At program path [${progPathIdx}], the Viewable Name must not be blank` });
+                }
+                if (paths[1] === undefined || paths[1].length === 0) {
+                  return createError({ path, message: `At program path [${progPathIdx}], the Executable Path must not be blank` });
+                }
               }
-              // Both strings must have length
-              if (value[0] === undefined || value[0].length === 0) {
-                return createError({ path, message: `At the [${progPathIdx}] program path, the Viewable Name must not be blank` });
-              }
-              if (value[1] === undefined || value[1].length === 0) {
-                return createError({ path, message: `At the [${progPathIdx}] program path, the Executable Path must not be blank` });
-              }
-            }
-            return true; // Validation passed
-          })
+              return true; // Validation passed
+            })
+        })
       ),
   })
 }
