@@ -1,6 +1,4 @@
 // TODO: when updating, auto fill info
-// TODO: disable the save button when the formdata hasn't changed while editing/updating
-// TODO: get form errors from the setDisabled effect rather than on update, so if the initial data is somehow incorrect, errors will still show
 
 /* eslint-disable no-use-before-define */
 /* eslint-disable promise/catch-or-return */
@@ -103,18 +101,34 @@ export default function Edit() {
     }
   ), [game_data])
   const program_path = Object.entries(prog_obj).map((paths, id) => ({id, paths}))
-  const [formData, setFormData] = useState({ path, title, url, image, version, description, program_path })
+  const defaultFormData = useMemo<Pick<GameEntry, "url" | "path" | "title" | "image" | "version" | "description"> & { program_path: { id: number; paths: [string, string] }[] }>(
+    () => ({ path, title, url, image, version, description, program_path }),
+    [path, title, url, image, version, description, program_path]
+  )
+  const [formData, setFormData] = useState(defaultFormData)
 
   // Form Validation
   const gamelib = useSelector((state: RootState) => state.data.gamelib)
   const existingTitles = useMemo(() => (gamelib.map(g => g.title)), [gamelib])
   const formSchema = CreateEditFormSchema(existingTitles, title)
   useEffect(() => {
+    const formErrorKeys = ['path', 'title', 'url', 'image', 'version', 'description', 'program_path']
+    formErrorKeys.forEach(key => {
+      const schema = yup_reach(formSchema, key) as StringSchema
+      schema.validate((formData as {[key: string]: any})[key], {context: formData.program_path})
+        .catch(({ errors }) => {
+          setFormErrors({ ...formErrors, [key]: errors[0] })
+        })
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+  useEffect(() => {
     formSchema.isValid(formData, {context: formData.program_path})
       .then(isEditValid => {
-        setSubmitDisabled(!isEditValid)
+        const isFormUpdated = JSON.stringify(defaultFormData) !== JSON.stringify(formData)
+        setSubmitDisabled(!isFormUpdated || !isEditValid)
       })
-  }, [formData, formSchema])
+  }, [defaultFormData, formData, formSchema])
 
   const handleFormChange = (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string, value: string | string[] | {id: number, paths: [string, string]}[] } }) => {
     // FIXME: if formdata image array already has 2 elements, handle updating the old gif/image
@@ -446,7 +460,7 @@ export default function Edit() {
 
         <Picker
           submitHandler={{
-            text: 'Save',
+            text: 'Save and Close',
             handler: submitHandler
           }}
           cancelHandler={{

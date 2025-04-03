@@ -93,6 +93,7 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
   }), [tagValues, statusValues, categories, isBrowse, additionalFormData])
 
   useEffect(() => {
+    // FIXME: the defaults are applied every time the edit form changes
     if (allowSetDefault) {
       setFormData(defaultFormData)
       setFormErrors(Object.keys(defaultFormData.categories).reduce((acc: {[key: string]: string}, cur) => {
@@ -107,9 +108,11 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
     // eslint-disable-next-line promise/catch-or-return
     formSchema.isValid(formData)
       .then(isPickerValid => {
+        // const isFormUpdated = JSON.stringify(defaultFormData) === JSON.stringify(formData)
+        // setSubmitDisabled(isFormUpdated || !isPickerValid)
         setSubmitDisabled(!isPickerValid)
       })
-  }, [formData, formSchema])
+  }, [formData, formSchema, defaultFormData])
   //    _    ___   ___ ___ ___
   //   | |  / _ \ / __|_ _/ __|
   //   | |_| (_) | (_ || | (__
@@ -145,6 +148,7 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
     if (!isBrowse)
       setAllowSetDefault(true)
   }
+
   const handleReset = (evt: MouseEvent<HTMLButtonElement>) => {
     evt.preventDefault()
     if (isBrowse) {
@@ -191,6 +195,7 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
         <button
           type='submit'
           onClick={handleSubmit}
+          // FIXME: when the picker updates, the edit's disabled state needs to be checked that it's disabled for an error and not just 'cause it hasn't been updated
           disabled={isBrowse ? false : (submitDisabled || additionalFormData?.disabledState)}
         >{submitHandler.text}</button>
       </div>
