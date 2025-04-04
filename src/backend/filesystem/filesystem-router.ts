@@ -93,11 +93,21 @@ router.post('/missinggames', async (req, res) => {
     return !gamefol.existsSync()
   })
     .map(missing => {
-      let fuzzy_search = fuzzy.search(missing.title)
-      if (!fuzzy_search.length) {
-        fuzzy_search = fuzzy.search(missing.path)
+      const fuzzy_search_title = fuzzy.search(missing.title)[0]
+      const fuzzy_search_path = fuzzy.search(missing.path)[0]
+      if (!fuzzy_search_title) {
+        missing.possible_new_path = fuzzy_search_path?.item.basename
+      } else if (!fuzzy_search_path) {
+        missing.possible_new_path = fuzzy_search_title?.item.basename
+      } else {
+        const match_score_title = fuzzy_search_title.score!
+        const match_score_path = fuzzy_search_path.score!
+        if (match_score_path < match_score_title) {
+          missing.possible_new_path = fuzzy_search_path.item.basename
+        } else {
+          missing.possible_new_path = fuzzy_search_title.item.basename
+        }
       }
-      missing.possible_new_path = fuzzy_search[0]?.item.basename
       return missing
     })
   res.status(200).json(missingGames)
