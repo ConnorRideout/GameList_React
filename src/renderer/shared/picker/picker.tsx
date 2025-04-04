@@ -2,7 +2,7 @@
 
 /* eslint-disable import/no-cycle */
 /* eslint-disable jsx-a11y/label-has-associated-control */
-import React, { useState, useEffect, ChangeEvent, useMemo, MouseEvent } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 import { reach as yup_reach, StringSchema } from 'yup'
@@ -92,9 +92,21 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
     }, {}),
   }), [tagValues, statusValues, categories, isBrowse, additionalFormData])
 
+  const defaultFormDataRef = useRef<{
+    categories: {
+        [key: string]: string;
+    };
+    statuses: {
+        [key: string]: number;
+    };
+    tags: {
+        [key: string]: number;
+    };
+  } | null>(null)
+
   useEffect(() => {
-    // FIXME: the defaults are applied every time the edit form changes
-    if (allowSetDefault) {
+    if (allowSetDefault && (!defaultFormDataRef.current || JSON.stringify(defaultFormDataRef.current) !== JSON.stringify(defaultFormData))) {
+      defaultFormDataRef.current = defaultFormData
       setFormData(defaultFormData)
       setFormErrors(Object.keys(defaultFormData.categories).reduce((acc: {[key: string]: string}, cur) => {
         acc[cur] = ''
@@ -108,18 +120,19 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
     // eslint-disable-next-line promise/catch-or-return
     formSchema.isValid(formData)
       .then(isPickerValid => {
-        // const isFormUpdated = JSON.stringify(defaultFormData) === JSON.stringify(formData)
-        // setSubmitDisabled(isFormUpdated || !isPickerValid)
-        setSubmitDisabled(!isPickerValid)
+        const isFormUpdated = JSON.stringify(defaultFormData) !== JSON.stringify(formData)
+        setSubmitDisabled(!isFormUpdated || !isPickerValid)
+        // setSubmitDisabled(!isPickerValid)
       })
   }, [formData, formSchema, defaultFormData])
+
   //    _    ___   ___ ___ ___
   //   | |  / _ \ / __|_ _/ __|
   //   | |_| (_) | (_ || | (__
   //   |____\___/ \___|___\___|
   //
 
-  const handleFormChange = (evt: ChangeEvent<HTMLInputElement | HTMLSelectElement>, tristate: boolean = false) => {
+  const handleFormChange = (evt: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, tristate: boolean = false) => {
     const {name, type, value, checked} = (evt.target as HTMLInputElement)
     let updated
     if (type === 'checkbox') {
@@ -141,15 +154,14 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
     setFormData({...formData, ...updated})
   }
 
-  const handleSubmit = async (evt: MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = async (evt: React.MouseEvent<HTMLButtonElement>) => {
     evt.preventDefault()
     setAllowSetDefault(false)
     await submitHandler.handler(formData)
-    if (!isBrowse)
-      setAllowSetDefault(true)
+    setAllowSetDefault(true)
   }
 
-  const handleReset = (evt: MouseEvent<HTMLButtonElement>) => {
+  const handleReset = (evt: React.MouseEvent<HTMLButtonElement>) => {
     evt.preventDefault()
     if (isBrowse) {
       setFlashClear(true)
@@ -196,7 +208,11 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
           type='submit'
           onClick={handleSubmit}
           // FIXME: when the picker updates, the edit's disabled state needs to be checked that it's disabled for an error and not just 'cause it hasn't been updated
-          disabled={isBrowse ? false : (submitDisabled || additionalFormData?.disabledState)}
+          disabled={isBrowse ? false : (
+            !!Object.values(formErrors).filter(e => e).length ||
+            !!Object.values(additionalFormData!.formErrors).filter(e => e).length ||
+            (submitDisabled && additionalFormData!.disabledState)
+          )}
         >{submitHandler.text}</button>
       </div>
     </PickerForm>

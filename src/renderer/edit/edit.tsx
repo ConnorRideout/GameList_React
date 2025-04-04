@@ -111,15 +111,27 @@ export default function Edit() {
   const gamelib = useSelector((state: RootState) => state.data.gamelib)
   const existingTitles = useMemo(() => (gamelib.map(g => g.title)), [gamelib])
   const formSchema = CreateEditFormSchema(existingTitles, title)
-  useEffect(() => {
+
+  const validateAll = useCallback((curFormData: typeof formData) => {
+    console.log('validate all')
     const formErrorKeys = ['path', 'title', 'url', 'image', 'version', 'description', 'program_path']
-    formErrorKeys.forEach(key => {
-      const schema = yup_reach(formSchema, key) as StringSchema
-      schema.validate((formData as {[key: string]: any})[key], {context: formData.program_path})
-        .catch(({ errors }) => {
-          setFormErrors({ ...formErrors, [key]: errors[0] })
-        })
+    setFormErrors(prev => {
+      const newErrors: {[key: string]: any} = {...prev}
+      formErrorKeys.forEach(key => {
+        const schema = yup_reach(formSchema, key) as StringSchema
+        schema.validate((curFormData as {[key: string]: any})[key], {context: curFormData.program_path})
+          .then(() => {
+            newErrors[key] = ''
+          })
+          .catch(({ errors: [err] }) => {
+            newErrors[key] = err
+          })
+      })
+      return newErrors as typeof prev
     })
+  }, [formSchema])
+  useEffect(() => {
+    validateAll(formData)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   useEffect(() => {
@@ -356,14 +368,16 @@ export default function Edit() {
         const { redirectedUrl } = rawUpdatedUrl
         // update formData
         setFormData({ path: currentMissing.path, title, url: redirectedUrl, image, version, description, program_path })
+        setAdditionalFormDataDefaults({tags, status, categories})
         // clear visual and effect blocking
         setIsLoading(false)
         blockUpdateEdit.current = false
+        validateAll({ path: currentMissing.path, title, url: redirectedUrl, image, version, description, program_path })
         setFlashPath(true)
         setTimeout(() => setFlashPath(false), 300)
       })()
     }
-  }, [editType, game_data, formData, currentMissing, checkForUpdatedUrl, title, url, image, version, description, program_path])
+  }, [editType, game_data, formData, currentMissing, checkForUpdatedUrl, title, url, image, version, description, program_path, tags, status, categories, validateAll])
 
   //      _   ___  ___ ___ _  _  ___   _  _ _____      __   ___   _   __  __ ___ ___
   //     /_\ |   \|   \_ _| \| |/ __| | \| | __\ \    / /  / __| /_\ |  \/  | __/ __|
