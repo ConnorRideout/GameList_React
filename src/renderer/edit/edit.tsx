@@ -282,6 +282,7 @@ export default function Edit() {
   const additionalFormData = {
     defaults: additionalFormDataDefaults,
     disabledState: submitDisabled,
+    isLoading,
     formErrors
   }
 

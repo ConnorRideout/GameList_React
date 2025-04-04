@@ -47,6 +47,7 @@ interface Props {
   additionalFormData?: {
     defaults: Pick<GameEntry, 'tags' | 'status' | 'categories'>,
     disabledState: boolean,
+    isLoading: boolean,
     formErrors: {[key: string]: string}
   } | null,
 }
@@ -192,7 +193,7 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
         handleFormChange={handleFormChange}
         formData={formData}
       />
-      {!isBrowse && (Object.values(formErrors).find(s => s) || Object.values(additionalFormData!.formErrors).find(s => s)) && (
+      {!isBrowse && !additionalFormData!.isLoading && (Object.values(formErrors).find(s => s) || Object.values(additionalFormData!.formErrors).find(s => s)) && (
         <>
           <p className='error'>{Object.values(additionalFormData!.formErrors).find(s => s)}</p>
           <p className='error'>{Object.values(formErrors).find(s => s)}</p>
