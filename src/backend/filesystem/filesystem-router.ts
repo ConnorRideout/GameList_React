@@ -93,9 +93,9 @@ router.post('/missinggames', async (req, res) => {
     return !gamefol.existsSync()
   })
     .map(missing => {
-      let fuzzy_search = fuzzy.search(missing.path)
+      let fuzzy_search = fuzzy.search(missing.title)
       if (!fuzzy_search.length) {
-        fuzzy_search = fuzzy.search(missing.title)
+        fuzzy_search = fuzzy.search(missing.path)
       }
       missing.possible_new_path = fuzzy_search[0]?.item.basename
       return missing

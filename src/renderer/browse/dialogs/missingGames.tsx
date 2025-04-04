@@ -74,10 +74,14 @@ export default function MissingGames() {
   useEffect(() => {
     // if returning from edit, make sure updatedMissingGames is still correct
     if (missingGames && missingGames.length && editType === 'update') {
+      console.log('returning from edit')
       dispatch(setEditType('edit'));
       (async () => {
-        await checkForMissingGames(gameslist.map(({ game_id, title, path }) => ({ game_id, title, path })))
-        const updated = missingGames.filter(miss => gameslist.find(g => g.game_id === miss.game_id)!.path !== miss.path)
+        const recheckedMissingGames = await checkForMissingGames(gameslist.map(({ game_id, title, path }) => ({ game_id, title, path }))).unwrap()
+        const updated = missingGames.filter(miss => (
+          gameslist.find(g => g.game_id === miss.game_id)!.path !== miss.path &&
+          recheckedMissingGames.find(m => m.game_id === miss.game_id)
+        ))
         setUpdatedMissingGames(updated)
       })()
     }
@@ -114,7 +118,6 @@ export default function MissingGames() {
   }
 
   const updateFolderToFuzzy = (missingGame: GamelibState['missingGames'][0]) => {
-    console.log('up')
     const newUpdatedMissingGames = updatedMissingGames.filter(g => g.game_id !== missingGame.game_id)
     newUpdatedMissingGames.push({ ...missingGame, path: missingGame.possible_new_path! })
     setUpdatedMissingGames(newUpdatedMissingGames)

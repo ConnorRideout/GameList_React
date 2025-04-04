@@ -2,9 +2,9 @@
 // TODO? resizeable
 // TODO? light mode
 // TODO: if settings are default, prompt user for what they should be updated to
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { MemoryRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import './styles/App.scss'
 
 import Browse from './browse/browse'
@@ -32,6 +32,7 @@ import {
 import {
   clearEditGame
 } from '../lib/store/gamelibrary'
+import { RootState } from '../types'
 
 function Wrapper({children}: {children: React.ReactNode}) {
   const navigate = useNavigate()
@@ -41,9 +42,12 @@ function Wrapper({children}: {children: React.ReactNode}) {
   useGetStatusesQuery()
   useGetTagsQuery()
   useGetDislikedGamesQuery()
-  const {data: settings} = useGetSettingsQuery()
-  const {data: games} = useGetGamesQuery()
+  const {data: startupSettings} = useGetSettingsQuery()
+  const {data: startupGames} = useGetGamesQuery()
   const [blockCheckMissing, setBlockCheckMissing] = useState(false)
+
+  const settings = useSelector((state: RootState) => state.data.settings)
+  const games = useSelector((state: RootState) => state.data.gamelib)
 
   const [checkForMissingGames] = useCheckMissingGamesMutation()
   const [checkForNewGames] = useLazyCheckNewGamesQuery()
@@ -51,15 +55,25 @@ function Wrapper({children}: {children: React.ReactNode}) {
 
   const [showNotes, setShowNotes] = useState(false)
 
+  const doOpenGamesFol = useCallback(() => {
+    openFolder(settings.games_folder)
+  }, [openFolder, settings.games_folder])
+
+  const gamesRef = useRef(startupGames)
+
+  useEffect(() => {
+    gamesRef.current = games
+  }, [games])
+
   // startup state
   useEffect(() => {
-    if (!blockCheckMissing && games && settings) {
+    if (!blockCheckMissing && startupGames && startupSettings) {
       setBlockCheckMissing(true)
-      checkForMissingGames(games.map(({game_id, title, path}) => ({game_id, title, path})))
+      checkForMissingGames(startupGames.map(({game_id, title, path}) => ({game_id, title, path})))
       window.electron.onMenuAction((action) => {
         switch (action.type) {
           case 'OPEN_GAMES_FOLDER': {
-            openFolder(settings.games_folder)
+            doOpenGamesFol()
             break
           }
           case 'OPEN_SETTINGS': {
@@ -69,7 +83,7 @@ function Wrapper({children}: {children: React.ReactNode}) {
           case 'CHECK_MISSING': {
             dispatch(clearEditGame())
             navigate('/')
-            checkForMissingGames(games!.map(({game_id, title, path}) => ({game_id, title, path})))
+            checkForMissingGames(gamesRef.current!.map(({game_id, title, path}) => ({game_id, title, path})))
             break
           }
           case 'CHECK_NEW': {
@@ -90,7 +104,7 @@ function Wrapper({children}: {children: React.ReactNode}) {
         }
       })
     }
-  }, [games, settings, blockCheckMissing, navigate, dispatch, checkForMissingGames, checkForNewGames, openFolder])
+  }, [blockCheckMissing, checkForMissingGames, checkForNewGames, dispatch, doOpenGamesFol, navigate, startupGames, startupSettings])
 
   return (
     <>
