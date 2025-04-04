@@ -293,7 +293,7 @@ async function updateGame(game: {
   const delTagIds = oldTagIds.filter(({tag_id}) => newTagIds.findIndex(t => t.tag_id === tag_id) === -1)
   // figure out which statuses need to be added and which need to be deleted
   const newStatusIds = await Promise.all(status.map(stat => getStatusByName(stat)))
-  const oldStatusIds = await Promise.all((oldGame.status || '').split(',').map(stat => getStatusByName(stat)))
+  const oldStatusIds = oldGame.status ? await Promise.all(oldGame.status.split(',').map(stat => getStatusByName(stat))) : []
   const addStatusIds = newStatusIds.filter(({status_id}) => oldStatusIds.findIndex(s => s.status_id === status_id) === -1)
   const delStatusIds = oldStatusIds.filter(({status_id}) => newStatusIds.findIndex(s => s.status_id === status_id) === -1)
   // parse categories
