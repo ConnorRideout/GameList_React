@@ -74,7 +74,6 @@ export default function MissingGames() {
   useEffect(() => {
     // if returning from edit, make sure updatedMissingGames is still correct
     if (missingGames && missingGames.length && editType === 'update') {
-      console.log('returning from edit')
       dispatch(setEditType('edit'));
       (async () => {
         const recheckedMissingGames = await checkForMissingGames(gameslist.map(({ game_id, title, path }) => ({ game_id, title, path }))).unwrap()
@@ -166,10 +165,11 @@ export default function MissingGames() {
               )}
               {g.possible_new_path && (updatedMissingGames.find(upg => upg.game_id === g.game_id)?.path !== g.possible_new_path) && (
                 <Tooltip
+                  className="missing-status"
                   anchorSelect={`#missingGames-check-btn-${g.game_id}`}
                   place="top"
                 >
-                  Set new path to the close matched folder:
+                  Set new path to the close matched folder:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                   <p className="updated">
                     {`<games>\\${g.possible_new_path}`}
                   </p>
@@ -186,7 +186,7 @@ export default function MissingGames() {
               <Tooltip
                 anchorSelect={`#missingGames-${g.game_id}`}
                 place="bottom-start"
-                className="missing-status."
+                className="missing-status"
               >
                 Current pointer:
                 <p className={isUpdated ? 'updated' : deletedGames.includes(g.game_id) ? 'error' : 'warning'}>
