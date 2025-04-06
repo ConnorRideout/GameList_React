@@ -208,7 +208,6 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
         <button
           type='submit'
           onClick={handleSubmit}
-          // FIXME: when the picker updates, the edit's disabled state needs to be checked that it's disabled for an error and not just 'cause it hasn't been updated
           disabled={isBrowse ? false : (
             !!Object.values(formErrors).filter(e => e).length ||
             !!Object.values(additionalFormData!.formErrors).filter(e => e).length ||

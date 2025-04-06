@@ -10,6 +10,7 @@ import { StringSchema, reach as yup_reach } from "yup"
 
 import Picker, { FormState } from "../shared/picker/picker"
 import ErrorMessage from "../shared/errorMessage"
+import Tooltip from "../shared/tooltip"
 import Info from "./info"
 import CreateEditFormSchema from "./edit_schema"
 
@@ -24,6 +25,7 @@ import {
   FolderOpenSvg,
   FolderEditSvg,
   WebSvg,
+  RefreshSvg,
 } from "../shared/svg"
 import {
   useOpenUrlMutation,
@@ -301,6 +303,16 @@ export default function Edit() {
     })
   }
 
+  const handleCheckUpdatedUrl = async () => {
+    const updated = await checkForUpdatedUrl(formData.url).unwrap()
+    if (updated.message === 'updated') {
+      setFormData(prev => ({...prev, url: updated.redirectedUrl}))
+      // TODO: flash url input to indicate it was updated
+    } else {
+      // TODO: indicate the url was not updated
+    }
+  }
+
   //    ___  ___    _   ___ _ _  _ _ ___  ___  ___  ___
   //   |   \| _ \  /_\ / __( ) \| ( )   \| _ \/ _ \| _ \
   //   | |) |   / / _ \ (_ |/| .` |/| |) |   / (_) |  _/
@@ -445,7 +457,7 @@ export default function Edit() {
         </fieldset>
 
         <fieldset className="horizontal-container">
-          {/* TODO: button to check for updated url */}
+
           <legend>URL</legend>
           <input
             type="text"
@@ -454,6 +466,18 @@ export default function Edit() {
             onChange={handleFormChange}
             value={formData.url}
           />
+          <button
+            type='button'
+            className="svg-button small floating"
+            onClick={handleCheckUpdatedUrl}
+          >
+            <RefreshSvg />
+          </button>
+          <Tooltip
+            anchorSelect=".svg-button.small.floating"
+          >
+            Check if URL has been updated
+          </Tooltip>
           <button
             type='button'
             className="svg-button"

@@ -107,3 +107,12 @@
   width: calc(100% - variables.$spacing*2);
   padding-right: 0;
 }
+
+button.svg-button.small.floating {
+  align-self: center;
+  position: relative;
+  margin-left: -12px;
+  left: -15px;
+  background: transparent;
+  border: none;
+}

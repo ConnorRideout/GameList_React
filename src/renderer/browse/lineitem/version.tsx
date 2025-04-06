@@ -55,11 +55,15 @@ export default function Version({game_id, version, timestamps, url, status_color
   return (
     <fieldset className='version-container'>
       <legend>Version
-        <button id={`version-btn-${game_id}`} type='button' onClick={handleCheckUpdate}>
+        <button
+          id={`versionBtn${game_id}`}
+          type='button'
+          onClick={handleCheckUpdate}
+        >
           <RefreshSvg />
         </button>
         <Tooltip
-          anchorSelect={`#version-btn-${game_id}`}
+          anchorSelect={`#versionBtn${game_id}`}
           isOpen={!!updateMessage}
           closeEvents={{}}
           delayShow={0}
@@ -72,10 +76,10 @@ export default function Version({game_id, version, timestamps, url, status_color
           )}
         </Tooltip>
       </legend>
-      <p id={`version-${game_id}`} style={{color: status_color}}>
+      <p id={`version${game_id}`} style={{color: status_color}}>
         {version}
       </p>
-      <Tooltip anchorSelect={`#version-${game_id}`}>
+      <Tooltip anchorSelect={`#version${game_id}`}>
         {Object.entries(timestamps).map(([time, timestamp]) => (
           timestamp == null
             ? ''
