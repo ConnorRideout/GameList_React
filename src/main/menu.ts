@@ -1,5 +1,3 @@
-// TODO: when checking for new/missing games, indicate if none were found somehow
-
 import {
   // app,
   Menu,

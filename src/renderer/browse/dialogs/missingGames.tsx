@@ -169,10 +169,11 @@ export default function MissingGames() {
                   anchorSelect={`#missingGames-check-btn-${g.game_id}`}
                   place="top"
                 >
-                  Set new path to the close matched folder:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                  We found this folder that closely matches the old path:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                   <p className="updated">
                     {`<games>\\${g.possible_new_path}`}
                   </p>
+                  Do you want to update the game to use this folder?
                 </Tooltip>
               )}
             </span>

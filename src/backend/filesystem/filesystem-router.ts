@@ -81,40 +81,7 @@ router.post('/open/:type', async (req, res, next) => {
   }
 })
 
-router.post('/missinggames', async (req, res) => {
-  const settings = await getSettings()
-  const games_folder = new Path(settings.games_folder)
-  const all_games = (await games_folder.getPathsNLevelsAway(1, false)).map(p => ({basename: p.basename}))
-  const fuzzy = new Fuse(all_games, {keys: ['basename']})
-  const { games }: { games: MissingGamesType } = req.body
-  // check for missing games
-  const missingGames = games.filter(({ path }) => {
-    const gamefol = games_folder.join(path)
-    return !gamefol.existsSync()
-  })
-    .map(missing => {
-      const fuzzy_search_title = fuzzy.search(missing.title)[0]
-      const fuzzy_search_path = fuzzy.search(missing.path)[0]
-      if (!fuzzy_search_title) {
-        missing.possible_new_path = fuzzy_search_path?.item.basename
-      } else if (!fuzzy_search_path) {
-        missing.possible_new_path = fuzzy_search_title?.item.basename
-      } else {
-        const match_score_title = fuzzy_search_title.score!
-        const match_score_path = fuzzy_search_path.score!
-        if (match_score_path < match_score_title) {
-          missing.possible_new_path = fuzzy_search_path.item.basename
-        } else {
-          missing.possible_new_path = fuzzy_search_title.item.basename
-        }
-      }
-      return missing
-    })
-  res.status(200).json(missingGames)
-})
-
-router.get('/newgames', async (req, res, next) => {
-  const settings = await getSettings()
+async function getNewGames(settings: SettingsType) {
   // get games dir
   const games_dir = new Path(settings.games_folder)
   // parse existing games
@@ -122,20 +89,63 @@ router.get('/newgames', async (req, res, next) => {
   const existingGames = rawExistingGames.map(p => games_dir.join(p.path).path)
   // find folders that aren't in existing games
   const newGames: string[] = []
-  games_dir.getPathsNLevelsAway(1, false)
-    .then(paths => {
-      paths.forEach(pth => {
-        if (pth.stem[0] === '_')
-          return
-        if (pth.isFileSync() && !settings.file_types.Executables.includes(pth.ext.replace(/^\./, '')))
-          return
-        if (existingGames.includes(pth.path))
-          return
-        newGames.push(games_dir.relative(pth.path))
-      })
+  const paths = await games_dir.getPathsNLevelsAway(1, false)
+  paths.forEach(pth => {
+    if (pth.stem[0] === '_')
+      return
+    if (pth.isFileSync() && !settings.file_types.Executables.includes(pth.ext.replace(/^\./, '')))
+      return
+    if (existingGames.includes(pth.path))
+      return
+    newGames.push(games_dir.relative(pth.path))
+  })
+  return newGames
+}
+
+router.get('/newgames', async (req, res, next) => {
+  const settings = await getSettings()
+  getNewGames(settings)
+    .then(newGames => {
       res.status(200).json(newGames)
     })
     .catch(next)
+})
+
+router.post('/missinggames', async (req, res, next) => {
+  try {
+    const settings = await getSettings()
+    const games_folder = new Path(settings.games_folder)
+    // get games that should be checked against, i.e. ones that don't already have a pointer
+    const unreferenced_games = (await getNewGames(settings)).map(basename => ({basename}))
+    const fuzzy = new Fuse(unreferenced_games, {keys: ['basename']})
+    const { games }: { games: MissingGamesType } = req.body
+    // check for missing games
+    const missingGames = games.filter(({ path }) => {
+      const gamefol = games_folder.join(path)
+      return !gamefol.existsSync()
+    })
+      .map(missing => {
+        const fuzzy_search_title = fuzzy.search(missing.title)[0]
+        const fuzzy_search_path = fuzzy.search(missing.path)[0]
+        if (!fuzzy_search_title) {
+          missing.possible_new_path = fuzzy_search_path?.item.basename
+        } else if (!fuzzy_search_path) {
+          missing.possible_new_path = fuzzy_search_title?.item.basename
+        } else {
+          const match_score_title = fuzzy_search_title.score!
+          const match_score_path = fuzzy_search_path.score!
+          if (match_score_path < match_score_title) {
+            missing.possible_new_path = fuzzy_search_path.item.basename
+          } else {
+            missing.possible_new_path = fuzzy_search_title.item.basename
+          }
+        }
+        return missing
+      })
+    res.status(200).json(missingGames)
+  } catch (error) {
+    next(error)
+  }
 })
 
 router.delete('/file', (req, res, next) => {
@@ -143,67 +153,72 @@ router.delete('/file', (req, res, next) => {
     const { file } = req.body
     const filePath = new Path(file)
     filePath.removeSync()
+    res.status(200).json({message: `deleted file "${file}"`})
   } catch (error) {
     next({ message: error })
   }
 })
 
-router.post('/getexecutables', async (req, res) => {
-  const settings = await getSettings()
+router.post('/getexecutables', async (req, res, next) => {
+  try {
+    const settings = await getSettings()
 
-  const { top_path, existing_paths }: { top_path: string, existing_paths: string[] } = req.body
-  const parent_path = new Path(settings.games_folder, top_path)
-  // get new paths
-  const file_extensions = settings.file_types.Executables.map(ext => ext.toLowerCase())
-  const regex_tests = settings.ignored_exes.map(re_str => new RegExp(re_str))
+    const { top_path, existing_paths }: { top_path: string, existing_paths: string[] } = req.body
+    const parent_path = new Path(settings.games_folder, top_path)
+    // get new paths
+    const file_extensions = settings.file_types.Executables.map(ext => ext.toLowerCase())
+    const regex_tests = settings.ignored_exes.map(re_str => new RegExp(re_str))
 
-  const getFilepathsNLevelsAway = async (n: number) => {
-    const all_filepaths = await parent_path.getPathsNLevelsAway(n, false, { onlyFiles: true })
-    const valid_files = all_filepaths.filter(p => {
-      if (!file_extensions.includes(p.ext.toLowerCase().slice(1)))
-        return false
-      // eslint-disable-next-line no-restricted-syntax
-      for (const re of regex_tests) {
-        if (re.test(p.basename))
+    const getFilepathsNLevelsAway = async (n: number) => {
+      const all_filepaths = await parent_path.getPathsNLevelsAway(n, false, { onlyFiles: true })
+      const valid_files = all_filepaths.filter(p => {
+        if (!file_extensions.includes(p.ext.toLowerCase().slice(1)))
           return false
-      }
-      return true
-    })
-    const valid_filepaths = valid_files.map(p => parent_path.relative(p))
-    return valid_filepaths
-  }
-
-  let filepaths = await getFilepathsNLevelsAway(1)
-  if (!filepaths.length) {
-    filepaths = await getFilepathsNLevelsAway(2)
-  }
-  if (!filepaths.length) {
-    filepaths = await getFilepathsNLevelsAway(3)
-  }
-
-  // check existing paths, and if they still exist, insert them in the same order where they previously were
-  existing_paths.forEach((str_path, idx) => {
-    const pth = parent_path.join(str_path)
-    const relative_pth = parent_path.relative(pth)
-    if (pth.existsSync()) {
-      if (!filepaths.includes(relative_pth)) {
-        if (filepaths.length > idx)
-          filepaths.splice(idx, 0, relative_pth)
-        else
-          filepaths.push(relative_pth)
-      } else if (filepaths.indexOf(str_path) !== idx) {
-        filepaths.splice(filepaths.indexOf(str_path), 1)
-        if (filepaths.length > idx)
-          filepaths.splice(idx, 0, relative_pth)
-        else
-          filepaths.push(relative_pth)
-      }
+        // eslint-disable-next-line no-restricted-syntax
+        for (const re of regex_tests) {
+          if (re.test(p.basename))
+            return false
+        }
+        return true
+      })
+      const valid_filepaths = valid_files.map(p => parent_path.relative(p))
+      return valid_filepaths
     }
-  })
 
-  res.status(200).json({
-    filepaths
-  })
+    let filepaths = await getFilepathsNLevelsAway(1)
+    if (!filepaths.length) {
+      filepaths = await getFilepathsNLevelsAway(2)
+    }
+    if (!filepaths.length) {
+      filepaths = await getFilepathsNLevelsAway(3)
+    }
+
+    // check existing paths, and if they still exist, insert them in the same order where they previously were
+    existing_paths.forEach((str_path, idx) => {
+      const pth = parent_path.join(str_path)
+      const relative_pth = parent_path.relative(pth)
+      if (pth.existsSync()) {
+        if (!filepaths.includes(relative_pth)) {
+          if (filepaths.length > idx)
+            filepaths.splice(idx, 0, relative_pth)
+          else
+            filepaths.push(relative_pth)
+        } else if (filepaths.indexOf(str_path) !== idx) {
+          filepaths.splice(filepaths.indexOf(str_path), 1)
+          if (filepaths.length > idx)
+            filepaths.splice(idx, 0, relative_pth)
+          else
+            filepaths.push(relative_pth)
+        }
+      }
+    })
+
+    res.status(200).json({
+      filepaths
+    })
+  } catch (error) {
+    next({message: error})
+  }
 })
 
 

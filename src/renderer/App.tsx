@@ -70,7 +70,7 @@ function Wrapper({children}: {children: React.ReactNode}) {
     if (!blockCheckMissing && startupGames && startupSettings) {
       setBlockCheckMissing(true)
       checkForMissingGames(startupGames.map(({game_id, title, path}) => ({game_id, title, path})))
-      window.electron.onMenuAction((action) => {
+      window.electron.onMenuAction(async (action) => {
         switch (action.type) {
           case 'OPEN_GAMES_FOLDER': {
             doOpenGamesFol()
@@ -83,17 +83,37 @@ function Wrapper({children}: {children: React.ReactNode}) {
           case 'CHECK_MISSING': {
             dispatch(clearEditGame())
             navigate('/')
-            checkForMissingGames(gamesRef.current!.map(({game_id, title, path}) => ({game_id, title, path})))
+            const missGames = await checkForMissingGames(gamesRef.current!.map(({game_id, title, path}) => ({game_id, title, path}))).unwrap()
+            // timeout so the redux state has a chance to update
+            setTimeout(() => {
+              if (!missGames.length) {
+                window.electron.showMessageBox(
+                  "Missing Games",
+                  "No games are missing!",
+                  "info"
+                )
+              }
+            }, 100)
             break
           }
           case 'CHECK_NEW': {
             dispatch(clearEditGame())
             navigate('/')
-            checkForNewGames()
+            const newGames = await checkForNewGames().unwrap()
+            // timeout so the redux state has a chance to update
+            setTimeout(() => {
+              if (!newGames.length) {
+                window.electron.showMessageBox(
+                  "New Games",
+                  "No new games were found!",
+                  "info"
+                )
+              }
+            }, 100)
             break
           }
           case 'CHECK_UPDATED': {
-            // TODO: check for updated urls for all games
+            // TODO? check for updated urls for all games
             break
           }
           case 'OPEN_DISLIKE_NOTES': {
