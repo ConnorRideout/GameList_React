@@ -1,7 +1,6 @@
 // TODO? transitions between screens
 // TODO? resizeable
 // TODO? light mode
-// TODO: if settings are default, prompt user for what they should be updated to
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { MemoryRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -69,7 +68,6 @@ function Wrapper({children}: {children: React.ReactNode}) {
   useEffect(() => {
     if (!blockCheckMissing && startupGames && startupSettings) {
       setBlockCheckMissing(true)
-      checkForMissingGames(startupGames.map(({game_id, title, path}) => ({game_id, title, path})))
       window.electron.onMenuAction(async (action) => {
         switch (action.type) {
           case 'OPEN_GAMES_FOLDER': {
@@ -123,6 +121,17 @@ function Wrapper({children}: {children: React.ReactNode}) {
           default:
         }
       })
+      // if the settings haven't been set, go to them
+      // TODO? might need to check more settings for defaults?
+      if (!startupSettings.games_folder) {
+        window.electron.showMessageBox(
+          "Welcome!",
+          "Welcome to the GameLibrary! Please set your default settings."
+        )
+        navigate('/settings')
+      } else {
+        checkForMissingGames(startupGames.map(({game_id, title, path}) => ({game_id, title, path})))
+      }
     }
   }, [blockCheckMissing, checkForMissingGames, checkForNewGames, dispatch, doOpenGamesFol, navigate, startupGames, startupSettings])
 

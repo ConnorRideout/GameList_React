@@ -1,3 +1,4 @@
+// TODO: if settings like the games folder are not set, disable the ability to close settings
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable promise/catch-or-return */
 /* eslint-disable import/no-cycle */
