@@ -16,7 +16,7 @@ import * as yup from 'yup'
 export default function CreateDisplayFormSchema() {
   return yup.object().shape({
     games_folder: yup.string()
-      .required('Display Warning: the games folder must be set'),
+      .required('Display Error: the games folder must be set'),
     locale_emulator: yup.string(),
     file_types: yup.object().shape({
       Images: yup.array()
@@ -24,13 +24,13 @@ export default function CreateDisplayFormSchema() {
           yup.string()
             .required('Display Warning: image extensions cannot be blank')
         )
-        .min(1, 'Display Warning: at least one image extension must be defined'),
+        .min(1, 'Display Error: at least one image extension must be defined'),
       Executables: yup.array()
         .of(
           yup.string()
             .required('Display Warning: executable extensions cannot be blank')
         )
-        .min(1, 'Display Warning: at least one executable extension must be defined'),
+        .min(1, 'Display Error: at least one executable extension must be defined'),
     }),
     ignored_exes: yup.array()
       .of(

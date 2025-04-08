@@ -90,21 +90,21 @@ export default function Settings() {
 
   const formSchemaDisplay = CreateDisplayFormSchema()
   useEffect(() => {
-    console.log('running display schema effect')
+    // console.log('running display schema effect')
     formSchemaDisplay.validate(formDataDisplay, { abortEarly: false })
       .then(() => {
-        console.log('no display form error')
+        // console.log('no display form error')
         compareSetDisabled('display', formDataDisplay, defaultDisplayFormData)
         if (formErrors.display.length) {
-          console.log('clearing display form errors')
+          // console.log('clearing display form errors')
           setFormErrors(prevVal => ({...prevVal, display: []}))
         }
       })
       .catch(err => {
-        console.log('yes display form errors')
+        // console.log('yes display form errors')
         const uniqueErrors: string[] = Array.from(new Set(err.errors))
         if (JSON.stringify(uniqueErrors) !== JSON.stringify(formErrors.display)) {
-          console.log('new display form errors')
+          // console.log('new display form errors')
           setShouldBeDisabled(prevValue => ({...prevValue, display: true}))
           setFormErrors(prevVal => ({...prevVal, display: uniqueErrors}))
         }
@@ -122,21 +122,21 @@ export default function Settings() {
 
   const formSchemaGames = CreateGamesFormSchema()
   useEffect(() => {
-    console.log('running games schema effect')
+    // console.log('running games schema effect')
     formSchemaGames.validate(formDataGames, { abortEarly: false })
       .then(() => {
-        console.log('no games form errors')
+        // console.log('no games form errors')
         compareSetDisabled('games', formDataGames, defaultGamesFormData)
         if (formErrors.games.length) {
-          console.log('clearing games form errors')
+          // console.log('clearing games form errors')
           setFormErrors(prevVal => ({...prevVal, games: []}))
         }
       })
       .catch(err => {
-        console.log('yes games form errors')
+        // console.log('yes games form errors')
         const uniqueErrors: string[] = Array.from(new Set(err.errors))
         if (JSON.stringify(uniqueErrors) !== JSON.stringify(formErrors.games)) {
-          console.log('new games form errors')
+          // console.log('new games form errors')
           setShouldBeDisabled(prevVal => ({...prevVal, games: true}))
           setFormErrors(prevVal => ({...prevVal, games: uniqueErrors}))
         }
@@ -164,21 +164,21 @@ export default function Settings() {
 
   const formSchemaScrapers = CreateScrapersFormSchema()
   useEffect(() => {
-    console.log('running scraper schema effect')
+    // console.log('running scraper schema effect')
     formSchemaScrapers.validate(formDataScrapers, { abortEarly: false })
       .then(() => {
-        console.log('no scraper form errors')
+        // console.log('no scraper form errors')
         compareSetDisabled('scrapers', formDataScrapers, defaultScrapersFormData)
         if (formErrors.scrapers.length) {
-          console.log('clearing scraper form errors')
+          // console.log('clearing scraper form errors')
           setFormErrors(prevVal => ({...prevVal, scrapers: []}))
         }
       })
       .catch(err => {
-        console.log('yes scraper form errors')
+        // console.log('yes scraper form errors')
         const uniqueErrors: string[] = Array.from(new Set(err.errors))
         if (JSON.stringify(uniqueErrors) !== JSON.stringify(formErrors.scrapers)) {
-          console.log('new scraper form errors')
+          // console.log('new scraper form errors')
           setShouldBeDisabled(prevValue => ({...prevValue, scrapers: true}))
           setFormErrors(prevVal => ({...prevVal, scrapers: uniqueErrors}))
         }
@@ -305,6 +305,7 @@ export default function Settings() {
             <button
               type='button'
               onClick={handleClose}
+              disabled={Object.values(formErrors).flat().join(' ').includes('Error')}
             >Return</button>
             <button
               type='button'

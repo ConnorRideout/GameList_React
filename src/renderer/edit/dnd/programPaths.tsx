@@ -1,4 +1,3 @@
-// TODO? drag-n-drop lines
 /* eslint-disable react/no-array-index-key */
 import React, { ChangeEvent } from "react"
 
@@ -132,58 +131,6 @@ export default function ProgramPaths({handleFormChange, formData}: Pick<Props, '
           <PlusSvg />
         </button>
       </div>
-      {/* <div className="vertical-container">
-        {formData.program_path.map(([exe_name, exe_path], idx) => (
-          <div className="info-prog-path-horizontal-container" key={`progPath${idx}`}>
-            <button
-              type="button"
-              className="svg-button small"
-              onClick={() => handleAddRow(idx)}
-            >
-              <PlusSvg />
-            </button>
-
-            <input
-              type="text"
-              name="exe_path"
-              className="grow-3"
-              onChange={(evt) => handleProgramChange(evt, idx)}
-              value={exe_path}
-            />
-
-            <button
-              type="button"
-              className="svg-button small"
-              onClick={() => handleFileSearch(idx)}
-            >
-              <FileSearchSvg />
-            </button>
-
-            <input
-              type="text"
-              name="exe_name"
-              className="grow-2"
-              onChange={(evt) => handleProgramChange(evt, idx)}
-              value={exe_name}
-            />
-
-            <button
-              type="button"
-              className="svg-button small"
-              onClick={() => handleRemoveRow(idx)}
-            >
-              <MinusSvg />
-            </button>
-          </div>
-        ))}
-        <button
-          type="button"
-          className="svg-button small with-margin"
-          onClick={() => handleAddRow(-1)}
-        >
-          <PlusSvg />
-        </button>
-      </div> */}
     </div>
   )
 }

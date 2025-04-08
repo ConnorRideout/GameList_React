@@ -64,6 +64,12 @@ function Wrapper({children}: {children: React.ReactNode}) {
     gamesRef.current = games
   }, [games])
 
+  const settingsRef = useRef(startupSettings)
+
+  useEffect(() => {
+    settingsRef.current = settings
+  }, [settings])
+
   // startup state
   useEffect(() => {
     if (!blockCheckMissing && startupGames && startupSettings) {
@@ -79,35 +85,49 @@ function Wrapper({children}: {children: React.ReactNode}) {
             break
           }
           case 'CHECK_MISSING': {
-            dispatch(clearEditGame())
-            navigate('/')
-            const missGames = await checkForMissingGames(gamesRef.current!.map(({game_id, title, path}) => ({game_id, title, path}))).unwrap()
-            // timeout so the redux state has a chance to update
-            setTimeout(() => {
-              if (!missGames.length) {
-                window.electron.showMessageBox(
-                  "Missing Games",
-                  "No games are missing!",
-                  "info"
-                )
-              }
-            }, 100)
+            if (!settingsRef.current!.games_folder) {
+              window.electron.showMessageBox(
+                "Set Settings",
+                "Please set the required settings first."
+              )
+            } else {
+              dispatch(clearEditGame())
+              navigate('/')
+              const missGames = await checkForMissingGames(gamesRef.current!.map(({game_id, title, path}) => ({game_id, title, path}))).unwrap()
+              // use timeout so the redux state has a chance to update
+              setTimeout(() => {
+                if (!missGames.length) {
+                  window.electron.showMessageBox(
+                    "Missing Games",
+                    "No games are missing!",
+                    "info"
+                  )
+                }
+              }, 100)
+            }
             break
           }
           case 'CHECK_NEW': {
-            dispatch(clearEditGame())
-            navigate('/')
-            const newGames = await checkForNewGames().unwrap()
-            // timeout so the redux state has a chance to update
-            setTimeout(() => {
-              if (!newGames.length) {
-                window.electron.showMessageBox(
-                  "New Games",
-                  "No new games were found!",
-                  "info"
-                )
-              }
-            }, 100)
+            if (!settingsRef.current!.games_folder) {
+              window.electron.showMessageBox(
+                "Set Settings",
+                "Please set the required settings first."
+              )
+            } else {
+              dispatch(clearEditGame())
+              navigate('/')
+              const newGames = await checkForNewGames().unwrap()
+              // use timeout so the redux state has a chance to update
+              setTimeout(() => {
+                if (!newGames.length) {
+                  window.electron.showMessageBox(
+                    "New Games",
+                    "No new games were found!",
+                    "info"
+                  )
+                }
+              }, 100)
+            }
             break
           }
           case 'CHECK_UPDATED': {
@@ -122,7 +142,6 @@ function Wrapper({children}: {children: React.ReactNode}) {
         }
       })
       // if the settings haven't been set, go to them
-      // TODO? might need to check more settings for defaults?
       if (!startupSettings.games_folder) {
         window.electron.showMessageBox(
           "Welcome!",

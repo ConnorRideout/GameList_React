@@ -35,6 +35,7 @@ export default function CreateGamesFormSchema() {
             .nullable()
         })
       )
+      .min(1, "Game Preferences > Category Error: at least 1 category must be defined")
       .test('unique-names', 'Game Preferences > Category Warning: category names must be unique', (categories) => {
         if (!categories) return true
         const names = categories.map(c => c.category_name.trim().toLowerCase())
@@ -55,6 +56,7 @@ export default function CreateGamesFormSchema() {
           status_color_applies_to: yup.string(),
         })
       )
+      .min(1, "Game Preferences > Statuses Error: at least 1 status must be defined")
       .test('unique-names', 'Game Preferences > Status Warning: status names must be unique', (statuses) => {
         if (!statuses) return true
         const names = statuses.map(s => s.status_name.trim().toLowerCase())
@@ -67,12 +69,12 @@ export default function CreateGamesFormSchema() {
         yup.string()
           .required('Game Preferences > Tag Warning: every tag needs a name')
       )
+      .min(1, 'Game Preferences > Tag Error: there must be at least 1 tag')
       .test('unique-names', 'Game Preferences > Tag Warning: tag names must be unique', (tags) => {
         if (!tags) return true
         const tag_names = tags.map(t => t.trim().toLowerCase())
         const uniqueNames = new Set(tag_names)
         return tag_names.length === uniqueNames.size
       })
-      .min(1, 'Game Preferences > Tag Warning: there must be at least 1 tag')
   })
 }
