@@ -148,6 +148,13 @@ interface SettingsType {
   ignored_exes: string[];
   site_scrapers: {
     base_url: string;
+    login: {
+      username: string | null;
+      username_selector: string | null;
+      password: string | null;
+      password_selector: string | null;
+      submit_selector: string | null;
+    }
     selectors: {
       type: string; // title/description/version/tags | category_<cat_name>/status
       selector: string; // the selector to pass to document.querySelectorAll

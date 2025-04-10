@@ -1,12 +1,42 @@
 /* eslint-disable import/no-relative-packages */
 /* eslint-disable promise/no-callback-in-promise */
 import { Router } from 'express'
+import crypto from 'crypto'
+
 import * as Settings from './settings-model'
 
 import { StringMap, SettingsType, UpdatedSettingsType, DefaultGamesFormType } from '../../types'
 
 
 const router = Router()
+
+class PasswordEncryptor {
+  algorithm: string
+
+  keyBuffer: Buffer
+
+  constructor() {
+    this.algorithm = 'aes-256-cbc'
+    this.keyBuffer = crypto.createHash('sha256').update(process.env.SECRET_KEY!).digest()
+  }
+
+  encrypt(text: string) {
+    const iv = crypto.randomBytes(16)
+    const cipher = crypto.createCipheriv(this.algorithm, this.keyBuffer, iv);
+    let encrypted = cipher.update(text, 'utf-8', 'hex');
+    encrypted += cipher.final('hex');
+    return { password_iv: iv.toString('hex'), password: encrypted };
+  }
+
+  decrypt(encryptedPassword: string, iv: string) {
+    const decipher = crypto.createDecipheriv(this.algorithm, this.keyBuffer, Buffer.from(iv, 'hex'))
+    let decrypted = decipher.update(encryptedPassword, 'hex', 'utf-8')
+    decrypted += decipher.final('utf-8')
+    return decrypted
+  }
+}
+
+const passwordEncryptor = new PasswordEncryptor()
 
 function parseRawSettings(settings: Settings.RawSettings) {
   // parse defaults
@@ -32,7 +62,10 @@ function parseRawSettings(settings: Settings.RawSettings) {
     rest.queryAll = Boolean(rest.queryAll)
     rest.limit_text = Boolean(rest.limit_text)
     if (oldAcc === undefined) {
-      acc[website_id - 1] = {base_url, selectors: [rest]}
+      const {username, username_selector, password: encryptedPassword, password_iv, password_selector, submit_selector} = settings.logins.find(l => l.website_id === website_id)!
+      const password = encryptedPassword && password_iv ? passwordEncryptor.decrypt(encryptedPassword, password_iv) : null
+      const login = {username, username_selector, password, password_selector, submit_selector}
+      acc[website_id - 1] = {base_url, login, selectors: [rest]}
     } else {
       acc[website_id - 1].selectors.push(rest)
     }
@@ -67,6 +100,8 @@ router.get('/', (req, res, next) => {
 })
 
 function parseUpdatedSettings(settings: UpdatedSettingsType): Settings.RawSettings & DefaultGamesFormType {
+  // TODO: reformat settings to correct raw state
+
   return settings as unknown as Settings.RawSettings & DefaultGamesFormType
 }
 

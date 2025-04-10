@@ -1,6 +1,8 @@
 const express = require('express')
 const cors = require('cors')
-require('dotenv').config()
+const dotenv = require('dotenv')
+const { existsSync } = require('fs')
+const path = require('path')
 
 const browserManager = require('./websites/website-browser.ts')
 
@@ -11,6 +13,16 @@ const settingsRoutes = require('./settings/settings-router.ts')
 
 const { logger, errorHandler } = require('./middleware/middleware')
 
+if (existsSync('../../.env')) {
+  dotenv.config({path: path.resolve(__dirname, '../../.env')})
+} else {
+  const interval = setInterval(() => {
+    if (existsSync('../../.env')) {
+      dotenv.config({path: path.resolve(__dirname, '../../.env')})
+      clearInterval(interval)
+    }
+  }, 1000)
+}
 
 const server = express()
 

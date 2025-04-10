@@ -24,6 +24,16 @@ export interface RawSettings {
     limit_text: boolean,
     remove_regex: string | null,
   }[],
+  logins: {
+    website_id: number,
+    base_url: string,
+    username: string | null,
+    username_selector: string | null,
+    password: string | null,
+    password_iv: string | null,
+    password_selector: string | null,
+    submit_selector: string | null,
+  }[],
   site_scraper_aliases: {
     tags: (BaseScraperAlias & {tag_name: string})[],
     categories: (BaseScraperAlias & {category_option_name: string})[],
@@ -72,6 +82,13 @@ function getWebsiteScrapers() {
       `)
 }
 
+function getWebsiteLogins() {
+  /*
+  SELECT * FROM websites
+  */
+  return settingsdb('websites')
+}
+
 async function getWebsiteScraperAliases() {
   /*
   SELECT
@@ -114,11 +131,13 @@ async function getAll() {
   const file_types = await getFiletypes()
   const ignored_exes = await getIgnoredExes()
   const site_scrapers = await getWebsiteScrapers()
+  const logins = await getWebsiteLogins()
   const site_scraper_aliases = await getWebsiteScraperAliases()
-  return {defaults, file_types, ignored_exes, site_scrapers, site_scraper_aliases}
+  return {defaults, file_types, ignored_exes, site_scrapers, logins, site_scraper_aliases}
 }
 
 async function updateSettings(newSettings: RawSettings & DefaultGamesFormType) {
+  // TODO: save settings
   console.log(newSettings)
   gamesdb()
   return newSettings

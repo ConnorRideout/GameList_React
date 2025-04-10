@@ -17,11 +17,18 @@ export const websitesApi = createApi({
         method: 'POST',
         body: {base_url, url}
       })
-    })
+    }),
+    // test: builder.mutation<void, void>({
+    //   query: () => ({
+    //     url: 'test',
+    //     method: 'POST'
+    //   })
+    // })
   }),
 })
 
 export const {
   useCheckUpdatedUrlMutation,
   useAutofillFromWebsiteMutation,
+  // useTestMutation,
 } = websitesApi

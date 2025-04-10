@@ -20,7 +20,7 @@ import installExtension, {REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS} from 'electron-
 import sassVars from 'get-sass-vars'
 
 import MenuBuilder from './menu'
-import { resolveHtmlPath } from './util'
+import { resolveHtmlPath, setSecretKey } from './util'
 
 import Path from '../parsedPath'
 import {
@@ -135,9 +135,9 @@ const createWindow = async () => {
     if (process.env.START_MINIMIZED) {
       mainWindow.minimize();
     } else {
+      mainWindow.webContents.executeJavaScript(`window.processEnv = ${JSON.stringify(process.env)}`)
       mainWindow.show();
     }
-    mainWindow.webContents.executeJavaScript(`window.processEnv = ${JSON.stringify(process.env)}`)
   });
 
   mainWindow.on('closed', () => {
@@ -177,13 +177,13 @@ app
       .catch((err) => console.log('An error occurred: ', err))
 
     // create the app
-    createWindow();
+    // eslint-disable-next-line promise/catch-or-return
+    createWindow()
     // app.on('activate', () => {
     //   // On macOS it's common to re-create a window in the app when the
     //   // dock icon is clicked and there are no other windows open.
     //   if (mainWindow === null) createWindow()
     // })
-
 
     // handle getting images for img elements
     const imgDir = new Path(
@@ -209,6 +209,8 @@ app
     ipcMain.on('show-message-dialog', (event, ...msgArgs) => messageBox(event, mainWindow!, ...msgArgs))
 
     ipcMain.on('show-custom-context-menu', (event, x, y, customTemplates) => menuBuilder.buildCustomMenu(x, y, customTemplates))
+
+    ipcMain.on('set-secret-key', (event, secretKey) => setSecretKey(secretKey, mainWindow!))
 
   })
   .catch(console.log);

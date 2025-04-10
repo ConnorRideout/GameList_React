@@ -40,6 +40,10 @@ const showMessageBox = (
   ipcRenderer.sendSync('show-message-dialog', title, message, type, buttons, defaultBtnIdx)
 )
 
+const setSecretKey = (secretKey: string) => (
+  ipcRenderer.send('set-secret-key', secretKey)
+)
+
 /**
  *
  * @param x - The x position of the context menu
@@ -99,6 +103,7 @@ const electronHandler = {
   showMessageBox,
   showCustomContextMenu,
   onContextMenuAction,
+  setSecretKey,
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler)

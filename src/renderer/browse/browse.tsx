@@ -9,6 +9,7 @@ import {
   setSearchRestraints,
   clearSearchRestraints
 } from '../../lib/store/gamelibrary'
+// import { useTestMutation } from '../../lib/store/websitesApi'
 import Picker, { FormState } from '../shared/picker/picker'
 import Lineitem from './lineitem/lineitem'
 import BrowseNav from './browseNav'
@@ -17,9 +18,9 @@ import TextSearch from './textSearch'
 import GamePicker from './dialogs/gamePicker'
 import MissingGames from './dialogs/missingGames'
 import DislikeGame from './dialogs/dislike'
+import NewGames from './dialogs/newGames'
 
 import { SearchRestraints, RootState } from '../../types'
-import NewGames from './dialogs/newGames'
 
 
 const SearchFieldset = styled.fieldset`
@@ -31,6 +32,7 @@ const HideCheckbox = styled.label`
 `
 
 export default function Browse() {
+  // const [doTest] = useTestMutation()
   const dispatch = useDispatch()
   const sortedGamelib = useSelector((state: RootState) => state.data.sortedGamelib)
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
@@ -186,7 +188,7 @@ export default function Browse() {
         clickHandler={gamePickerClickHandler}
       />
 
-      {/* <button style={{ position: 'fixed', left: 0 }} type='button' onClick={() => dispatch(setError('test error'))}>Test</button> */}
+      {/* <button style={{ position: 'fixed', left: 0 }} type='button' onClick={() => doTest()}>Test</button> */}
 
       <SearchFieldset className='vertical-container'>
         <legend className='header-max'>Search</legend>
