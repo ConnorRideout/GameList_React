@@ -36,9 +36,11 @@ class PasswordEncryptor {
   }
 }
 
-const passwordEncryptor = new PasswordEncryptor()
+let passwordEncryptor: PasswordEncryptor
 
 function parseRawSettings(settings: Settings.RawSettings) {
+  if (passwordEncryptor === undefined)
+    passwordEncryptor = new PasswordEncryptor()
   // parse defaults
   const { games_folder, locale_emulator } = settings.defaults.reduce((acc: StringMap, { name, value }) => {
     acc[name] = value
@@ -63,7 +65,7 @@ function parseRawSettings(settings: Settings.RawSettings) {
     rest.limit_text = Boolean(rest.limit_text)
     if (oldAcc === undefined) {
       const {username, username_selector, password: encryptedPassword, password_iv, password_selector, submit_selector} = settings.logins.find(l => l.website_id === website_id)!
-      const password = encryptedPassword && password_iv ? passwordEncryptor.decrypt(encryptedPassword, password_iv) : null
+      const password = (encryptedPassword && password_iv) ? passwordEncryptor.decrypt(encryptedPassword, password_iv) : null
       const login = {username, username_selector, password, password_selector, submit_selector}
       acc[website_id - 1] = {base_url, login, selectors: [rest]}
     } else {
@@ -100,6 +102,8 @@ router.get('/', (req, res, next) => {
 })
 
 function parseUpdatedSettings(settings: UpdatedSettingsType): Settings.RawSettings & DefaultGamesFormType {
+  if (passwordEncryptor === undefined)
+    passwordEncryptor = new PasswordEncryptor()
   // TODO: reformat settings to correct raw state
 
   return settings as unknown as Settings.RawSettings & DefaultGamesFormType
