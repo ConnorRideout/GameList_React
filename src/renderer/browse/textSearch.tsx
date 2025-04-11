@@ -8,7 +8,7 @@ import { FixedSizeList as List } from 'react-window'
 
 import { setSortOrder, setStatus } from "../../lib/store/gamelibrary"
 
-import { RootState } from "../../types"
+import { GamelibState, RootState } from "../../types"
 
 
 interface Props {
@@ -30,19 +30,21 @@ export default function TextSearch({scrollToItem}: Props) {
 
 
   const debounceFilterSuggestions = debounce((value: string) => {
-    if (value) {
-      const regex = new RegExp(value, 'i')
-      const getMatchScore = (suggestion: string) => {
-        const match = suggestion.match(regex)
-        return match ? match.index || -1 : -1
-      }
+    setTimeout(() => {
+      if (value) {
+        const regex = new RegExp(value, 'i')
+        const getMatchScore = (suggestion: string) => {
+          const match = suggestion.match(regex)
+          return match ? match.index || -1 : -1
+        }
 
-      const filteredSuggestions = game_titles.filter(ttl => regex.test(ttl))
-      const sortedSuggestions = filteredSuggestions.sort((a, b) => getMatchScore(a) - getMatchScore(b))
-      setSuggestions(sortedSuggestions.length ? sortedSuggestions : [noMatch])
-    } else {
-      setSuggestions([])
-    }
+        const filteredSuggestions = game_titles.filter(ttl => regex.test(ttl))
+        const sortedSuggestions = filteredSuggestions.sort((a, b) => getMatchScore(a) - getMatchScore(b))
+        setSuggestions(sortedSuggestions.length ? sortedSuggestions : [noMatch])
+      } else {
+        setSuggestions([])
+      }
+    }, 0)
   }, 500)
 
   // select the first suggestion while typing
@@ -54,9 +56,18 @@ export default function TextSearch({scrollToItem}: Props) {
   const handleChange = (evt: ChangeEvent<HTMLInputElement>) => {
     const {value} = evt.target
     setSearchValue(value)
-    // only update the suggestion list every 500ms
-    debounceFilterSuggestions(value)
+    // update the suggestion list every 500ms
+    // debounceFilterSuggestions(value)
   }
+
+  useEffect(() => {
+    // update the suggestions list after the user stops typing for 500ms
+    debounceFilterSuggestions(searchValue)
+
+    return () => {
+      debounceFilterSuggestions.cancel()
+    }
+  }, [searchValue, debounceFilterSuggestions])
 
   const handleReset = (refocus=true) => {
     setSearchValue('')
@@ -65,7 +76,7 @@ export default function TextSearch({scrollToItem}: Props) {
   }
 
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
-  const sortGamelib = (sortby: string) => {
+  const sortGamelib = (sortby: GamelibState['sortOrder']) => {
     if (sortOrder !== sortby) {
       dispatch(setStatus('updating'))
       return new Promise(resolve => {
@@ -174,7 +185,8 @@ export default function TextSearch({scrollToItem}: Props) {
       >X</button>
       {showSuggestions && suggestions.length > 0 && (
         <List
-          height={375}
+          // height={375}
+          height={Math.min(375, 25 * suggestions.length + 2)}
           width='100%'
           style={{position: 'absolute'}}
           itemCount={suggestions.length}
