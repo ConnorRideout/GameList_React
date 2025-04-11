@@ -27,6 +27,7 @@ export interface RawSettings {
   logins: {
     website_id: number,
     base_url: string,
+    login_url: string | null,
     username: string | null,
     username_selector: string | null,
     password: string | null,
@@ -89,6 +90,12 @@ function getWebsiteLogins() {
   return settingsdb('websites')
 }
 
+function getWebsiteLogin(website_id: number) {
+  return getWebsiteLogins()
+    .where({website_id})
+    .first()
+}
+
 async function getWebsiteScraperAliases() {
   /*
   SELECT
@@ -148,6 +155,7 @@ export {
   getIgnoredExes,
   getFiletypes,
   getWebsiteScrapers,
+  getWebsiteLogin,
   getAll,
   updateSettings,
 }

@@ -5,7 +5,7 @@ import crypto from 'crypto'
 
 import * as Settings from './settings-model'
 
-import { StringMap, SettingsType, UpdatedSettingsType, DefaultGamesFormType } from '../../types'
+import { StringMap, LoginType, SettingsType, UpdatedSettingsType, DefaultGamesFormType } from '../../types'
 
 
 const router = Router()
@@ -38,6 +38,19 @@ class PasswordEncryptor {
 
 let passwordEncryptor: PasswordEncryptor
 
+function parseRawLogins(logins: Settings.RawSettings['logins']) {
+  if (passwordEncryptor === undefined)
+    passwordEncryptor = new PasswordEncryptor()
+  const parsedLogins: (LoginType & {website_id: number})[] = []
+  logins.forEach(login => {
+    const {website_id, login_url, username, username_selector, password: encryptedPassword, password_iv, password_selector, submit_selector} = login
+    const password = (login_url && encryptedPassword && password_iv) ? passwordEncryptor.decrypt(encryptedPassword, password_iv) : null
+    const parsedLogin = {website_id, login_url, username, username_selector, password, password_selector, submit_selector}
+    parsedLogins.push(parsedLogin)
+  })
+  return parsedLogins
+}
+
 function parseRawSettings(settings: Settings.RawSettings) {
   if (passwordEncryptor === undefined)
     passwordEncryptor = new PasswordEncryptor()
@@ -55,25 +68,29 @@ function parseRawSettings(settings: Settings.RawSettings) {
     return acc
   }, {});
   (settings as any).file_types = parsedFileTypes;
-  // parse ignored_exes
+  // parse ignored exes
   (settings as any).ignored_exes = settings.ignored_exes.map(ignore => ignore.exe)
+  // parse site logins
+  const parsedLogins = parseRawLogins(settings.logins)
   // parse site scrapers
   const parsedSiteScrapers = settings.site_scrapers.reduce((acc: SettingsType['site_scrapers'], cur) => {
     const {website_id, base_url, ...rest} = cur
-    const oldAcc = acc[website_id - 1]
+    const oldAcc = acc[website_id]
     rest.queryAll = Boolean(rest.queryAll)
     rest.limit_text = Boolean(rest.limit_text)
     if (oldAcc === undefined) {
-      const {username, username_selector, password: encryptedPassword, password_iv, password_selector, submit_selector} = settings.logins.find(l => l.website_id === website_id)!
-      const password = (encryptedPassword && password_iv) ? passwordEncryptor.decrypt(encryptedPassword, password_iv) : null
-      const login = {username, username_selector, password, password_selector, submit_selector}
-      acc[website_id - 1] = {base_url, login, selectors: [rest]}
+      // const {login_url, username, username_selector, password: encryptedPassword, password_iv, password_selector, submit_selector} = settings.logins.find(l => l.website_id === website_id)!
+      // const password = (encryptedPassword && password_iv) ? passwordEncryptor.decrypt(encryptedPassword, password_iv) : null
+      // const login = {login_url, username, username_selector, password, password_selector, submit_selector}
+      const login: LoginType = parsedLogins.find(l => l.website_id === website_id)!
+      delete (login as any).website_id
+      acc[website_id] = {website_id, base_url, login, selectors: [rest]}
     } else {
-      acc[website_id - 1].selectors.push(rest)
+      acc[website_id].selectors.push(rest)
     }
     return acc
   }, []);
-  (settings as any).site_scrapers = parsedSiteScrapers
+  (settings as any).site_scrapers = parsedSiteScrapers.filter(s => s)
   // parse site scraper aliases
   const parsedScraperAliases = Object.entries(settings.site_scraper_aliases).reduce((acc: {[key: string]: {[url: string]: [string, string][]}}, [type, aliasArr]) => {
     const parsedAliases = aliasArr.reduce((acc1: {[url: string]: [string, string][]}, row) => {
@@ -97,6 +114,15 @@ router.get('/', (req, res, next) => {
     .then(settings => {
       parseRawSettings(settings)
       res.status(200).json(settings)
+    })
+    .catch(next)
+})
+
+router.get('/login/:website_id', (req, res, next) => {
+  const {website_id} = req.params
+  Settings.getWebsiteLogin(parseInt(website_id))
+    .then(login => {
+      res.status(200).json(login)
     })
     .catch(next)
 })

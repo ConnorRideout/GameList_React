@@ -137,6 +137,15 @@ interface SearchRestraints {
     categories: StringMap;
   };
 }
+interface LoginType {
+  login_url: string | null;
+  username: string | null;
+  username_selector: string | null;
+  password: string | null;
+  password_selector: string | null;
+  submit_selector: string | null;
+  [key: string]: string | number | null;
+}
 interface SettingsType {
   games_folder: string;
   locale_emulator: string;
@@ -147,14 +156,9 @@ interface SettingsType {
   };
   ignored_exes: string[];
   site_scrapers: {
+    website_id: number;
     base_url: string;
-    login: {
-      username: string | null;
-      username_selector: string | null;
-      password: string | null;
-      password_selector: string | null;
-      submit_selector: string | null;
-    }
+    login: LoginType;
     selectors: {
       type: string; // title/description/version/tags | category_<cat_name>/status
       selector: string; // the selector to pass to document.querySelectorAll
@@ -228,6 +232,7 @@ export {
   StatusEntry,
   TagEntry,
   SearchRestraints,
+  LoginType,
   SettingsType,
   MissingGamesType,
   DislikedGamesType,

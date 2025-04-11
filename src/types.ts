@@ -9,6 +9,7 @@ export {
   StatusEntry,
   TagEntry,
   SearchRestraints,
+  LoginType,
   SettingsType,
   MissingGamesType,
   DislikedGamesType,

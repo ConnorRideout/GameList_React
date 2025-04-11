@@ -5,6 +5,7 @@
 exports.up = (knex) => {
   return knex.schema
     .alterTable('websites', tbl => {
+      tbl.string('login_url')
       tbl.string('username')
       tbl.string('username_selector')
       tbl.string('password')
@@ -21,6 +22,7 @@ exports.up = (knex) => {
 exports.down = (knex) => {
   return knex.schema
     .alterTable('websites', tbl => {
+      tbl.dropColumn('login_url')
       tbl.dropColumn('username')
       tbl.dropColumn('username_selector')
       tbl.dropColumn('password')

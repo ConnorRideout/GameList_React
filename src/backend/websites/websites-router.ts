@@ -5,7 +5,6 @@ import axios from 'axios'
 
 import * as Games from '../games/games-model'
 import SiteScraper from './website-scraper'
-import login from './website-login'
 
 import { SettingsType } from '../../types'
 
@@ -70,16 +69,16 @@ router.post('/scrape', (req, res, next) => {
     .catch(err => next({message: err}))
 })
 
-router.post('/test', (req, res) => {
-  login(
-    'https://f95zone.to/login/login',
-    'input[name="login"]',
-    'fuyocryden@gmail.com',
-    'input[name="password"]',
-    '%S2&R016wuBq*N',
-    '.formSubmitRow button'
-  )
-  res.json('logged in')
-})
+// router.post('/test', (req, res) => {
+//   login(
+//     'https://f95zone.to/login/login',
+//     'input[name="login"]',
+//     'fuyocryden@gmail.com',
+//     'input[name="password"]',
+//     '%S2&R016wuBq*N',
+//     '.formSubmitRow button'
+//   )
+//   res.json('logged in')
+// })
 
 module.exports = router
