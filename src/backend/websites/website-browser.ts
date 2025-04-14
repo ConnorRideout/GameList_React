@@ -39,7 +39,7 @@ class BrowserManager {
     }
     const {login_url, username_selector, username, password_selector, password, submit_selector} = login as Record<string, string>
 
-    await page.goto(login_url)
+    await page.goto(login_url, {waitUntil: 'networkidle2'})
     // wait for possible ddos blocker
     if (page.url() !== login_url) {
       console.log("Currently on DDoS blocker, waiting for redirect...")
@@ -59,7 +59,7 @@ class BrowserManager {
     return page
   }
 
-  async getPageContent(website_id: number, url: string) {
+  async getPage(website_id: number) {
     if (!this.browser) {
       throw new Error('No Browser instance has been created')
     }
@@ -67,10 +67,22 @@ class BrowserManager {
     const page = existingPage || await this.loginToSite(website_id)
     if (!existingPage)
       this.pages.push({website_id, page})
+    return page
+  }
 
-    await page.goto(url)
+  async getPageContent(website_id: number, url: string) {
+    const page = await this.getPage(website_id)
+
+    await page.goto(url, {waitUntil: 'networkidle2'})
     const content = await page.content()
     return content
+  }
+
+  async getRedirectUrl(website_id: number, url: string) {
+    const page = await this.getPage(website_id)
+
+    await page.goto(url, {waitUntil: 'networkidle2'})
+    return page.url()
   }
 }
 

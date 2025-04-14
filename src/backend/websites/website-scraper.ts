@@ -3,8 +3,8 @@
 /* eslint-disable import/no-relative-packages */
 /* eslint-disable func-names */
 /* eslint-disable no-restricted-syntax */
-import axios from "axios"
 import * as cheerio from "cheerio"
+import browserManager from "./website-browser"
 
 import { CategoryEntry, SettingsType, StatusEntry, TagEntry } from "../../types"
 
@@ -96,17 +96,16 @@ export default class SiteScraper {
   /**
    * Scrape a website for default values for a game's title, description, version, tags, statuses, and/or categories
    * @param url - the url to scrape
-   * @param base_url - the base of the url, which matches a base_url key from settings.scraper_selectors
+   * @param website_id - the website's id, from settings.scraper_selectors
    * @returns a `Promise` with an array of scraper results. If the scraper `type` is one of 'title', 'description', or 'version', `parsed` will be a string.
    * Otherwise, `parsed` will be an array of strings. Either way, `parsed`s string(s) will be guarenteed to be in their respective Object in the GamelibState
    */
-  scrape(url: string, base_url: string): Promise<{type: string, parsed: string | string[]}[]> {
+  scrape(url: string, website_id: number): Promise<{type: string, parsed: string | string[]}[]> {
     this.url = url
-    const { selectors } = this.scraper_selectors.find(scraper => scraper.base_url === base_url)!
+    const { selectors } = this.scraper_selectors.find(scraper => scraper.website_id === website_id)!
     const parsedSelectors: {type: string, parsed: string | string[]}[] = []
-    return axios.get(url)
-      .then(response => {
-        const html = response.data
+    return browserManager.getPageContent(website_id, url)
+      .then(html => {
         const $ = cheerio.load(html)
 
         // const {type, selector, queryAll, regex, limit_text, remove_regex} = selectors[2]

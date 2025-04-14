@@ -11,11 +11,11 @@ export const websitesApi = createApi({
         body: {checkUrl}
       })
     }),
-    autofillFromWebsite: builder.mutation<{type: string, parsed: string | string[]}[], {base_url: string, url: string}>({
-      query: ({base_url, url}) => ({
+    autofillFromWebsite: builder.mutation<{type: string, parsed: string | string[]}[], {website_id: number, url: string}>({
+      query: ({website_id, url}) => ({
         url: 'scrape',
         method: 'POST',
-        body: {base_url, url}
+        body: {website_id, url}
       })
     }),
     // test: builder.mutation<void, void>({
