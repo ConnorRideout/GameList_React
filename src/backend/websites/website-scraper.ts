@@ -1,5 +1,3 @@
-// TODO: login to sites
-
 /* eslint-disable import/no-relative-packages */
 /* eslint-disable func-names */
 /* eslint-disable no-restricted-syntax */
@@ -105,8 +103,10 @@ export default class SiteScraper {
     const { selectors } = this.scraper_selectors.find(scraper => scraper.website_id === website_id)!
     const parsedSelectors: {type: string, parsed: string | string[]}[] = []
     return browserManager.getPageContent(website_id, url)
-      .then(html => {
-        const $ = cheerio.load(html)
+      .then(({content, error}) => {
+        // TODO: do something with the error
+        console.error(error)
+        const $ = cheerio.load(content)
 
         // const {type, selector, queryAll, regex, limit_text, remove_regex} = selectors[2]
         selectors.forEach(({type, selector, queryAll, regex, limit_text, remove_regex}) => {
