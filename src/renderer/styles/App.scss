@@ -110,15 +110,6 @@ label {
   input[type=checkbox] {
     margin: 0 4px 0 0;
   }
-
-  &:hover>input[type=checkbox] {
-    background-image: linear-gradient(red, 50%, darkred 50%);
-
-    &::before {
-      transform: scale(1);
-      clip-path: polygon(20% 0%, 0% 20%, 30% 50%, 0% 80%, 20% 100%, 50% 70%, 80% 100%, 100% 80%, 70% 50%, 100% 20%, 80% 0%, 50% 30%);
-    }
-  }
 }
 
 input[type=checkbox] {
@@ -144,12 +135,39 @@ input[type=checkbox] {
     transform-origin: center;
   }
 
+  &:hover {
+    background-image: linear-gradient(green, 50%, darkgreen 50%);
+
+    &::before {
+      transform: scale(1);
+      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    }
+
+    &.tristate {
+      background-image: linear-gradient(goldenrod, 50%, darkgoldenrod 50%);
+
+      &::before {
+        transform: scale(1);
+        clip-path: inset(0.15em 0.03em round 15%);
+      }
+    }
+  }
+
   &:checked {
     background-image: linear-gradient(green, 50%, darkgreen 50%);
 
     &::before {
       transform: scale(1);
       clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+    }
+
+    &:hover {
+      background-image: linear-gradient(red, 50%, darkred 50%);
+
+      &::before {
+        transform: scale(1);
+        clip-path: polygon(20% 0%, 0% 20%, 30% 50%, 0% 80%, 20% 100%, 50% 70%, 80% 100%, 100% 80%, 70% 50%, 100% 20%, 80% 0%, 50% 30%);
+      }
     }
   }
 
@@ -160,14 +178,14 @@ input[type=checkbox] {
       transform: scale(1);
       clip-path: inset(0.15em 0.03em round 15%);
     }
-  }
 
-  &:hover {
-    background-image: linear-gradient(red, 50%, darkred 50%);
+    &:hover {
+      background-image: linear-gradient(green, 50%, darkgreen 50%);
 
-    &::before {
-      transform: scale(1);
-      clip-path: polygon(20% 0%, 0% 20%, 30% 50%, 0% 80%, 20% 100%, 50% 70%, 80% 100%, 100% 80%, 70% 50%, 100% 20%, 80% 0%, 50% 30%);
+      &::before {
+        transform: scale(1);
+        clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+      }
     }
   }
 }

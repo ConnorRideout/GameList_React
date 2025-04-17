@@ -4,7 +4,7 @@ interface Props {
   children?: React.ReactNode,
   labelText: string,
   handleFormChange: (evt: ChangeEvent<HTMLInputElement | HTMLSelectElement>, tristate: boolean) => void,
-  checkState: number;
+  checkState: number,
   style?: Object,
 }
 /**
@@ -28,6 +28,7 @@ export default function TristateCheckbox({children, labelText, handleFormChange,
     // eslint-disable-next-line jsx-a11y/label-has-associated-control
     <label style={style}>
       <input
+        className="tristate"
         type="checkbox"
         name={labelText}
         checked={checkState === 1}
