@@ -4,6 +4,7 @@
 import { Router } from 'express'
 import sassVars from 'get-sass-vars'
 import { promises as fs } from 'fs'
+import { spawnSync } from 'child_process'
 
 import * as Games from './games-model'
 
@@ -48,21 +49,45 @@ function parseRawGameData(game: Games.RawGameEntry, catOrder: CategoryEntry[]) {
   Object.assign(game, game as unknown as GameEntry)
 }
 
-function handleImage(img: string) {
-  // TODO: convert image if necessary, handle gifs
-  if (/^[A-Z]:/.test(img)) {
-    // image is absolute, should be moved
-    const imgPath = new Path(img)
-    const img_dir = new Path(
-      __dirname,
-      '../data',
-      process.env.SHOWCASING ? 'showcase/gameImages' : 'development/gameImages'
-    )
-    const newImagePath = img_dir.join(imgPath.basename)
-    imgPath.moveSync(newImagePath)
-    return JSON.stringify([imgPath.basename])
+
+function handleImage(img: string): string {
+  function imageMagick(path_in: string, pth_out: string) {
+    const result = spawnSync('magick', ['convert', `${path_in}[0]`, '-resize', '1280x720>', pth_out])
+    if (result.error) {
+        throw new Error(`Execution error: ${result.error.message}`)
+    }
+    if (result.stderr.length > 0) {
+        throw new Error(`Standard error: ${result.stderr.toString()}`)
+    }
+    return result.stdout.toString()
   }
-  return JSON.stringify([img])
+  // convert image if necessary, handle gifs
+  const img_dir = new Path(
+    __dirname,
+    '../data',
+    process.env.SHOWCASING ? 'showcase/gameImages' : 'development/gameImages'
+  )
+  // create a Path of img, handling absolute vs relative img path
+  const img_path = /^[A-Z]:/.test(img) ? new Path(img) : img_dir.join(img)
+  if (!img_path.existsSync()) {
+    throw new Error("Image does not exist")
+  }
+  // create a copy of img (if img is a gif, take the first frame) that is 720p in the image dir
+  const new_image_path = img_dir.join(`${img_path.stem}.jpg`)
+  imageMagick(img_path.path, new_image_path.path)
+  // build the return array
+  const res = [new_image_path.basename]
+  if (img_path.ext.toLowerCase() === '.gif') {
+    // handle gifs
+    const gif_path = img_dir.join(img_path.basename)
+    if (gif_path.path !== img_path.path)
+      img_path.moveSync(gif_path)
+    res.push(gif_path.basename)
+  } else if (img_path.path !== new_image_path.path) {
+    // if image was originally not in image dir, delete the original
+    img_path.removeSync()
+  }
+  return JSON.stringify(res)
 }
 
 router.get('/games', (req, res, next) => {
@@ -139,7 +164,7 @@ router.get('/styles', (req, res, next) => {
 router.post('/games/new', async (req, res, next) => {
   const game = req.body
   // properly format the game data
-  game.image = handleImage(game.image[0])
+  game.image = await handleImage(game.image[0])
   game.protagonist = game.categories.protagonist
   delete game.categories.protagonist
   game.program_path = JSON.stringify(game.program_path)
@@ -191,7 +216,7 @@ router.put('/games/:game_id', async (req, res, next) => {
   // overwrite oldGameData with updatedGameData
   const game = {...oldGameData, ...updatedGameData}
   // properly format the game data
-  game.image = handleImage(game.image[0])
+  game.image = await handleImage(game.image[0])
   game.protagonist = game.categories.protagonist
   delete game.categories.protagonist
   game.program_path = JSON.stringify(game.program_path)

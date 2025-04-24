@@ -75,10 +75,10 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
     // TODO: when updating, show differences in tags/categories/etc and allow user to pick which ones to keep/change
     // TODO: move protagonist to categories, and make a selector for it. Have the database be ordered by preference? IDK how to have 'multiple' be an option
     const { url } = formData
-    const { base_url } = settings.site_scrapers.find(scraper => url.includes(scraper.base_url))!
+    const { website_id } = settings.site_scrapers.find(scraper => url.includes(scraper.base_url))!
     setIsLoading(true)
     try {
-      const scraper_result = await autoFillFromWebsite({base_url, url}).unwrap()
+      const scraper_result = await autoFillFromWebsite({website_id, url}).unwrap()
       const newEditFormData: StringMap = {}
       const newPickerFormData: {[type: string]: string | string[] | StringMap} = {}
       scraper_result.forEach(({type, parsed}) => {
@@ -176,7 +176,7 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
         className="grid-column-2 grid-row-3 info-justify-stretch"
         name="image"
         onChange={handleFormChange}
-        value={formData.image}
+        value={formData.image[0]}
       />
       <button
         type='button'

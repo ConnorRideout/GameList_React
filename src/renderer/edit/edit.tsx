@@ -319,6 +319,8 @@ export default function Edit() {
   //   |___/|_|_\/_/ \_\___| |_|\_| |___/|_|_\\___/|_|
   //
 
+  // FIXME: dragndrop doesn't work
+
   const urlFile = useRef('')
 
   const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
