@@ -115,7 +115,7 @@ export default function Edit() {
   const formSchema = CreateEditFormSchema(existingTitles, title)
 
   const validateAll = useCallback((curFormData: typeof formData) => {
-    console.log('validate all')
+    // console.log('validate all')
     const formErrorKeys = ['path', 'title', 'url', 'image', 'version', 'description', 'program_path']
     setFormErrors(prev => {
       const newErrors: {[key: string]: any} = {...prev}
@@ -318,8 +318,6 @@ export default function Edit() {
   //   | |) |   / / _ \ (_ |/| .` |/| |) |   / (_) |  _/
   //   |___/|_|_\/_/ \_\___| |_|\_| |___/|_|_\\___/|_|
   //
-
-  // FIXME: dragndrop doesn't work
 
   const urlFile = useRef('')
 
