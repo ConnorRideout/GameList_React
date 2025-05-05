@@ -7,15 +7,17 @@ import { SettingsType } from '../types'
 
 
 // get settings data
-let games_folder = __dirname
-let file_types: SettingsType['file_types']
-function getSettings() {
-  return axios.get('http://localhost:9000/settings')
-    .then(({data}) => {
-      games_folder = data.games_folder
-      file_types = data.file_types
-    })
-    .catch(err => console.error(err))
+// let games_folder = __dirname
+// let file_types: SettingsType['file_types']
+async function getSettings() {
+  try {
+    const { data } = await axios.get('http://localhost:9000/settings')
+    const {games_folder, file_types} = data as Pick<SettingsType, 'games_folder' | 'file_types'>
+    return {games_folder, file_types}
+  } catch (err) {
+    console.error(err)
+    return {games_folder: __dirname, file_types: {Images: [], Executables: []}}
+  }
 }
 
 
@@ -24,17 +26,19 @@ export async function openDialog(
   mainWindow: BrowserWindow,
   title=undefined,
   dialogType: 'openFile' | 'openDirectory' = 'openFile',
-  initialPath: string = games_folder,
+  initialPath: string = '',
   extension_filters: 'executables' | 'images' | 'any' = 'any'
 ) {
-  await getSettings()
+  const {games_folder, file_types} = await getSettings()
+
   // if it's a full path, use initialPath, otherwise join it to games_folder
   let defaultPath: string
   let initPath: Path
+
   if (initialPath === 'documents') {
     defaultPath = app.getPath('documents')
     initPath = new Path(defaultPath)
-  } else if (initialPath === games_folder && extension_filters === 'images') {
+  } else if (!initialPath && extension_filters === 'images') {
     initPath = new Path(
       __dirname,
       '../../src/backend/data',
@@ -43,7 +47,7 @@ export async function openDialog(
     defaultPath = initPath.path
   } else {
     const isRelative = !/^[A-Z]:/.test(initialPath)
-    initPath = (isRelative ? new Path(games_folder, initialPath) : new Path(initialPath))
+    initPath = (isRelative ? new Path(games_folder, initialPath) : new Path(initialPath || games_folder))
     defaultPath = initPath.path
   }
   // get filters for dialog
@@ -82,7 +86,7 @@ export async function openDialog(
   }
 }
 
-export async function messageBox(
+export function messageBox(
   event: IpcMainEvent,
   mainWindow: BrowserWindow,
   title: string='',
@@ -91,7 +95,6 @@ export async function messageBox(
   buttons: MessageBoxSyncOptions['buttons'] = [],
   defaultBtnIdx: number = 0
 ) {
-  await getSettings()
   const res = dialog.showMessageBoxSync(mainWindow, {
     title,
     message,
