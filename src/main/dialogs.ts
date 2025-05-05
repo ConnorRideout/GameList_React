@@ -9,15 +9,17 @@ import { SettingsType } from '../types'
 // get settings data
 let games_folder = __dirname
 let file_types: SettingsType['file_types']
-axios.get('http://localhost:9000/settings')
-  .then(({data}) => {
-    games_folder = data.games_folder
-    file_types = data.file_types
-  })
-  .catch(err => console.error(err))
+function getSettings() {
+  return axios.get('http://localhost:9000/settings')
+    .then(({data}) => {
+      games_folder = data.games_folder
+      file_types = data.file_types
+    })
+    .catch(err => console.error(err))
+}
 
 
-export function openDialog(
+export async function openDialog(
   event: IpcMainEvent,
   mainWindow: BrowserWindow,
   title=undefined,
@@ -25,6 +27,7 @@ export function openDialog(
   initialPath: string = games_folder,
   extension_filters: 'executables' | 'images' | 'any' = 'any'
 ) {
+  await getSettings()
   // if it's a full path, use initialPath, otherwise join it to games_folder
   let defaultPath: string
   let initPath: Path
@@ -79,7 +82,7 @@ export function openDialog(
   }
 }
 
-export function messageBox(
+export async function messageBox(
   event: IpcMainEvent,
   mainWindow: BrowserWindow,
   title: string='',
@@ -88,6 +91,7 @@ export function messageBox(
   buttons: MessageBoxSyncOptions['buttons'] = [],
   defaultBtnIdx: number = 0
 ) {
+  await getSettings()
   const res = dialog.showMessageBoxSync(mainWindow, {
     title,
     message,

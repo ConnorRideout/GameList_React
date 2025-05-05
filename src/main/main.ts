@@ -14,9 +14,6 @@ import { app, BrowserWindow, shell, ipcMain, net, protocol } from 'electron'
 // import { autoUpdater } from 'electron-updater'
 // import log from 'electron-log'
 import installExtension, {REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer'
-// import Path from 'pathlib-js'
-// import { promises as fs } from 'fs'
-// import { promises as fs, existsSync } from 'fs'
 import sassVars from 'get-sass-vars'
 
 import MenuBuilder from './menu'
@@ -183,7 +180,6 @@ app
     //   // dock icon is clicked and there are no other windows open.
     //   if (mainWindow === null) createWindow()
     // })
-
 
     // handle getting images for img elements
     const imgDir = new Path(

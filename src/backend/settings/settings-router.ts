@@ -146,5 +146,11 @@ router.put('/', (req, res, next) => {
     .catch(next)
 })
 
+router.put('/env', (req, res) => {
+  const {key} = req.body
+  process.env.SECRET_KEY = key
+  res.json({message: 'Changed ENV variable'})
+})
+
 
 module.exports = router
