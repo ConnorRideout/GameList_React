@@ -20,7 +20,7 @@ import installExtension, {REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS} from 'electron-
 import sassVars from 'get-sass-vars'
 
 import MenuBuilder from './menu'
-import { resolveHtmlPath, setSecretKey } from './util'
+import { resolveHtmlPath, setSecretKey, getSecretKey } from './util'
 
 import Path from '../parsedPath'
 import {
@@ -135,7 +135,6 @@ const createWindow = async () => {
     if (process.env.START_MINIMIZED) {
       mainWindow.minimize();
     } else {
-      mainWindow.webContents.executeJavaScript(`window.processEnv = ${JSON.stringify(process.env)}`)
       mainWindow.show();
     }
   });
@@ -185,12 +184,14 @@ app
     //   if (mainWindow === null) createWindow()
     // })
 
+
     // handle getting images for img elements
     const imgDir = new Path(
       __dirname,
       '../../src/backend/data',
       process.env.SHOWCASING ? 'showcase/gameImages' : 'development/gameImages'
     )
+
     protocol.handle('load-image', async (request) => {
       const rawImgPath = request.url
         .replace('load-image://', '')
@@ -204,13 +205,16 @@ app
     })
 
 
+    // handle signals
     ipcMain.on('open-file-dialog', (event, ...fileArgs) => openDialog(event, mainWindow!, ...fileArgs))
 
     ipcMain.on('show-message-dialog', (event, ...msgArgs) => messageBox(event, mainWindow!, ...msgArgs))
 
     ipcMain.on('show-custom-context-menu', (event, x, y, customTemplates) => menuBuilder.buildCustomMenu(x, y, customTemplates))
 
-    ipcMain.on('set-secret-key', (event, secretKey) => setSecretKey(secretKey, mainWindow!))
+    ipcMain.on('set-secret-key', (event, secretKey, password) => {event.returnValue = setSecretKey(secretKey, password)})
+
+    ipcMain.on('get-secret-key', (event, password) => {event.returnValue = getSecretKey(password)})
 
   })
   .catch(console.log);

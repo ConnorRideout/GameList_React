@@ -32,35 +32,7 @@ import {
   clearEditGame
 } from '../lib/store/gamelibrary'
 import { RootState } from '../types'
-
-function SetSecretKey({setShowSecret}: {setShowSecret: React.Dispatch<React.SetStateAction<boolean>>}) {
-  const [secretKey, setSecretKey] = useState('')
-
-  const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
-    setSecretKey(evt.target.value)
-  }
-
-  const handleClick = () => {
-    window.electron.setSecretKey(secretKey)
-    setShowSecret(false)
-  }
-
-  return (
-    <div className='vertical-container'>
-      <label className='vertical-container'>
-        Please enter a secret key that&apos;s 5 characters or longer. It can be a combination of numbers, letters, and symbols:
-        <input type="text" value={secretKey} onChange={handleChange} />
-      </label>
-      <button
-        type='button'
-        onClick={handleClick}
-        disabled={secretKey.trim().length < 5}
-      >
-        Submit
-      </button>
-    </div>
-  )
-}
+import Login from './Login'
 
 function Wrapper({children}: {children: React.ReactNode}) {
   const navigate = useNavigate()
@@ -183,20 +155,6 @@ function Wrapper({children}: {children: React.ReactNode}) {
     }
   }, [blockCheckMissing, checkForMissingGames, checkForNewGames, dispatch, doOpenGamesFol, navigate, startupGames, startupSettings])
 
-  const [showSecret, setShowSecret] = useState(false)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if ((window as any).processEnv) {
-        clearInterval(interval)
-        setShowSecret(!(window as any).processEnv.SECRET_KEY)
-      }
-    }, 100)
-  }, [])
-  if (showSecret) {
-    return (
-      <SetSecretKey setShowSecret={setShowSecret} />
-    )
-  }
   return (
     <>
       {showNotes && (
@@ -214,13 +172,15 @@ export default function App() {
   return (
     <Router>
       <ContextMenuProvider>
-        <Wrapper>
-          <Routes>
-            <Route path="/" element={<Browse />} />
-            <Route path="/edit" element={<Edit />} />
-            <Route path="/settings" element={<Settings />} />
-          </Routes>
-        </Wrapper>
+        <Login>
+          <Wrapper>
+            <Routes>
+              <Route path="/" element={<Browse />} />
+              <Route path="/edit" element={<Edit />} />
+              <Route path="/settings" element={<Settings />} />
+            </Routes>
+          </Wrapper>
+        </Login>
       </ContextMenuProvider>
     </Router>
   );

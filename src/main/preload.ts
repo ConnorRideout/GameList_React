@@ -40,8 +40,16 @@ const showMessageBox = (
   ipcRenderer.sendSync('show-message-dialog', title, message, type, buttons, defaultBtnIdx)
 )
 
-const setSecretKey = (secretKey: string) => (
-  ipcRenderer.send('set-secret-key', secretKey)
+const setSecretKey = ({secretKey, password}: {secretKey?: string, password?: string}) => (
+  ipcRenderer.sendSync('set-secret-key', secretKey, password)
+)
+
+/** Retrieves the secret key and password.
+ * @param password - The user's pin code. Optional.
+ * @returns If a password was passed, sets the env variables and returns undefined if password is correct, otherwise returns a string. Otherwise, returns the SECRET_KEY and PASSWORD env variables
+ */
+const getSecretKey = (password?: string): {key: string, pass: string} | undefined | string => (
+  ipcRenderer.sendSync('get-secret-key', password)
 )
 
 /**
@@ -104,6 +112,7 @@ const electronHandler = {
   showCustomContextMenu,
   onContextMenuAction,
   setSecretKey,
+  getSecretKey,
 };
 
 contextBridge.exposeInMainWorld('electron', electronHandler)
