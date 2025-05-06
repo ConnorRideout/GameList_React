@@ -39,7 +39,15 @@ export default function Selectors({formData, setFormData}: Props) {
     if (scraper_idx === undefined) {
       site_scrapers = [...formData.site_scrapers, {
         base_url: '~~placeholder~~',
-        selectors: []
+        selectors: [],
+        login: {
+          login_url: '',
+          username: '',
+          username_selector: '',
+          password: '',
+          password_selector: '',
+          submit_selector: '',
+        }
       }]
       setNewScraperAdded(true)
     } else {

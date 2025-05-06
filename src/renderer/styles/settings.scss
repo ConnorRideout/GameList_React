@@ -7,8 +7,8 @@
   @extend .vertical-container;
 
   border: 1px solid variables.$fgNormal;
-  min-width: 75vw;
-  max-width: 75vw;
+  min-width: 77vw;
+  max-width: 77vw;
   min-height: 95vh;
   max-height: 95vh;
 }
@@ -247,6 +247,11 @@
       min-width: 7rem;
     }
 
+    .medium-short-span {
+      min-width: 10rem;
+      margin-right: 3px;
+    }
+
     .medium-span {
       min-width: 12rem;
     }
@@ -263,14 +268,19 @@
   fieldset {
     @extend .vertical-container;
 
+    &.logins {
+      max-height: 15%;
+      min-height: 15%;
+    }
+
     &.scrapers {
-      max-height: 60%;
-      min-height: 60%;
+      max-height: 50%;
+      min-height: 50%;
     }
 
     &.aliases {
-      max-height: 40%;
-      min-height: 40%;
+      max-height: 35%;
+      min-height: 35%;
     }
 
     legend>h1 {
@@ -293,6 +303,11 @@
       min-width: 7rem;
       width: 7rem;
       align-self: stretch;
+    }
+
+    &.login-url {
+      min-width: 10rem;
+      max-width: 10rem;
     }
 
     &.long {

@@ -7,8 +7,6 @@ import { SettingsType } from '../types'
 
 
 // get settings data
-// let games_folder = __dirname
-// let file_types: SettingsType['file_types']
 async function getSettings() {
   try {
     const { data } = await axios.get('http://localhost:9000/settings')

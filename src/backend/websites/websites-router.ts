@@ -75,15 +75,15 @@ router.post('/scrape', (req, res, next) => {
 })
 
 // router.post('/test', (req, res) => {
-//   login(
-//     'https://f95zone.to/login/login',
-//     'input[name="login"]',
-//     'fuyocryden@gmail.com',
-//     'input[name="password"]',
-//     '%S2&R016wuBq*N',
-//     '.formSubmitRow button'
-//   )
-//   res.json('logged in')
+  // login(
+  //   'https://f95zone.to/login/login',
+  //   'input[name="login"]',
+  //   'fuyocryden@gmail.com',
+  //   'input[name="password"]',
+  //   '%S2&R016wuBq*N',
+  //   '.formSubmitRow button'
+  // )
+  // res.json('logged in')
 // })
 
 module.exports = router

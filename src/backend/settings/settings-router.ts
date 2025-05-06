@@ -28,9 +28,10 @@ class PasswordEncryptor {
     return { password_iv: iv.toString('hex'), password: encrypted };
   }
 
-  decrypt(encryptedPassword: string, iv: string) {
+  decrypt(encryptedPassword: string) {
+    const [encrypted, iv] = encryptedPassword.split('.')
     const decipher = crypto.createDecipheriv(this.algorithm, this.keyBuffer, Buffer.from(iv, 'hex'))
-    let decrypted = decipher.update(encryptedPassword, 'hex', 'utf-8')
+    let decrypted = decipher.update(encrypted, 'hex', 'utf-8')
     decrypted += decipher.final('utf-8')
     return decrypted
   }
@@ -43,8 +44,8 @@ function parseRawLogins(logins: Settings.RawSettings['logins']) {
     passwordEncryptor = new PasswordEncryptor()
   const parsedLogins: (LoginType & {website_id: number})[] = []
   logins.forEach(login => {
-    const {website_id, login_url, username, username_selector, password: encryptedPassword, password_iv, password_selector, submit_selector} = login
-    const password = (login_url && encryptedPassword && password_iv) ? passwordEncryptor.decrypt(encryptedPassword, password_iv) : null
+    const {website_id, login_url, username, username_selector, password: encryptedPassword, password_selector, submit_selector} = login
+    const password = (login_url && encryptedPassword) ? passwordEncryptor.decrypt(encryptedPassword) : null
     const parsedLogin = {website_id, login_url, username, username_selector, password, password_selector, submit_selector}
     parsedLogins.push(parsedLogin)
   })
@@ -130,7 +131,24 @@ router.get('/login/:website_id', (req, res, next) => {
 function parseUpdatedSettings(settings: UpdatedSettingsType): Settings.RawSettings & DefaultGamesFormType {
   if (passwordEncryptor === undefined)
     passwordEncryptor = new PasswordEncryptor()
+  const {
+    categories, statuses, tags,
+    games_folder, locale_emulator, file_types: raw_file_types, ignored_exes: raw_ignored_exes, site_scraper_aliases: raw_aliases, site_scrapers: raw_scrapers
+  } = settings
+  // TODO: reformat gamesformtype
   // TODO: reformat settings to correct raw state
+  const defaults: Settings.RawSettings['defaults'] = [{name: 'games_folder', value: games_folder}, {name: 'locale_emulator', value: locale_emulator}]
+  const file_types = Object.entries(raw_file_types).reduce((acc: Settings.RawSettings['file_types'], cur, idx) => {
+    const [name, filetypes_arr] = cur
+    const filetypes = filetypes_arr.join(', ')
+    const filetype_id = Number(name === 'Images') + 1
+    acc.push({filetype_id, name, filetypes})
+    return acc
+  }, [])
+  const ignored_exes: Settings.RawSettings['ignored_exes'] = raw_ignored_exes.map(exe => ({exe}))
+  // const site_scraper_aliases: Settings.RawSettings['site_scraper_aliases'] = Object.entries(raw_aliases).reduce((acc, cur) => {
+
+  // })
 
   return settings as unknown as Settings.RawSettings & DefaultGamesFormType
 }

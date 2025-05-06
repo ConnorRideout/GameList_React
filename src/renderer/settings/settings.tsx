@@ -31,9 +31,19 @@ export interface DefaultDisplayFormType {
   ignored_exes: SettingsType['ignored_exes']
 }
 
+interface loginFormType {
+  login_url: string,
+  username: string,
+  username_selector: string,
+  password: string,
+  password_selector: string,
+  submit_selector: string,
+  [key: string]: string
+}
 export interface DefaultScrapersFormType {
   site_scrapers: {
     base_url: string,
+    login: loginFormType,
     selectors: {
       type: string,
       selector: string,
@@ -155,7 +165,11 @@ export default function Settings() {
         const remove_regex = sel.remove_regex || ''
         return {...sel, regex, remove_regex}
       })
-      return {...scraper, selectors}
+      const login: loginFormType = Object.entries(scraper.login).reduce<any>((acc, [name, val]) => {
+        acc[name] = val || ''
+        return acc
+      }, {})
+      return {...scraper, selectors, login}
     })
     return {site_scrapers, site_scraper_aliases}
   }, [settings])

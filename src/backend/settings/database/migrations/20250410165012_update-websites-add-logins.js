@@ -9,7 +9,6 @@ exports.up = (knex) => {
       tbl.string('username')
       tbl.string('username_selector')
       tbl.string('password')
-      tbl.string('password_vi')
       tbl.string('password_selector')
       tbl.string('submit_selector')
     })
