@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 
 function SetSecretKey({setShowSecret}: {setShowSecret: React.Dispatch<React.SetStateAction<boolean>>}) {
   const [secretKey, setSecretKey] = useState('')
@@ -52,6 +52,7 @@ interface Props {
   children: React.ReactNode
 }
 export default function Login({children}: Props) {
+  const inputRef = useRef<HTMLInputElement>(null)
   const [error, setError] = useState('')
   const [pin, setPin] = useState('')
 
@@ -63,6 +64,12 @@ export default function Login({children}: Props) {
     setShowSecret(!key || !pass)
     setShowLogin(!(!key || !pass))
   }, [])
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus()
+    }
+  }, [showSecret, showLogin])
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     const {value} = evt.target
@@ -94,9 +101,10 @@ export default function Login({children}: Props) {
           Please Log In With Your Pin:
           <input
             type="text"
+            ref={inputRef}
             value={pin}
             onChange={handleChange}
-            />
+          />
         </label>
         {error && (
           <p className='error'>{error}</p>
