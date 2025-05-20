@@ -1,3 +1,4 @@
+// TODO: add a context menu item to mark game as "beaten"
 import React from "react"
 import styled from "styled-components"
 import { StringMap } from "../../../lib/types/types-gamelibrary"

@@ -1,3 +1,4 @@
+// TODO: image editor/selector if image isn't 16:9
 import React, {ChangeEvent} from "react"
 import { useDispatch, useSelector } from "react-redux"
 
