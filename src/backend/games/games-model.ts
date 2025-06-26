@@ -1,8 +1,12 @@
 // TODO? type the returns of all the database functions
+/* eslint-disable import/no-relative-packages */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable promise/always-return */
 import { gamesdb } from '../data/db-config'
+import { RawSettings } from '../settings/settings-model'
+
+import { StatusEntry, TagEntry } from '../../types'
 
 
 export interface RawGameEntry {
@@ -22,6 +26,12 @@ export interface RawGameEntry {
   played_at: string | null,
   updated_at: string | null,
   [key: string]: number | string | null
+}
+
+export interface RawGameSettings {
+  tags: TagEntry[],
+  statuses: StatusEntry[],
+  categories: RawSettings['categories']
 }
 
 function getAll() {
@@ -121,7 +131,7 @@ function getCategories() {
   SELECT
     c.*,
     GROUP_CONCAT(o.option_name) AS options,
-    MAX(CASE WHEN o.option_is_default THEN o.option_name END) AS default_option
+    CASE WHEN o.option_is_default THEN o.option_name END AS default_option
   FROM
     categories AS c
   JOIN
@@ -133,7 +143,30 @@ function getCategories() {
     .select(
       'c.*',
       gamesdb.raw('GROUP_CONCAT(o.option_name) AS options'),
-      gamesdb.raw('MAX(CASE WHEN o.option_is_default THEN o.option_name END) AS default_option')
+      gamesdb.raw('CASE WHEN o.option_is_default THEN o.option_name END AS default_option')
+    )
+    .join('category_options AS o', 'c.category_id', 'o.category_id')
+    .groupBy('c.category_id')
+}
+
+function getCategoriesForSettings() {
+  /*
+  SELECT
+    c.*,
+    '[' || GROUP_CONCAT('{"option_id":' || o.option_id || ',"option_name":"' || o.option_name || '"}') || ']' AS options,
+    CASE WHEN o.option_is_default THEN o.option_name END AS default_option
+  FROM
+    categories AS c
+  JOIN
+    category_options AS o ON c.category_id = o.category_id
+  GROUP BY
+    c.category_id
+  */
+  return gamesdb('categories as c')
+    .select(
+      'c.*',
+      gamesdb.raw(`'[' || GROUP_CONCAT('{"option_id":' || o.option_id || ',"option_name":"' || o.option_name || '"}') || ']' AS options`),
+      gamesdb.raw('CASE WHEN o.option_is_default THEN o.option_name END AS default_option')
     )
     .join('category_options AS o', 'c.category_id', 'o.category_id')
     .groupBy('c.category_id')
@@ -408,6 +441,7 @@ export {
   getTags,
   getStatus,
   getCategories,
+  getCategoriesForSettings,
   insertNewGame,
   deleteGame,
   updateTimestamp,

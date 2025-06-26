@@ -1,7 +1,9 @@
 /* eslint-disable import/no-relative-packages */
-import { settingsdb, gamesdb } from "../data/db-config"
+import { settingsdb } from "../data/db-config"
 
-import { DefaultGamesFormType, StringMap } from "../../types"
+import { getCategoriesForSettings, RawGameSettings } from '../games/games-model'
+
+import { StringMap } from "../../types"
 
 
 type BaseScraperAlias = {
@@ -39,7 +41,13 @@ export interface RawSettings {
     tags: (BaseScraperAlias & {tag_name: string})[],
     categories: (BaseScraperAlias & {category_option_name: string})[],
     statuses: (BaseScraperAlias & {status_name: string})[]
-  }
+  },
+  categories: {
+    category_id: number,
+    category_name: string,
+    options: string,
+    default_option: string | null
+  }[]
 }
 function getIgnoredExes() {
   // SELECT * FROM ignored_exes
@@ -140,13 +148,13 @@ async function getAll() {
   const site_scrapers = await getWebsiteScrapers()
   const logins = await getWebsiteLogins()
   const site_scraper_aliases = await getWebsiteScraperAliases()
-  return {defaults, file_types, ignored_exes, site_scrapers, logins, site_scraper_aliases}
+  const categories = await getCategoriesForSettings()
+  return {defaults, file_types, ignored_exes, site_scrapers, logins, site_scraper_aliases, categories}
 }
 
-async function updateSettings(newSettings: RawSettings & DefaultGamesFormType) {
+async function updateSettings(newSettings: RawSettings & RawGameSettings) {
   // TODO: save settings
   console.log(newSettings)
-  gamesdb()
   return newSettings
 }
 

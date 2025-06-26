@@ -80,6 +80,7 @@ const initialState: GamelibState = {
       categories: {},
       statuses: {}
     },
+    categories: [],
   },
   // application status
   status: 'idle', // loading | succeeded | failed | idle | updating

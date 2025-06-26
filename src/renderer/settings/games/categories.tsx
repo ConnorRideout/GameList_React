@@ -66,13 +66,15 @@ export default function Categories({formData, setFormData}: Props) {
   }
 
   const handleAddOption = (cat_id: number) => {
-    const newCategories = formData.categories.map(cat => ({...cat}))
-    const newCat = newCategories.find(c => c.category_id === cat_id)!
-    const newOptions = [...newCat.options, '~~placeholder~~']
-    newCat.options = newOptions
+    const existingCategories = formData.categories.map(cat => ({...cat}))
+    const parentCat = existingCategories.find(c => c.category_id === cat_id)!
+    const option_ids = parentCat.options.map(opt => opt.option_id)
+    const option_id = Math.max(...option_ids) + 1
+    const newOptions = [...parentCat.options, {option_id, option_name: '~~placeholder~~'}]
+    parentCat.options = newOptions
 
     setNewOptionAdded(true)
-    setFormData(prevValue => ({...prevValue, categories: newCategories}))
+    setFormData(prevValue => ({...prevValue, categories: existingCategories}))
   }
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLInputElement> | {target: {value: string}}) => {
@@ -91,7 +93,7 @@ export default function Categories({formData, setFormData}: Props) {
     } else {
       const opt_idx = parseInt(raw_opt_idx)
       const newOptions = [...oldCat.options]
-      newOptions[opt_idx] = value
+      newOptions[opt_idx].option_name = value
       oldCat.options = newOptions
     }
 
@@ -140,9 +142,9 @@ export default function Categories({formData, setFormData}: Props) {
                 />
 
                 <div className='vertical-container'>
-                  {options.map((opt, idx) => (
+                  {options.map(({option_id, option_name: opt}, idx) => (
                       // eslint-disable-next-line react/no-array-index-key
-                      <div key={`${category_id}-${idx}`} className='horizontal-container align-center'>
+                      <div key={`${category_id}-${option_id}`} className='horizontal-container align-center'>
                         <button
                           type='button'
                           className='svg-button small'

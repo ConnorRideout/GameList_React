@@ -18,10 +18,10 @@ export const settingsApi = createApi({
       query: (updatedSettings: UpdatedSettingsType) => ({
         url: '',
         method: 'PUT',
-        body: {updatedSettings}
+        body: updatedSettings
       }),
       invalidatesTags: ['Settings']
-    })
+    }),
   })
 })
 

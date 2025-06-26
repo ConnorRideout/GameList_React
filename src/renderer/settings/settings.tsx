@@ -14,15 +14,24 @@ import CreateGamesFormSchema from './games/games_schema'
 import CreateDisplayFormSchema from './display_schema'
 import CreateScrapersFormSchema from './scrapers/scrapers_schema'
 
-import { useLazyGetSettingsQuery, useUpdateSettingsMutation } from '../../lib/store/settingsApi'
+import {
+  useLazyGetSettingsQuery,
+  useUpdateSettingsMutation,
+} from '../../lib/store/settingsApi'
 
-import { CategoryEntry, RootState, SettingsType, StatusEntry } from '../../types'
+import {
+  CategorySettingsEntry,
+  RootState,
+  SettingsType,
+  StatusEntry,
+  TagEntry
+} from '../../types'
 
 
 export interface DefaultGamesFormType {
-  categories: CategoryEntry[],
+  categories: CategorySettingsEntry[],
   statuses: StatusEntry[],
-  tags: string[],
+  tags: TagEntry[],
 }
 export interface DefaultDisplayFormType {
   games_folder: SettingsType['games_folder'],
@@ -67,10 +76,10 @@ export default function Settings() {
   const [updateSettings] = useUpdateSettingsMutation()
   const navigate = useNavigate()
 
-  const categories = useSelector((state: RootState) => state.data.categories)
   const statuses = useSelector((state: RootState) => state.data.statuses)
   const tags = useSelector((state: RootState) => state.data.tags)
   const settings = useSelector((state: RootState) => state.data.settings)
+  const { categories } = settings
 
   const [curTab, setCurTab] = useState<'display' | 'games' | 'scrapers'>('display')
   const [isDisabled, setIsDisabled] = useState(true)
@@ -123,10 +132,11 @@ export default function Settings() {
 
   // games
   const defaultGamesFormData: DefaultGamesFormType = useMemo(() => ({
-    categories,
-    statuses,
-    tags: tags.map(t => t.tag_name)
-  }), [categories, statuses, tags])
+      categories,
+      statuses,
+      tags
+    }
+  ), [categories, statuses, tags])
 
   const [formDataGames, setFormDataGames] = useState<DefaultGamesFormType>(defaultGamesFormData)
 
@@ -240,6 +250,7 @@ export default function Settings() {
       site_scrapers,
       ...formDataGames
     }
+    console.log(updatedSettings)
     updateSettings(updatedSettings)
     // TODO: handle saving categories/statuses/tags
   }

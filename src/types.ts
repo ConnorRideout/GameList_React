@@ -1,3 +1,4 @@
+/* eslint-disable import/no-relative-packages */
 /* eslint-disable import/no-cycle */
 export { RootState } from "./lib/store/store"
 export {
@@ -6,6 +7,7 @@ export {
   GameEntry,
   Timestamps,
   CategoryEntry,
+  CategorySettingsEntry,
   StatusEntry,
   TagEntry,
   SearchRestraints,

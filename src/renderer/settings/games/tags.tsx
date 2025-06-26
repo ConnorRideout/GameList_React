@@ -32,15 +32,17 @@ export default function Tags({formData, setFormData}: Props) {
   }
 
   const handleAddTag = () => {
-    const newTags = [...formData.tags, '~~placeholder~~']
+    const tag_ids = formData.tags.map(t => t.tag_id)
+    const tag_id = Math.max(...tag_ids) + 1
+    const newTags = [...formData.tags, {tag_id, tag_name: '~~placeholder~~'}]
     setNewTagAdded(true)
     setFormData(prevValue => ({...prevValue, tags: newTags}))
   }
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement> | {target: {value: string}}, idx: number) => {
     const { value } = evt.target
-    const newTags = [...formData.tags]
-    newTags[idx] = value
+    const newTags = formData.tags.map(tag => ({...tag}))
+    newTags[idx].tag_name = value
     setFormData(prevValue => ({...prevValue, tags: newTags}))
   }
 
@@ -54,9 +56,9 @@ export default function Tags({formData, setFormData}: Props) {
     <fieldset className='vertical-container scrollable grid-column-2' ref={tagRef}>
       <legend>TAGS</legend>
 
-      {formData.tags.map((tag, idx) => (
+      {formData.tags.map(({tag_id, tag_name}, idx) => (
         // eslint-disable-next-line react/no-array-index-key
-        <div key={`tag-${idx}`} className='horizontal-container align-center'>
+        <div key={`tag-${tag_id}`} className='horizontal-container align-center'>
           <button
             type='button'
             className='svg-button small'
@@ -66,8 +68,8 @@ export default function Tags({formData, setFormData}: Props) {
           </button>
           <input
             type="text"
-            data-value={tag}
-            value={tag === '~~placeholder~~' ? '' : tag}
+            data-value={tag_name}
+            value={tag_name === '~~placeholder~~' ? '' : tag_name}
             onChange={(evt) => handleChange(evt, idx)}
             onBlur={(evt) => handleBlur(evt, idx)}
           />

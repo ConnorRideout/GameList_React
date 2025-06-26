@@ -101,6 +101,39 @@ interface CategoryEntry {
   default_option: string | null
   [key: string]: number | string | string[] | null;
 }
+interface CategorySettingsEntry {
+  /*
+  "category_id": 1,
+  "category_name": "art",
+  "options": [
+    {
+      "option_id": 1,
+      "option_name": "Text"
+    },
+    {
+      "option_id": 2,
+      "option_name": "Pixel"
+    },
+    {
+      "option_id": 3,
+      "option_name": "3D"
+    },
+    {
+      "option_id": 4,
+      "option_name": "Drawn"
+    }
+  ],
+  "default_option": null
+  */
+  category_id: number;
+  category_name: string;
+  options: {
+    option_id: number,
+    option_name: string
+  }[];
+  default_option: string | null
+  [key: string]: number | string | {[option: string]: number | string}[] | null;
+}
 interface StatusEntry {
   /*
   "status_id": 1,
@@ -169,6 +202,7 @@ interface SettingsType {
       remove_regex: string | null; // run against the regex match(es), removes the matching text
     }[];
   }[];
+  // TODO: combine aliases with site_scrapers instead of having a separate entry, this will fix errors in the settings component
   site_scraper_aliases: {
     tags: {
       [base_url: string]: [string, string][];
@@ -181,6 +215,7 @@ interface SettingsType {
     };
     [key: string]: {[base_url: string]: [string, string][]};
   };
+  categories: CategorySettingsEntry[];
   [key: string]: string | string[] | {[key: string]: string[] | {[base_url: string]: [string, string][]}} | {
     base_url: string;
     selectors: {
@@ -191,6 +226,15 @@ interface SettingsType {
       limit_text: boolean;
       remove_regex: string | null;
     }[];
+  }[] | {
+    category_id: number;
+    category_name: string;
+    options: {
+      option_id: number,
+      option_name: string
+    }[];
+    default_option: string | null
+    [key: string]: number | string | {[option: string]: number | string}[] | null;
   }[];
 }
 type MissingGamesType = {
@@ -229,6 +273,7 @@ export {
   GameEntry,
   Timestamps,
   CategoryEntry,
+  CategorySettingsEntry,
   StatusEntry,
   TagEntry,
   SearchRestraints,

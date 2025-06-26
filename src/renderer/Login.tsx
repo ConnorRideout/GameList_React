@@ -1,3 +1,4 @@
+// TODO: add option to reset password at the cost of deleting all saved website logins
 import React, { useEffect, useState, useRef } from 'react'
 
 function SetSecretKey({setShowSecret}: {setShowSecret: React.Dispatch<React.SetStateAction<boolean>>}) {
