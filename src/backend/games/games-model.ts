@@ -4,6 +4,9 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable promise/always-return */
 import { gamesdb } from '../data/db-config'
+
+import compareData from './games-parsers'
+// eslint-disable-next-line import/no-cycle
 import { RawSettings } from '../settings/settings-model'
 
 import { StatusEntry, TagEntry } from '../../types'
@@ -433,6 +436,93 @@ async function deleteDislike(dislike_id: number) {
   return deleted_record
 }
 
+async function updateGamesSettings(rawGameSettings: RawGameSettings) {
+  const trx = await gamesdb.transaction()
+
+  try {
+    // get current data
+    const currentTags = await getTags()
+    const currentStatuses = await getStatus()
+    const currentCategories = await getCategories()
+
+    // compare what needs to be updated vs deleted
+    const tagChanges = compareData(currentTags, rawGameSettings.tags, 'tag_id')
+    const statusChanges = compareData(currentStatuses, rawGameSettings.statuses, 'status_id')
+    const categoryChanges = compareData(currentCategories, rawGameSettings.categories, 'category_id')
+
+    // process tags
+    if (tagChanges.toDelete.length) {
+      await trx('tags').whereIn('tag_id', tagChanges.toDelete).del()
+    }
+
+    for (const tag of tagChanges.toUpdate) {
+      await trx('tags')
+        .where('tag_id', tag.tag_id)
+        .update({tag_name: tag.tag_name})
+    }
+
+    if (tagChanges.toInsert.length) {
+      await trx('tags').insert(tagChanges.toInsert.map(tag => ({
+        tag_id: tag.tag_id,
+        tag_name: tag.tag_name
+      })))
+    }
+
+    // process statuses
+    if (statusChanges.toDelete.length > 0) {
+      await trx('status').whereIn('status_id', statusChanges.toDelete).del();
+    }
+
+    for (const status of statusChanges.toUpdate) {
+      await trx('status')
+        .where('status_id', status.status_id)
+        .update({
+          status_name: status.status_name,
+          status_priority: status.status_priority,
+          status_color: status.status_color,
+          status_color_applies_to: status.status_color_applies_to
+        });
+    }
+
+    if (statusChanges.toInsert.length > 0) {
+      await trx('status').insert(statusChanges.toInsert.map(status => ({
+        status_id: status.status_id,
+        status_name: status.status_name,
+        status_priority: status.status_priority,
+        status_color: status.status_color,
+        status_color_applies_to: status.status_color_applies_to
+      })));
+    }
+
+    // process categories
+    if (categoryChanges.toDelete.length > 0) {
+      await trx('categories').whereIn('category_id', categoryChanges.toDelete).del();
+    }
+
+    for (const category of categoryChanges.toUpdate) {
+      await trx('categories')
+        .where('category_id', category.category_id)
+        .update({
+          category_name: category.category_name
+          // Note: options and default_option are computed from joins
+        });
+    }
+
+    if (categoryChanges.toInsert.length > 0) {
+      await trx('categories').insert(categoryChanges.toInsert.map(category => ({
+        category_id: category.category_id,
+        category_name: category.category_name
+      })));
+    }
+
+    // commit game changes
+    await trx.commit()
+  } catch (error) {
+    await trx.rollback()
+    throw error
+  }
+}
+
 export {
   getAll,
   getById,
@@ -450,4 +540,5 @@ export {
   insertNewDislike,
   updateDislike,
   deleteDislike,
+  updateGamesSettings,
 }

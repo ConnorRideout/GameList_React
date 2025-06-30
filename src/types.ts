@@ -12,6 +12,7 @@ export {
   TagEntry,
   SearchRestraints,
   LoginType,
+  ScraperAliasesType,
   SettingsType,
   MissingGamesType,
   DislikedGamesType,

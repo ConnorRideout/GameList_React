@@ -4,7 +4,7 @@
 import * as cheerio from "cheerio"
 import browserManager from "./website-browser"
 
-import { CategoryEntry, SettingsType, StatusEntry, TagEntry } from "../../types"
+import { CategoryEntry, ScraperAliasesType, SettingsType, StatusEntry, TagEntry } from "../../types"
 
 // const includedElementTags = ['b', 'i', 'strong', 'em', 'u', 's', 'del', 'sub', 'sup', 'small', 'big', 'mark', 'code', 'pre', 'blockquote', 'span']
 
@@ -21,16 +21,13 @@ export default class SiteScraper {
 
   scraper_selectors
 
-  aliases
-
   url=''
 
   constructor(
     categories: CategoryEntry[],
     statuses: StatusEntry[],
     tags: TagEntry[],
-    scraper_selectors: SettingsType['site_scrapers'],
-    aliases: SettingsType['site_scraper_aliases']
+    scraper_selectors: SettingsType['site_scrapers']
   ) {
     this.categories = categories.map(({category_name, options}) => ({category_name, options}))
     this.statuses = statuses.map(({status_name}) => status_name)
@@ -38,7 +35,6 @@ export default class SiteScraper {
     this.tags = tags.map(({tag_name}) => tag_name)
     this.tagsLower = tags.map(({tag_name}) => tag_name.toLowerCase())
     this.scraper_selectors = scraper_selectors
-    this.aliases = aliases
   }
 
   filterCustomSelectors(parsedSelectors: {type: string, parsed: string | string[]}[]) {
@@ -50,7 +46,7 @@ export default class SiteScraper {
       const parseValues = (
         ref: this['statuses'] | this['tags'] | this['categories'][0]['options'],
         refLower: this['statusesLower'] | this['tagsLower'] | this['categories'][0]['options'],
-        aliasesType: SettingsType['site_scraper_aliases'][keyof SettingsType['site_scraper_aliases']]
+        aliasesType: ScraperAliasesType
       ) => {
         const [,aliases] = Object.entries(aliasesType).find(([base_url]) => this.url.includes(base_url)) || []
         const filteredParsed = selectorValues

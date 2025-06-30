@@ -62,7 +62,7 @@ export default function Logins({formData, setFormData}: Props) {
       <span className='separator' />
 
       <div className='vertical-container scrollable'>
-        {formData.site_scrapers.map(({base_url, login: {login_url, username, username_selector, password, password_selector, submit_selector}}, index) => (
+        {formData.map(({base_url, login: {login_url, username, username_selector, password, password_selector, submit_selector}}, index) => (
           <React.Fragment key={`logins-${index}`}>
             <div className='horizontal-container align-center'>
               <input

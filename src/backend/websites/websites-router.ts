@@ -45,33 +45,34 @@ router.post('/urlupdates', (req, res, next) => {
 })
 
 router.post('/scrape', (req, res, next) => {
-  const makeSiteScraper = async () => {
-    const categories = await Games.getCategories()
-    categories.forEach(cat => {
-      cat.options = cat.options.split(',')
-    })
-    const tags = await Games.getTags()
-    const statuses = await Games.getStatus()
-    const settings = await getSettings()
-    return new SiteScraper(categories, statuses, tags, settings.site_scrapers, settings.site_scraper_aliases)
-  }
-  const {
-    website_id,
-    url
-  }: {
-    website_id: number,
-    url: string
-  } = req.body
-  makeSiteScraper()
-    .then(siteScraper => {
-      siteScraper.scrape(url, website_id)
-        .then(response => {
-          console.log(response)
-          res.status(200).json(response)
-        })
-        .catch(err => next({message:err}))
-    })
-    .catch(err => next({message: err}))
+  // FIXME: scraping doesn't work
+  // const makeSiteScraper = async () => {
+  //   const categories = await Games.getCategories()
+  //   categories.forEach(cat => {
+  //     cat.options = cat.options.split(',')
+  //   })
+  //   const tags = await Games.getTags()
+  //   const statuses = await Games.getStatus()
+  //   const settings = await getSettings()
+  //   return new SiteScraper(categories, statuses, tags, settings.site_scrapers)
+  // }
+  // const {
+  //   website_id,
+  //   url
+  // }: {
+  //   website_id: number,
+  //   url: string
+  // } = req.body
+  // makeSiteScraper()
+  //   .then(siteScraper => {
+  //     siteScraper.scrape(url, website_id)
+  //       .then(response => {
+  //         console.log(response)
+  //         res.status(200).json(response)
+  //       })
+  //       .catch(err => next({message:err}))
+  //   })
+  //   .catch(err => next({message: err}))
 })
 
 // router.post('/test', (req, res) => {

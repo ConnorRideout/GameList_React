@@ -179,6 +179,12 @@ interface LoginType {
   submit_selector: string | null;
   [key: string]: string | number | null;
 }
+interface ScraperAliasesType {
+  tags: [string, string][];
+  categories: [string, string][];
+  statuses: [string, string][];
+  [key: string]: [string, string][];
+}
 interface SettingsType {
   games_folder: string;
   locale_emulator: string;
@@ -201,20 +207,8 @@ interface SettingsType {
       limit_text: boolean; // if true, will only get text from the SELECTOR element. Otherwise, gets text from the SELECTOR and all its children
       remove_regex: string | null; // run against the regex match(es), removes the matching text
     }[];
+    aliases: ScraperAliasesType;
   }[];
-  // TODO: combine aliases with site_scrapers instead of having a separate entry, this will fix errors in the settings component
-  site_scraper_aliases: {
-    tags: {
-      [base_url: string]: [string, string][];
-    };
-    categories: {
-      [base_url: string]: [string, string][];
-    };
-    statuses: {
-      [base_url: string]: [string, string][];
-    };
-    [key: string]: {[base_url: string]: [string, string][]};
-  };
   categories: CategorySettingsEntry[];
   [key: string]: string | string[] | {[key: string]: string[] | {[base_url: string]: [string, string][]}} | {
     base_url: string;
@@ -226,6 +220,12 @@ interface SettingsType {
       limit_text: boolean;
       remove_regex: string | null;
     }[];
+    aliases: {
+      tags: [string, string][];
+      categories: [string, string][];
+      statuses: [string, string][];
+      [key: string]: [string, string][];
+    };
   }[] | {
     category_id: number;
     category_name: string;
@@ -278,6 +278,7 @@ export {
   TagEntry,
   SearchRestraints,
   LoginType,
+  ScraperAliasesType,
   SettingsType,
   MissingGamesType,
   DislikedGamesType,

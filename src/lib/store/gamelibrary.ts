@@ -75,11 +75,6 @@ const initialState: GamelibState = {
     },
     ignored_exes: [],
     site_scrapers: [],
-    site_scraper_aliases: {
-      tags: {},
-      categories: {},
-      statuses: {}
-    },
     categories: [],
   },
   // application status

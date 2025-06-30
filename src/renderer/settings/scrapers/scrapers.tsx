@@ -17,8 +17,8 @@ export interface Props {
 export default function Scrapers({formData, setFormData}: Props) {
   return (
     <div className='settings-scrapers-container'>
-      <Logins formData={formData} setFormData={setFormData} />
       <Selectors formData={formData} setFormData={setFormData}/>
+      <Logins formData={formData} setFormData={setFormData} />
       <Aliases formData={formData} setFormData={setFormData}/>
     </div>
   )

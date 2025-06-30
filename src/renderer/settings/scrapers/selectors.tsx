@@ -35,9 +35,11 @@ export default function Selectors({formData, setFormData}: Props) {
   }, [newScraperAdded, newSelectorAdded])
 
   const handleAddItem = (scraper_idx?: number) => {
-    let site_scrapers: Props['formData']['site_scrapers']
+    // FIXME: currently broken
+    let site_scrapers: Props['formData']
     if (scraper_idx === undefined) {
-      site_scrapers = [...formData.site_scrapers, {
+      site_scrapers = [...formData, {
+        website_id: -1,
         base_url: '~~placeholder~~',
         selectors: [],
         login: {
@@ -47,11 +49,16 @@ export default function Selectors({formData, setFormData}: Props) {
           password: '',
           password_selector: '',
           submit_selector: '',
+        },
+        aliases: {
+          tags: [],
+          categories: [],
+          statuses: []
         }
       }]
       setNewScraperAdded(true)
     } else {
-      site_scrapers = formData.site_scrapers.map(scraper => ({...scraper}))
+      site_scrapers = formData.map(scraper => ({...scraper}))
       const newSelectors = [...site_scrapers[scraper_idx].selectors]
       newSelectors.push({
         type: '',
@@ -68,12 +75,12 @@ export default function Selectors({formData, setFormData}: Props) {
   }
 
   const handleRemoveItem = (scraper_idx: number, selector_idx?: number) => {
-    let site_scrapers: Props['formData']['site_scrapers']
+    let site_scrapers: Props['formData']
     if (selector_idx === undefined) {
-      site_scrapers = [...formData.site_scrapers]
+      site_scrapers = [...formData]
       site_scrapers.splice(scraper_idx, 1)
     } else {
-      site_scrapers = formData.site_scrapers.map(scraper => ({...scraper}))
+      site_scrapers = formData.map(scraper => ({...scraper}))
       const newSelectors = [...site_scrapers[scraper_idx].selectors]
       newSelectors.splice(selector_idx, 1)
       site_scrapers[scraper_idx].selectors = newSelectors
@@ -84,7 +91,7 @@ export default function Selectors({formData, setFormData}: Props) {
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | {target: {name: string, value: string}}, scraper_idx: number, selector_idx?: number) => {
     const { name, type, value, checked } = evt.target as HTMLInputElement
     // name == base_url | selector-type | selector-selector | selector-queryAll | selector-regex | selector-limit_text | selector-remove_regex
-    const site_scrapers = formData.site_scrapers.map(scraper => ({...scraper}))
+    const site_scrapers = formData.map(scraper => ({...scraper}))
     if (name === 'base_url') {
       site_scrapers[scraper_idx].base_url = value
     } else if (selector_idx !== undefined) {
@@ -168,7 +175,7 @@ export default function Selectors({formData, setFormData}: Props) {
       <span className='separator' />
 
       <div className='vertical-container scrollable' ref={scraperRef}>
-        {formData.site_scrapers.map(({base_url, selectors}, index) => (
+        {formData.map(({base_url, selectors}, index) => (
           <React.Fragment key={`scrapers-${index}`}>
             <div className='horizontal-container align-center'>
               <button
@@ -207,20 +214,20 @@ export default function Selectors({formData, setFormData}: Props) {
                         value={type}
                         onChange={(evt) => handleChange(evt, index, idx)}
                       >
-                        {formData.site_scrapers[index].selectors[idx].type === '' && (
+                        {formData[index].selectors[idx].type === '' && (
                           <option value="">{}</option>
                         )}
                         <option
                           value="title"
-                          disabled={formData.site_scrapers[index].selectors.find(sel => sel.type === "title") && formData.site_scrapers[index].selectors[idx].type !== "title"}
+                          disabled={formData[index].selectors.find(sel => sel.type === "title") && formData[index].selectors[idx].type !== "title"}
                         >title</option>
                         <option
                           value="description"
-                          disabled={formData.site_scrapers[index].selectors.find(sel => sel.type === "description") && formData.site_scrapers[index].selectors[idx].type !== "description"}
+                          disabled={formData[index].selectors.find(sel => sel.type === "description") && formData[index].selectors[idx].type !== "description"}
                         >description</option>
                         <option
                           value="version"
-                          disabled={formData.site_scrapers[index].selectors.find(sel => sel.type === "version") && formData.site_scrapers[index].selectors[idx].type !== "version"}
+                          disabled={formData[index].selectors.find(sel => sel.type === "version") && formData[index].selectors[idx].type !== "version"}
                         >version</option>
                         <option value="tags">tags</option>
                         <option value="status">status</option>

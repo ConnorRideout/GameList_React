@@ -2,7 +2,7 @@
 import crypto from 'crypto'
 
 import { RawSettings } from './settings-model'
-import { StringMap, LoginType, SettingsType, UpdatedSettingsType, DefaultGamesFormType } from '../../types'
+import { StringMap, LoginType, SettingsType, UpdatedSettingsType, ScraperAliasesType } from '../../types'
 import { RawGameSettings } from '../games/games-model'
 
 
@@ -48,6 +48,32 @@ function parseRawLogins(logins: RawSettings['logins']) {
   return parsedLogins
 }
 
+function parseAliases(scraper_aliases: RawSettings['site_scraper_aliases']) {
+  const parsedScraperAliases = Object.entries(scraper_aliases).reduce((acc: {[website_id: number]: ScraperAliasesType}, cur) => {
+    const [type, aliases] = cur
+    aliases.forEach(row => {
+      const {website_id, website_tag} = row
+      // find the native name, i.e. tag_name, category_name, or status_name
+      const native_name = Object.keys(row).at(-1)!
+      const native_value = (row[native_name] as string)
+      // check if the website_id already is in the accumulator
+      if (!acc[website_id]) {
+        acc[website_id] = {
+          tags: [],
+          categories: [],
+          statuses: []
+        }
+      }
+      const cur_site = acc[website_id]
+      // add the aliases
+      const cur_type = cur_site[type]
+      cur_type.push([website_tag, native_value])
+    })
+    return acc
+  }, {})
+  return parsedScraperAliases
+}
+
 export function parseRawSettings(settings: RawSettings) {
   // parse defaults
   const { games_folder, locale_emulator } = settings.defaults.reduce((acc: StringMap, { name, value }) => {
@@ -67,6 +93,8 @@ export function parseRawSettings(settings: RawSettings) {
   (settings as any).ignored_exes = settings.ignored_exes.map(ignore => ignore.exe)
   // parse site logins
   const parsedLogins = parseRawLogins(settings.logins)
+  // parse site scraper aliases
+  const parsedScraperAliases = parseAliases(settings.site_scraper_aliases)
   // parse site scrapers
   const parsedSiteScrapers = settings.site_scrapers.reduce((acc: SettingsType['site_scrapers'], cur) => {
     const {website_id, base_url, ...rest} = cur
@@ -74,34 +102,17 @@ export function parseRawSettings(settings: RawSettings) {
     rest.queryAll = Boolean(rest.queryAll)
     rest.limit_text = Boolean(rest.limit_text)
     if (oldAcc === undefined) {
-      // const {login_url, username, username_selector, password: encryptedPassword, password_iv, password_selector, submit_selector} = settings.logins.find(l => l.website_id === website_id)!
-      // const password = (encryptedPassword && password_iv) ? passwordEncryptor.decrypt(encryptedPassword, password_iv) : null
-      // const login = {login_url, username, username_selector, password, password_selector, submit_selector}
       const login: LoginType = parsedLogins.find(l => l.website_id === website_id)!
       delete (login as any).website_id
-      acc[website_id] = {website_id, base_url, login, selectors: [rest]}
+      const aliases = parsedScraperAliases[website_id]
+      acc[website_id] = {website_id, base_url, login, aliases, selectors: [rest]}
     } else {
       acc[website_id].selectors.push(rest)
     }
     return acc
   }, []);
   (settings as any).site_scrapers = parsedSiteScrapers.filter(s => s)
-  // parse site scraper aliases
-  const parsedScraperAliases = Object.entries(settings.site_scraper_aliases).reduce((acc: {[key: string]: {[url: string]: [string, string][]}}, [type, aliasArr]) => {
-    const parsedAliases = aliasArr.reduce((acc1: {[url: string]: [string, string][]}, row) => {
-      const {base_url, website_tag} = row
-      const native_name = Object.keys(row).at(-1)!
-      const native_value = (row[native_name] as string)
-      const curVal = acc1[base_url] || []
-      if (website_tag && native_value)
-        curVal.push([website_tag, native_value])
-      acc1[base_url] = curVal
-      return acc1
-    }, {})
-    acc[type] = parsedAliases
-    return acc
-  }, {});
-  (settings as any).site_scraper_aliases = parsedScraperAliases;
+
   // parse categories
   settings.categories.forEach(cat => {
     cat.options = JSON.parse(cat.options)
@@ -113,7 +124,7 @@ export function parseUpdatedSettingsToRaw(settings: UpdatedSettingsType, existin
     passwordEncryptor = new PasswordEncryptor()
   const {
     categories: raw_categories, statuses, tags,
-    games_folder, locale_emulator, file_types: raw_file_types, ignored_exes: raw_ignored_exes, site_scraper_aliases: raw_aliases, site_scrapers: raw_scrapers
+    games_folder, locale_emulator, file_types: raw_file_types, ignored_exes: raw_ignored_exes, site_scrapers: raw_scrapers
   } = settings
 
   // TODO: reformat settings to correct raw state
@@ -131,10 +142,14 @@ export function parseUpdatedSettingsToRaw(settings: UpdatedSettingsType, existin
 
   const ignored_exes: RawSettings['ignored_exes'] = raw_ignored_exes.map(exe => ({exe}))
 
+  // handle the separation of site_scrapers into its constituants
   const site_scrapers: RawSettings['site_scrapers'] = []
   const logins: RawSettings['logins'] = []
+  const site_scraper_aliases: RawSettings['site_scraper_aliases'] = {
+    tags: [], categories: [], statuses: []
+  }
   raw_scrapers.forEach(scraper => {
-    const { website_id, base_url, selectors, login } = scraper
+    const { website_id, base_url, selectors, login, aliases } = scraper
 
     selectors.forEach(selector => {
       site_scrapers.push({
@@ -143,7 +158,7 @@ export function parseUpdatedSettingsToRaw(settings: UpdatedSettingsType, existin
         ...selector
       })
     })
-
+    // logins
     if (login) {
       const { password: rawPassword, ...loginRest } = login
       let password = null
@@ -163,34 +178,22 @@ export function parseUpdatedSettingsToRaw(settings: UpdatedSettingsType, existin
         ...loginRest
       })
     }
-  })
-
-  const site_scraper_aliases: RawSettings['site_scraper_aliases'] = {
-    tags: [], categories: [], statuses: []
-  }
-
-  const iters: [keyof RawSettings['site_scraper_aliases'], string][] = [
-    ['tags', 'tag_name'],
-    ['categories', 'category_option_name'],
-    ['statuses', 'status_name']
-  ]
-
-  iters.forEach(([key, name]) => {
-    Object.entries(raw_aliases[key]).forEach(([base_url, aliases]) => {
-      const {website_id} = raw_scrapers.find(s => s.base_url === base_url)!
-      aliases.forEach(([website_tag, alt_name]) => {
-        site_scraper_aliases[key].push({
-          website_id,
-          base_url,
-          website_tag,
-          [name]: alt_name
-        } as any)
-      })
+    // aliases
+    aliases.tags.forEach(([website_tag, tag_name]) => {
+      site_scraper_aliases.tags.push({website_id, website_tag, tag_name})
     })
+
+    aliases.categories.forEach(([website_tag, category_option_name]) => {
+      site_scraper_aliases.categories.push({website_id, website_tag, category_option_name})
+    })
+
+    aliases.statuses.forEach(([website_tag, status_name]) => {
+      site_scraper_aliases.statuses.push({website_id, website_tag, status_name})
+    })
+
   })
 
-  // TODO: reformat gamesformtype
-
+  // reformat gamesformtype (only categories is different)
   const categories = raw_categories.reduce((acc: RawGameSettings['categories'], cat) => {
     const options = JSON.stringify(cat.options)
     acc.push({...cat, options})

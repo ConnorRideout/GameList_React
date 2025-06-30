@@ -3,15 +3,12 @@
 import { Router } from 'express'
 
 import * as Settings from './settings-model'
-import { getCategoriesForSettings } from '../games/games-model'
 import { parseRawSettings, parseUpdatedSettingsToRaw } from './settings-parsers'
 
 import { UpdatedSettingsType } from '../../types'
 
 
 const router = Router()
-
-
 
 router.get('/', (req, res, next) => {
   Settings.getAll()

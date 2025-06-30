@@ -22,6 +22,7 @@ import {
 import {
   CategorySettingsEntry,
   RootState,
+  ScraperAliasesType,
   SettingsType,
   StatusEntry,
   TagEntry
@@ -49,23 +50,23 @@ interface loginFormType {
   submit_selector: string,
   [key: string]: string
 }
-export interface DefaultScrapersFormType {
-  site_scrapers: {
-    base_url: string,
-    login: loginFormType,
-    selectors: {
-      type: string,
-      selector: string,
-      queryAll: boolean,
-      regex: string,
-      limit_text: boolean,
-      remove_regex: string,
-      [key: string]: string | boolean
-    }[]
-  }[],
-  site_scraper_aliases: SettingsType['site_scraper_aliases']
+interface DefaultScrapersType {
+  website_id: number,
+  base_url: string,
+  login: loginFormType,
+  selectors: {
+    type: string,
+    selector: string,
+    queryAll: boolean,
+    regex: string,
+    limit_text: boolean,
+    remove_regex: string,
+    [key: string]: string | boolean
+  }[]
+  aliases: ScraperAliasesType
 }
-export type UpdatedSettingsType = Pick<SettingsType, 'games_folder' | 'locale_emulator' | 'file_types' | 'ignored_exes' | 'site_scraper_aliases' | 'site_scrapers'> & DefaultGamesFormType
+export type DefaultScrapersFormType = DefaultScrapersType[]
+export type UpdatedSettingsType = Pick<SettingsType, 'games_folder' | 'locale_emulator' | 'file_types' | 'ignored_exes' | 'site_scrapers'> & DefaultGamesFormType
 
 
 export default function Settings() {
@@ -167,7 +168,6 @@ export default function Settings() {
   const defaultScrapersFormData: DefaultScrapersFormType = useMemo(() => {
     const {
       site_scrapers: raw_site_scrapers,
-      site_scraper_aliases
     } = settings
     const site_scrapers = raw_site_scrapers.map(scraper => {
       const selectors = scraper.selectors.map(sel => {
@@ -181,7 +181,7 @@ export default function Settings() {
       }, {})
       return {...scraper, selectors, login}
     })
-    return {site_scrapers, site_scraper_aliases}
+    return site_scrapers
   }, [settings])
 
   const [formDataScrapers, setFormDataScrapers] = useState<DefaultScrapersFormType>(defaultScrapersFormData)
@@ -228,10 +228,7 @@ export default function Settings() {
       file_types,
       ignored_exes,
     } = formDataDisplay
-    const {
-      site_scrapers: raw_site_scrapers,
-      site_scraper_aliases
-    } = formDataScrapers
+    const raw_site_scrapers = formDataScrapers
     // parse site scrapers to the correct type
     const site_scrapers = raw_site_scrapers.map(scraper => {
       scraper.selectors = scraper.selectors.map(sel => {
@@ -246,13 +243,12 @@ export default function Settings() {
       locale_emulator,
       file_types,
       ignored_exes,
-      site_scraper_aliases,
       site_scrapers,
       ...formDataGames
     }
     console.log(updatedSettings)
     updateSettings(updatedSettings)
-    // TODO: handle saving categories/statuses/tags
+    // TODO: need to re-get the games, since their table could have changed
   }
 
   const handleClose = () => {
