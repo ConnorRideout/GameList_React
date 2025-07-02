@@ -1,8 +1,10 @@
-// TODO? type the returns of all the database functions
+// STRETCH: type the returns of all the database functions
 /* eslint-disable import/no-relative-packages */
 /* eslint-disable no-await-in-loop */
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable promise/always-return */
+import { Knex } from 'knex'
+
 import { gamesdb } from '../data/db-config'
 
 import compareData from './games-parsers'
@@ -114,8 +116,8 @@ function getTimestamps(type: string) {
     .orderBy(`t.${type}`, 'desc')
 }
 
-function getTags() {
-  return gamesdb('tags')
+function getTags(trx?: Knex.Transaction<any, any[]>) {
+  return (trx ? trx('tags') : gamesdb('tags'))
     .orderByRaw(`
         CASE
           WHEN tag_name GLOB '[^a-zA-Z0-9]*' THEN 0
@@ -124,12 +126,12 @@ function getTags() {
       `)
 }
 
-function getStatus() {
-  return gamesdb('status')
+function getStatus(trx?: Knex.Transaction<any, any[]>) {
+  return (trx ? trx('status') : gamesdb('status'))
     .orderBy('status_priority')
 }
 
-function getCategories() {
+function getCategories(trx?: Knex.Transaction<any, any[]>) {
   /*
   SELECT
     c.*,
@@ -142,7 +144,7 @@ function getCategories() {
   GROUP BY
     c.category_id
   */
-  return gamesdb('categories as c')
+  return (trx ? trx('categories as c') : gamesdb('categories as c'))
     .select(
       'c.*',
       gamesdb.raw('GROUP_CONCAT(o.option_name) AS options'),
@@ -441,9 +443,9 @@ async function updateGamesSettings(rawGameSettings: RawGameSettings) {
 
   try {
     // get current data
-    const currentTags = await getTags()
-    const currentStatuses = await getStatus()
-    const currentCategories = await getCategories()
+    const currentTags = await getTags(trx)
+    const currentStatuses = await getStatus(trx)
+    const currentCategories = await getCategories(trx)
 
     // compare what needs to be updated vs deleted
     const tagChanges = compareData(currentTags, rawGameSettings.tags, 'tag_id')

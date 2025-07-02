@@ -33,7 +33,6 @@ export interface RawSettings {
     username: string | null,
     username_selector: string | null,
     password: string | null,
-    password_iv: string | null,
     password_selector: string | null,
     submit_selector: string | null,
   }[],
@@ -62,7 +61,7 @@ function getFiletypes() {
 function getWebsiteScrapers() {
   /*
   SELECT
-    w.*,
+    w.website_id, w.base_url,
     s.type, s.selector, s.queryAll, s.regex, s.limit_text, s.remove_regex
   FROM websites AS w
   LEFT JOIN
@@ -77,7 +76,7 @@ function getWebsiteScrapers() {
   */
   return settingsdb('websites as w')
     .select(
-      'w.*',
+      'w.website_id', 'w.base_url',
       's.type', 's.selector', 's.queryAll', 's.regex', 's.limit_text', 's.remove_regex'
     )
     .leftJoin('selectors AS s', 'w.website_id', 's.website_id')
@@ -141,33 +140,33 @@ async function getAll() {
 }
 
 async function updateSettings(newSettings: RawSettings & RawGameSettings) {
-  // TODO: save settings
+  // save settings
   const {tags, categories, statuses, defaults, file_types, ignored_exes, logins, site_scrapers, site_scraper_aliases} = newSettings
 
   const trx = await settingsdb.transaction()
 
   try {
-    // TODO: update defaults
+    // update defaults
     await trx('default').del()
     await trx('default').insert(defaults)
 
-    // TODO: update file_types
+    // update file_types
     await trx('filetypes').del()
     await trx('filetypes').insert(file_types)
 
-    // TODO: update ignored_exes
+    // update ignored_exes
     await trx('ignored_exes').del()
     if (ignored_exes.length) {
       await trx('ignored_exes').insert(ignored_exes)
     }
 
-    // TODO: update websites (from logins data)
+    // update websites (from logins data)
     await trx('websites').del()
     if (logins.length) {
       await trx('websites').insert(logins)
     }
 
-    // TODO: update selectors
+    // update selectors
     await trx('selectors').del()
     const selectorData = site_scrapers.map(scraper => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -176,19 +175,19 @@ async function updateSettings(newSettings: RawSettings & RawGameSettings) {
     })
     await trx('selectors').insert(selectorData)
 
-    // TODO: update scraper_tag_aliases
+    // update scraper_tag_aliases
     await trx('scraper_tag_aliases').del()
     if (site_scraper_aliases.tags.length) {
       await trx('scraper_tag_aliases').insert(site_scraper_aliases.tags)
     }
 
-    // TODO: update scraper_category_aliases
+    // update scraper_category_aliases
     await trx('scraper_category_aliases').del()
     if (site_scraper_aliases.categories.length) {
       await trx('scraper_category_aliases').insert(site_scraper_aliases.categories)
     }
 
-    // TODO: update scraper_status_aliases
+    // update scraper_status_aliases
     await trx('scraper_status_aliases').del()
     if (site_scraper_aliases.statuses.length) {
       await trx('scraper_status_aliases').insert(site_scraper_aliases.statuses)
@@ -197,10 +196,10 @@ async function updateSettings(newSettings: RawSettings & RawGameSettings) {
     // update game settings
     await updateGamesSettings({tags, categories, statuses})
 
-    trx.commit()
-    return getAll()
+    await trx.commit()
+    return await getAll()
   } catch (error) {
-    trx.rollback()
+    await trx.rollback()
     throw error
   }
 }

@@ -53,7 +53,6 @@ interface loginFormType {
 interface DefaultScrapersType {
   website_id: number,
   base_url: string,
-  login: loginFormType,
   selectors: {
     type: string,
     selector: string,
@@ -63,6 +62,7 @@ interface DefaultScrapersType {
     remove_regex: string,
     [key: string]: string | boolean
   }[]
+  login: loginFormType,
   aliases: ScraperAliasesType
 }
 export type DefaultScrapersFormType = DefaultScrapersType[]
@@ -166,9 +166,7 @@ export default function Settings() {
 
   // scrapers
   const defaultScrapersFormData: DefaultScrapersFormType = useMemo(() => {
-    const {
-      site_scrapers: raw_site_scrapers,
-    } = settings
+    const raw_site_scrapers = settings.site_scrapers
     const site_scrapers = raw_site_scrapers.map(scraper => {
       const selectors = scraper.selectors.map(sel => {
         const regex = sel.regex || ''
@@ -181,8 +179,9 @@ export default function Settings() {
       }, {})
       return {...scraper, selectors, login}
     })
+    // FIXME: properly handle aliases when the category/tag/status from the games table change/are deleted
     return site_scrapers
-  }, [settings])
+  }, [settings.site_scrapers])
 
   const [formDataScrapers, setFormDataScrapers] = useState<DefaultScrapersFormType>(defaultScrapersFormData)
 
@@ -228,8 +227,8 @@ export default function Settings() {
       file_types,
       ignored_exes,
     } = formDataDisplay
-    const raw_site_scrapers = formDataScrapers
     // parse site scrapers to the correct type
+    const raw_site_scrapers = structuredClone(formDataScrapers)
     const site_scrapers = raw_site_scrapers.map(scraper => {
       scraper.selectors = scraper.selectors.map(sel => {
         if (!sel.regex.length) (sel.regex as any) = null
@@ -238,6 +237,7 @@ export default function Settings() {
       })
       return scraper as SettingsType['site_scrapers'][0]
     })
+    // save settings
     const updatedSettings: UpdatedSettingsType = {
       games_folder,
       locale_emulator,
@@ -246,7 +246,6 @@ export default function Settings() {
       site_scrapers,
       ...formDataGames
     }
-    console.log(updatedSettings)
     updateSettings(updatedSettings)
     // TODO: need to re-get the games, since their table could have changed
   }

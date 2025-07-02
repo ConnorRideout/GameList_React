@@ -30,43 +30,38 @@ export default function Aliases({formData, setFormData}: Props) {
   }, [newAliasAdded])
 
   const handleAddAlias = (type: 'tags' | 'categories' | 'statuses', website_id: number) => {
-    // FIXME: currently broken
-    const scraper = {...formData.find(s => s.website_id === website_id)!}
-    // const aliases = [...scraper.aliases[type]]
-    // aliases.push(["~~placeholder~~", ""])
-    // type_aliases[site] = aliases
+    const updated_site_scrapers = structuredClone(formData)
+    const scraper = updated_site_scrapers.find(s => s.website_id === website_id)
+    const aliases = scraper?.aliases[type]
+    aliases?.push(["~~placeholder~~", ""])
 
-    // const type_aliases = {...formData.site_scraper_aliases[type]}
-    // const aliases = [...type_aliases[site]]
-    // aliases.push(["~~placeholder~~", ""])
-    // type_aliases[site] = aliases
-
-    // setNewAliasAdded(true)
-    // setFormData(prevVal => ({...prevVal, site_scraper_aliases: {...prevVal.site_scraper_aliases, [type]: type_aliases}}))
+    setNewAliasAdded(true)
+    setFormData(updated_site_scrapers)
   }
 
-  const handleRemoveAlias = (type: 'tags' | 'categories' | 'statuses', site: string, alias_idx: number) => {
-    // FIXME: currently broken
-    // const type_aliases = {...formData.site_scraper_aliases[type]}
-    // const aliases = [...type_aliases[site]]
-    // aliases.splice(alias_idx, 1)
-    // type_aliases[site] = aliases
+  const handleRemoveAlias = (type: 'tags' | 'categories' | 'statuses', website_id: number, alias_idx: number) => {
+    const updated_site_scrapers = structuredClone(formData)
+    const scraper = updated_site_scrapers.find(s => s.website_id === website_id)!
+    const aliases = scraper.aliases[type]
+    aliases.splice(alias_idx, 1)
 
-    // setFormData(prevVal => ({...prevVal, site_scraper_aliases: {...prevVal.site_scraper_aliases, [type]: type_aliases}}))
+    setFormData(updated_site_scrapers)
   }
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | {target: {name: string, value: string}}) => {
-    // FIXME: currently broken
-    // const {name, type, value} = evt.target as HTMLInputElement
-    // const [alias_type, site, str_idx] = name.split('-')
-    // const idx = parseInt(str_idx)
-    // const new_alias_types = {...formData.site_scraper_aliases[alias_type]}
-    // const new_aliases: [string, string][] = new_alias_types[site].map(alias => ([...alias]))
-    // // type will be undefined if it's the selector, i.e. the el of the array at idx 1
-    // new_aliases[idx][Number(type !== 'text')] = value
-    // new_alias_types[site] = new_aliases
+    const {name, type, value} = evt.target as HTMLInputElement
+    const [alias_type, str_website_id, str_idx] = name.split('-')
+    const idx = parseInt(str_idx)
+    const website_id = parseInt(str_website_id)
 
-    // setFormData(prevVal => ({...prevVal, site_scraper_aliases: {...prevVal.site_scraper_aliases, [alias_type]: new_alias_types}}))
+    const updated_site_scrapers = structuredClone(formData)
+    const scraper = updated_site_scrapers.find(s => s.website_id === website_id)!
+    const new_aliases = scraper.aliases[alias_type]
+
+    // type will be undefined if it's the selector, i.e. the el of the array at idx 1
+    new_aliases[idx][Number(type !== 'text')] = value
+
+    setFormData(updated_site_scrapers)
   }
 
   const handleBlur = (evt: React.FocusEvent<HTMLInputElement>) => {
@@ -97,7 +92,7 @@ export default function Aliases({formData, setFormData}: Props) {
                   type="text"
                   className='short'
                   name='aliases-base_url'
-                  value={base_url}
+                  value={base_url === '~~placeholder~~' ? '': base_url}
                   disabled
                 />
 
@@ -107,14 +102,14 @@ export default function Aliases({formData, setFormData}: Props) {
                       <button
                         type='button'
                         className='svg-button small'
-                        onClick={() => handleRemoveAlias('tags', base_url, idx)}
+                        onClick={() => handleRemoveAlias('tags', website_id, idx)}
                       >
                         <MinusSvg size={17} />
                       </button>
 
                       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                       <select
-                        name={`tags-${base_url}-${idx}`}
+                        name={`tags-${website_id}-${idx}`}
                         value={tag}
                         onChange={handleChange}
                       >
@@ -128,7 +123,7 @@ export default function Aliases({formData, setFormData}: Props) {
 
                       <input
                         type="text"
-                        name={`tags-${base_url}-${idx}`}
+                        name={`tags-${website_id}-${idx}`}
                         data-value={site_text}
                         value={site_text === "~~placeholder~~" ? "" : site_text}
                         onChange={handleChange}
@@ -160,8 +155,7 @@ export default function Aliases({formData, setFormData}: Props) {
                   type="text"
                   className='short'
                   name='aliases-base_url'
-                  value={base_url}
-                  onChange={handleChange}
+                  value={base_url === '~~placeholder~~' ? '': base_url}
                   disabled
                 />
 
@@ -171,14 +165,14 @@ export default function Aliases({formData, setFormData}: Props) {
                       <button
                         type='button'
                         className='svg-button small'
-                        onClick={() => handleRemoveAlias('categories', base_url, idx)}
+                        onClick={() => handleRemoveAlias('categories', website_id, idx)}
                       >
                         <MinusSvg size={17} />
                       </button>
 
                       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                       <select
-                        name={`categories-${base_url}-${idx}`}
+                        name={`categories-${website_id}-${idx}`}
                         value={category}
                         onChange={handleChange}
                       >
@@ -192,7 +186,7 @@ export default function Aliases({formData, setFormData}: Props) {
 
                       <input
                         type="text"
-                        name={`categories-${base_url}-${idx}`}
+                        name={`categories-${website_id}-${idx}`}
                         data-value={site_text}
                         value={site_text === "~~placeholder~~" ? "" : site_text}
                         onChange={handleChange}
@@ -224,25 +218,24 @@ export default function Aliases({formData, setFormData}: Props) {
                   type="text"
                   className='short'
                   name='aliases-base_url'
-                  value={base_url}
-                  onChange={handleChange}
+                  value={base_url === '~~placeholder~~' ? '': base_url}
                   disabled
                 />
 
                 <div className='vertical-container'>
                   {site_aliases.statuses.map(([site_text, tag], idx) => (
-                    <div key={`statuses-${base_url}-${idx}`} className='horizontal-container align-center'>
+                    <div key={`statuses-${website_id}-${idx}`} className='horizontal-container align-center'>
                       <button
                         type='button'
                         className='svg-button small'
-                        onClick={() => handleRemoveAlias('statuses', base_url, idx)}
+                        onClick={() => handleRemoveAlias('statuses', website_id, idx)}
                       >
                         <MinusSvg size={17} />
                       </button>
 
                       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                       <select
-                        name={`statuses-${base_url}-${idx}`}
+                        name={`statuses-${website_id}-${idx}`}
                         value={tag}
                         onChange={handleChange}
                       >
@@ -256,7 +249,7 @@ export default function Aliases({formData, setFormData}: Props) {
 
                       <input
                         type="text"
-                        name={`statuses-${base_url}-${idx}`}
+                        name={`statuses-${website_id}-${idx}`}
                         data-value={site_text}
                         value={site_text === "~~placeholder~~" ? "" : site_text}
                         onChange={handleChange}

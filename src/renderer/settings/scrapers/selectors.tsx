@@ -11,6 +11,7 @@ import Tooltip from '../../shared/tooltip'
 
 import { Props } from './scrapers'
 import { RootState } from '../../../types'
+import { DefaultScrapersFormType } from '../settings'
 
 
 export default function Selectors({formData, setFormData}: Props) {
@@ -35,9 +36,9 @@ export default function Selectors({formData, setFormData}: Props) {
   }, [newScraperAdded, newSelectorAdded])
 
   const handleAddItem = (scraper_idx?: number) => {
-    // FIXME: currently broken
     let site_scrapers: Props['formData']
     if (scraper_idx === undefined) {
+      // adding an entire website
       site_scrapers = [...formData, {
         website_id: -1,
         base_url: '~~placeholder~~',
@@ -58,6 +59,7 @@ export default function Selectors({formData, setFormData}: Props) {
       }]
       setNewScraperAdded(true)
     } else {
+      // adding a scraper to an existing website
       site_scrapers = formData.map(scraper => ({...scraper}))
       const newSelectors = [...site_scrapers[scraper_idx].selectors]
       newSelectors.push({
@@ -71,7 +73,7 @@ export default function Selectors({formData, setFormData}: Props) {
       site_scrapers[scraper_idx].selectors = newSelectors
       setNewSelectorAdded(true)
     }
-    setFormData(prevVal => ({...prevVal, site_scrapers}))
+    setFormData(site_scrapers)
   }
 
   const handleRemoveItem = (scraper_idx: number, selector_idx?: number) => {
@@ -85,13 +87,13 @@ export default function Selectors({formData, setFormData}: Props) {
       newSelectors.splice(selector_idx, 1)
       site_scrapers[scraper_idx].selectors = newSelectors
     }
-    setFormData(prevVal => ({...prevVal, site_scrapers}))
+    setFormData(site_scrapers)
   }
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | {target: {name: string, value: string}}, scraper_idx: number, selector_idx?: number) => {
     const { name, type, value, checked } = evt.target as HTMLInputElement
     // name == base_url | selector-type | selector-selector | selector-queryAll | selector-regex | selector-limit_text | selector-remove_regex
-    const site_scrapers = formData.map(scraper => ({...scraper}))
+    const site_scrapers: DefaultScrapersFormType = formData.map(scraper => ({...scraper}))
     if (name === 'base_url') {
       site_scrapers[scraper_idx].base_url = value
     } else if (selector_idx !== undefined) {
@@ -100,7 +102,7 @@ export default function Selectors({formData, setFormData}: Props) {
       selector[key] = type === 'checkbox' ? checked : value
       site_scrapers[scraper_idx].selectors[selector_idx] = selector
     }
-    setFormData(prevVal => ({...prevVal, site_scrapers}))
+    setFormData(site_scrapers)
   }
 
   const handleBlur = (evt: React.FocusEvent<HTMLInputElement>, scraper_idx: number, selector_idx?: number) => {

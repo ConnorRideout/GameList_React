@@ -162,19 +162,16 @@ export function parseUpdatedSettingsToRaw(settings: UpdatedSettingsType, existin
     if (login) {
       const { password: rawPassword, ...loginRest } = login
       let password = null
-      let password_iv = null
 
       if (rawPassword && loginRest.login_url) {
         const encrypted = passwordEncryptor.encrypt(rawPassword)
         password = `${encrypted.password}.${encrypted.password_iv}`
-        password_iv = encrypted.password_iv
       }
 
       logins.push({
         website_id,
         base_url,
         password,
-        password_iv,
         ...loginRest
       })
     }

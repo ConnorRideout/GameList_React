@@ -1,4 +1,4 @@
-// TODO? allow categories/any pulldown to be multi-selected with both include and exclude (like the tristate checkbox)
+// STRETCH: allow categories/any pulldown to be multi-selected with both include and exclude (like the tristate checkbox)
 
 /* eslint-disable import/no-cycle */
 /* eslint-disable jsx-a11y/label-has-associated-control */

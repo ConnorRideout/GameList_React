@@ -65,7 +65,7 @@ export default function Tools({game_id, path, programPath, url, gamePickerState,
   const {setShowGamePicker, setGamePickerOptions, setGamePickerClickHandler} = gamePickerState
 
   const playGameHandler = (progPath: string) => {
-    // TODO? update play status from 'new' to 'playing'; idk how this would work since play-status can be changed/removed
+    // STRETCH: update play status from 'new' to 'playing'; idk how this would work since play-status can be changed/removed
     // hide the picker if necessary
     setShowGamePicker(false)
     // show the starting game message
@@ -76,7 +76,7 @@ export default function Tools({game_id, path, programPath, url, gamePickerState,
     playGame({path: filepath, useLE: isEroge})
     setTimeout(() => {
       setShowPlay(false)
-      // TODO? only update timestamp/showPlay if playGame succeeds
+      // STRETCH: only update timestamp/showPlay if playGame succeeds
       // update recently played timestamp
       updatePlayedTimestamp({game_id})
     }, 5000)

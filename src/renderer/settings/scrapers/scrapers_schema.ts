@@ -3,34 +3,19 @@
 import * as yup from 'yup'
 
 
-// function createAliasTest(type: string) {
-//   return yup.lazy((value) => {
-//     if (typeof value === 'object' && Object.keys(value).length > 0) {
-//       // validate the array of aliases
-//       const validationArr = yup.array()
-//         .of(
-//           yup.array()
-//             .of(
-//               yup.string()
-//             )
-//             .length(2)
-//             .test('site-text-check', `Scrapers > Scraper Aliases Warning: ${type} aliases need text from the website`,
-//               (site_text) => !!(site_text && site_text[0])
-//             )
-//             .test('native-name-check', `Scrapers > Scraper Aliases Warning: ${type} aliases need a native name`,
-//               (nat_name) => !!(nat_name && nat_name[1])
-//             )
-//         )
-//       const newEntries = Object.keys(value).reduce((acc, cur) => ({
-//         ...acc,
-//         [cur] : validationArr
-//       }), {})
-
-//       return yup.object().shape(newEntries)
-//     }
-//     return yup.mixed().notRequired() // allow the object to be empty
-//   })
-// }
+function createAliasTest(type: string) {
+  return yup.array()
+    .of(
+      yup.array()
+        .length(2)
+        .test('site-text-check', `Scrapers > Scraper Aliases Warning: ${type} aliases need text from the website`,
+          (site_text) => !!(site_text && site_text[0])
+        )
+        .test('native-name-check', `Scrapers > Scraper Aliases Warning: ${type} aliases need a native name`,
+          (nat_name) => !!(nat_name && nat_name[1])
+        )
+    )
+}
 /*
 {
   website_id: number,
@@ -83,20 +68,9 @@ export default function CreateScrapersFormSchema() {
             )
             .min(1, 'Scrapers > Site Scrapers Warning: all base urls need at least 1 JS Selector'),
           aliases: yup.object().shape({
-            // tags: createAliasTest('tag'),
-            // categories: createAliasTest('category'),
-            // statuses: createAliasTest('status'),
-            tags: yup.array()
-              .of(
-                yup.array()
-                  .length(2)
-                  .test('site-text-check', `Scrapers > Scraper Aliases Warning: tag aliases need text from the website`,
-                    (site_text) => !!(site_text && site_text[0])
-                  )
-                  .test('native-name-check', `Scrapers > Scraper Aliases Warning: tag aliases need a native name`,
-                    (nat_name) => !!(nat_name && nat_name[1])
-                  )
-              )
+            tags: createAliasTest('tag'),
+            categories: createAliasTest('category'),
+            statuses: createAliasTest('status'),
           }),
         })
       )

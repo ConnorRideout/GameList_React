@@ -1,6 +1,6 @@
-// TODO? transitions between screens
-// TODO? resizeable
-// TODO? light mode
+// STRETCH: transitions between screens
+// STRETCH: resizeable
+// STRETCH: light mode
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { MemoryRouter as Router, Routes, Route, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
@@ -133,7 +133,7 @@ function Wrapper({children}: {children: React.ReactNode}) {
             break
           }
           case 'CHECK_UPDATED': {
-            // TODO? check for updated urls for all games
+            // STRETCH: check for updated urls for all games
             break
           }
           case 'OPEN_DISLIKE_NOTES': {
