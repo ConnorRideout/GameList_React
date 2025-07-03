@@ -46,9 +46,8 @@ export default class SiteScraper {
       const parseValues = (
         ref: this['statuses'] | this['tags'] | this['categories'][0]['options'],
         refLower: this['statusesLower'] | this['tagsLower'] | this['categories'][0]['options'],
-        aliasesType: ScraperAliasesType
+        aliases: ScraperAliasesType[keyof ScraperAliasesType]
       ) => {
-        const [,aliases] = Object.entries(aliasesType).find(([base_url]) => this.url.includes(base_url)) || []
         const filteredParsed = selectorValues
           .reduce((acc: string[], cur) => {
             // // apply aliases
@@ -71,15 +70,16 @@ export default class SiteScraper {
           }, [])
         return filteredParsed
       }
+      const { aliases } = this.scraper_selectors.find(s => this.url.includes(s.base_url))!
       if (type === 'status') {
-        return {type, parsed: parseValues(this.statuses, this.statusesLower, this.aliases.statuses)}
+        return {type, parsed: parseValues(this.statuses, this.statusesLower, aliases.statuses)}
       } else if (type === 'tags' || type === 'tag') {
-        return  {type, parsed: parseValues(this.tags, this.tagsLower, this.aliases.tags)}
+        return  {type, parsed: parseValues(this.tags, this.tagsLower, aliases.tags)}
       } else if (type.startsWith('category')) {
         const catName = type.replace(/^category_/, '')
         const {options} = (this.categories.find(c => c.category_name === catName)!)
         const lowerOptions = options?.map(opt => opt.toLowerCase())
-        return {type, parsed: parseValues(options, lowerOptions, this.aliases.categories)}
+        return {type, parsed: parseValues(options, lowerOptions, aliases.categories)}
       }
       // fallback
       return pSel

@@ -1,4 +1,5 @@
 // TODO: if settings like the games folder are not set, disable the ability to close settings
+// STRETCH: redo to use grid rather than flex
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable promise/catch-or-return */
 /* eslint-disable import/no-cycle */
@@ -220,6 +221,7 @@ export default function Settings() {
 
   // HANDLERS
   const handleSave = () => {
+    // TODO: show a confirmation that the data has been saved
     // handle saving settings
     const {
       games_folder,

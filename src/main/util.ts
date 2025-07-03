@@ -53,6 +53,7 @@ export function getSecretKey(password?: string) {
     const [encrypted, iv] = process.env.SECRET_KEY!.split('.')
     if (!iv || iv.length !== 32) {
       // secretKey was already decrypted
+      axios.put('http://localhost:9000/settings/env', {key: process.env.SECRET_KEY})
       return undefined
     }
     const keyBuffer = crypto.createHash('sha256').update(password).digest()

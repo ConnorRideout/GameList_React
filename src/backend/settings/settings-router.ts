@@ -3,7 +3,7 @@
 import { Router } from 'express'
 
 import * as Settings from './settings-model'
-import { parseRawSettings, parseUpdatedSettingsToRaw } from './settings-parsers'
+import { parseRawLogin, parseRawSettings, parseUpdatedSettingsToRaw } from './settings-parsers'
 
 import { UpdatedSettingsType } from '../../types'
 
@@ -22,7 +22,8 @@ router.get('/', (req, res, next) => {
 router.get('/login/:website_id', (req, res, next) => {
   const {website_id} = req.params
   Settings.getWebsiteLogin(parseInt(website_id))
-    .then(login => {
+    .then(raw_login => {
+      const login = parseRawLogin(raw_login)
       res.status(200).json(login)
     })
     .catch(next)

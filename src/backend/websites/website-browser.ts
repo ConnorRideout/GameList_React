@@ -1,9 +1,13 @@
-import puppeteer, {Browser, Page} from "puppeteer"
+import puppeteer from "puppeteer-extra"
+import StealthPlugin from "puppeteer-extra-plugin-stealth"
 import axios from "axios"
 
+import type { Browser, Page } from "puppeteer"
 // eslint-disable-next-line import/no-relative-packages
 import { LoginType } from "../../types"
 
+
+// puppeteer.use(StealthPlugin())
 
 class BrowserManager {
   browser: Browser | null
@@ -17,7 +21,19 @@ class BrowserManager {
 
   async launch() {
     if (!this.browser) {
-      this.browser = await puppeteer.launch({headless: false})
+      this.browser = await puppeteer.launch({
+        headless: false,
+        // add args to hide automation
+        args: [
+          '--no-sandbox',
+          '--disable-setuid-sandbox',
+          '--disable-dev-shm-usage',
+          '--disable-accelerated-2d-canvas',
+          '--no-first-run',
+          '--no-zygote',
+          '--disable-gpu'
+        ]
+      })
     }
     return this.browser
   }
@@ -31,7 +47,11 @@ class BrowserManager {
   }
 
   async loginToSite(website_id: number) {
+    // FIXME: often, the DDoS blocker will need human input to work
     const page = await this.browser!.newPage()
+
+    // add realistic headers to attempt to avoid DDoS blocker
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36')
 
     const login: LoginType | undefined = (await axios.get(`http://localhost:9000/settings/login/${website_id}`)).data
     if (!login || !login.login_url) {
@@ -48,6 +68,7 @@ class BrowserManager {
     }
     // type credentials
     await page.locator(username_selector).fill(username)
+    console.log(password)
     await page.locator(password_selector).fill(password)
     // submit credentials
     await page.locator(submit_selector).click()

@@ -13,7 +13,10 @@ class PasswordEncryptor {
 
   constructor() {
     this.algorithm = 'aes-256-cbc'
-    this.keyBuffer = crypto.createHash('sha256').update(process.env.SECRET_KEY!).digest()
+    const secretKey = process.env.SECRET_KEY
+    if (!secretKey)
+      throw new Error("Secret Key is not assigned!")
+    this.keyBuffer = crypto.createHash('sha256').update(secretKey).digest()
   }
 
   encrypt(text: string) {
@@ -25,8 +28,9 @@ class PasswordEncryptor {
   }
 
   decrypt(encryptedPassword: string) {
-    const [encrypted, iv] = encryptedPassword.split('.')
-    const decipher = crypto.createDecipheriv(this.algorithm, this.keyBuffer, Buffer.from(iv, 'hex'))
+    const [encrypted, ivHex] = encryptedPassword.split('.')
+    const iv = Buffer.from(ivHex, 'hex')
+    const decipher = crypto.createDecipheriv(this.algorithm, this.keyBuffer, iv)
     let decrypted = decipher.update(encrypted, 'hex', 'utf-8')
     decrypted += decipher.final('utf-8')
     return decrypted
@@ -35,17 +39,13 @@ class PasswordEncryptor {
 
 let passwordEncryptor: PasswordEncryptor
 
-function parseRawLogins(logins: RawSettings['logins']) {
+export function parseRawLogin(login: RawSettings['logins'][0]) {
   if (passwordEncryptor === undefined)
     passwordEncryptor = new PasswordEncryptor()
-  const parsedLogins: (LoginType & {website_id: number})[] = []
-  logins.forEach(login => {
-    const {website_id, login_url, username, username_selector, password: encryptedPassword, password_selector, submit_selector} = login
-    const password = (login_url && encryptedPassword) ? passwordEncryptor.decrypt(encryptedPassword) : null
-    const parsedLogin = {website_id, login_url, username, username_selector, password, password_selector, submit_selector}
-    parsedLogins.push(parsedLogin)
-  })
-  return parsedLogins
+  const {website_id, login_url, username, username_selector, password: encryptedPassword, password_selector, submit_selector} = login
+  const password = (login_url && encryptedPassword) ? passwordEncryptor.decrypt(encryptedPassword) : null
+  const parsedLogin = {website_id, login_url, username, username_selector, password, password_selector, submit_selector}
+  return parsedLogin
 }
 
 function parseAliases(scraper_aliases: RawSettings['site_scraper_aliases']) {
@@ -92,7 +92,8 @@ export function parseRawSettings(settings: RawSettings) {
   // parse ignored exes
   (settings as any).ignored_exes = settings.ignored_exes.map(ignore => ignore.exe)
   // parse site logins
-  const parsedLogins = parseRawLogins(settings.logins)
+  const parsedLogins: (LoginType & {website_id: number})[] = []
+  settings.logins.forEach(login => { parsedLogins.push(parseRawLogin(login)) } )
   // parse site scraper aliases
   const parsedScraperAliases = parseAliases(settings.site_scraper_aliases)
   // parse site scrapers
