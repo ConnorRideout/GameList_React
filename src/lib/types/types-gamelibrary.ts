@@ -180,6 +180,7 @@ interface LoginType {
   [key: string]: string | number | null;
 }
 interface ScraperAliasesType {
+  // [site_tag, native_value]
   tags: [string, string][];
   categories: [string, string][];
   statuses: [string, string][];

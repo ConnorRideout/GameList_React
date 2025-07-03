@@ -1,14 +1,19 @@
-// TODO: make this
 /* eslint-disable react/no-array-index-key */
 import React from 'react'
 
 // eslint-disable-next-line import/no-cycle
 import { Props } from './scrapers'
+import Tooltip from '../../shared/tooltip'
 
 
 export default function Logins({formData, setFormData}: Props) {
-  const handleChange = () => {
-
+  const handleChange = (evt: React.ChangeEvent<HTMLInputElement>, website_id: number) => {
+    const {name, value} = evt.target
+    // name = login_url | username | username_selector | password | password_selector | submit_selector
+    const site_scrapers = structuredClone(formData)
+    const { login } = site_scrapers.find(s => s.website_id === website_id)!
+    login[name] = value
+    setFormData(site_scrapers)
   }
 
   return (
@@ -27,42 +32,43 @@ export default function Logins({formData, setFormData}: Props) {
           Username
           <span
             data-tooltip-id='logins-info-tooltip'
-            data-tooltip-content=""
+            data-tooltip-content="The username you use to login to the site"
           >?</span>
         </h2>
         <h2 className='medium-span'>
           Username<br/>Selector
           <span
             data-tooltip-id='logins-info-tooltip'
-            data-tooltip-content=""
+            data-tooltip-content="The JavaScript selector for the username input field that will be passed to 'document.querySelector'"
           >?</span>
         </h2>
         <h2 className='short-span'>
           Password
           <span
             data-tooltip-id='logins-info-tooltip'
-            data-tooltip-content=""
+            data-tooltip-content="The password you use to login to the site"
           >?</span>
         </h2>
         <h2 className='medium-span'>
           Password<br/>Selector
           <span
             data-tooltip-id='logins-info-tooltip'
-            data-tooltip-content=""
+            data-tooltip-content="The JavaScript selector for the password input field that will be passed to 'document.querySelector'"
           >?</span>
         </h2>
         <h2 className='medium-span'>
           Submit<br/>Selector
           <span
             data-tooltip-id='logins-info-tooltip'
-            data-tooltip-content=""
+            data-tooltip-content="The JavaScript selector for the submit button/field that will be passed to 'document.querySelector'"
           >?</span>
         </h2>
+        <Tooltip id="logins-info-tooltip"/>
       </div>
       <span className='separator' />
 
       <div className='vertical-container scrollable'>
-        {formData.map(({base_url, login: {login_url, username, username_selector, password, password_selector, submit_selector}}, index) => (
+        {formData.map(({base_url, website_id, login: {login_url, username, username_selector, password, password_selector, submit_selector}}, index) => (
           <React.Fragment key={`logins-${index}`}>
             <div className='horizontal-container align-center'>
               <input
@@ -78,7 +84,7 @@ export default function Logins({formData, setFormData}: Props) {
                 className='login-url'
                 name='login_url'
                 value={login_url}
-                onChange={handleChange}
+                onChange={evt => handleChange(evt, website_id)}
               />
 
               <input
@@ -86,14 +92,14 @@ export default function Logins({formData, setFormData}: Props) {
                 className="short"
                 name='username'
                 value={username}
-                onChange={handleChange}
+                onChange={evt => handleChange(evt, website_id)}
               />
 
               <input
                 type="text"
                 name='username_selector'
                 value={username_selector}
-                onChange={handleChange}
+                onChange={evt => handleChange(evt, website_id)}
               />
 
               <input
@@ -101,21 +107,21 @@ export default function Logins({formData, setFormData}: Props) {
                 className="short"
                 name='password'
                 value={password}
-                onChange={handleChange}
+                onChange={evt => handleChange(evt, website_id)}
               />
 
               <input
                 type="text"
                 name='password_selector'
                 value={password_selector}
-                onChange={handleChange}
+                onChange={evt => handleChange(evt, website_id)}
               />
 
               <input
                 type="text"
                 name='submit_selector'
                 value={submit_selector}
-                onChange={handleChange}
+                onChange={evt => handleChange(evt, website_id)}
               />
             </div>
           </React.Fragment>

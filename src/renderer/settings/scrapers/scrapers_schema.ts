@@ -67,6 +67,22 @@ export default function CreateScrapersFormSchema() {
               })
             )
             .min(1, 'Scrapers > Site Scrapers Warning: all base urls need at least 1 JS Selector'),
+
+          login: yup.object().shape({
+            login_url: yup.string(),
+            username: yup.string(),
+            username_selector: yup.string(),
+            password: yup.string(),
+            password_selector: yup.string(),
+            submit_selector: yup.string()
+          }).test('all-or-none', 'Scrapers > Site Logins Warning: All login fields must be filled for the login process to work',
+            values => {
+              const fields = Object.keys(values) as (keyof typeof values)[]
+              const filledFields = fields.filter(field => (values[field] && values[field].length > 0))
+
+              return filledFields.length === 0 || filledFields.length === fields.length
+            }),
+
           aliases: yup.object().shape({
             tags: createAliasTest('tag'),
             categories: createAliasTest('category'),
