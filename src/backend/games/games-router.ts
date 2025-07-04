@@ -70,10 +70,10 @@ function handleImage(img: string): string {
   // create a Path of img, handling absolute vs relative img path
   const img_path = /^[A-Z]:/.test(img) ? new Path(img) : img_dir.join(img)
   if (!img_path.existsSync()) {
-    throw new Error("Image does not exist")
+    throw new Error(`Image at path "${img_path}" does not exist`)
   }
   // create a copy of img (if img is a gif, take the first frame) that is 720p in the image dir
-  const new_image_path = img_dir.join(`${img_path.stem}.jpg`)
+  const new_image_path = img_dir.join(img_path.withExtension('jpg').basename)
   imageMagick(img_path.path, new_image_path.path)
   // build the return array
   const res = [new_image_path.basename]
@@ -164,7 +164,12 @@ router.get('/styles', (req, res, next) => {
 router.post('/games/new', async (req, res, next) => {
   const game = req.body
   // properly format the game data
-  game.image = await handleImage(game.image[0])
+  try {
+    game.image = await handleImage(game.image[0])
+  } catch (error) {
+    next(error)
+    return
+  }
   game.protagonist = game.categories.protagonist
   delete game.categories.protagonist
   game.program_path = JSON.stringify(game.program_path)
