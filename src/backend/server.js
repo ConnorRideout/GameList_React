@@ -5,6 +5,8 @@ const { existsSync } = require('fs')
 const path = require('path')
 
 const browserManager = require('./websites/website-browser.ts')
+const BackupManager = require('./games/games-backup.ts')
+const { gamesdb, settingsdb } = require('./data/db-config.js')
 
 const gameRoutes = require('./games/games-router.ts')
 const filesystemRoutes = require('./filesystem/filesystem-router.ts')
@@ -24,6 +26,9 @@ if (existsSync('../../.env')) {
   }, 1000)
 }
 
+const gamesBackupManager = new BackupManager(gamesdb)
+const settingsBackupManager = new BackupManager(settingsdb)
+
 const server = express()
 
 server.use(cors())
@@ -41,6 +46,10 @@ server.use(errorHandler);
 
 (async () => {
   try {
+    // backup databases
+    await gamesBackupManager.createBackupOnStartup()
+    await settingsBackupManager.createBackupOnStartup()
+    // launch browserManager
     await browserManager.launch()
 
     const backend = server.listen(9000, () => {

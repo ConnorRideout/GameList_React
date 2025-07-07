@@ -6,6 +6,14 @@ import { StringMap, LoginType, SettingsType, UpdatedSettingsType, ScraperAliases
 import { RawGameSettings } from '../games/games-model'
 
 
+
+function secretCheck() {
+  const keyparts = process.env.SECRET_KEY?.split('.')
+  if (!keyparts || (keyparts.length === 2 && keyparts[0].length === 32 && keyparts[1].length === 32)) {
+    throw new Error("Secret Key has not been properly set!")
+  }
+}
+
 class PasswordEncryptor {
   algorithm: string
 
@@ -13,13 +21,15 @@ class PasswordEncryptor {
 
   constructor() {
     this.algorithm = 'aes-256-cbc'
-    const secretKey = process.env.SECRET_KEY
-    if (!secretKey)
-      throw new Error("Secret Key is not assigned!")
+    secretCheck()
+    const secretKey = process.env.SECRET_KEY!
+    // console.log(`encryptor secret key = ${secretKey}`)
     this.keyBuffer = crypto.createHash('sha256').update(secretKey).digest()
   }
 
+
   encrypt(text: string) {
+    secretCheck()
     const iv = crypto.randomBytes(16)
     const cipher = crypto.createCipheriv(this.algorithm, this.keyBuffer, iv);
     let encrypted = cipher.update(text, 'utf-8', 'hex');
@@ -28,6 +38,7 @@ class PasswordEncryptor {
   }
 
   decrypt(encryptedPassword: string) {
+    secretCheck()
     const [encrypted, ivHex] = encryptedPassword.split('.')
     const iv = Buffer.from(ivHex, 'hex')
     const decipher = crypto.createDecipheriv(this.algorithm, this.keyBuffer, iv)
@@ -128,7 +139,6 @@ export function parseUpdatedSettingsToRaw(settings: UpdatedSettingsType, existin
     games_folder, locale_emulator, file_types: raw_file_types, ignored_exes: raw_ignored_exes, site_scrapers: raw_scrapers
   } = settings
 
-  // TODO: reformat settings to correct raw state
   const defaults: RawSettings['defaults'] = [
     { name: 'games_folder', value: games_folder },
     { name: 'locale_emulator', value: locale_emulator }

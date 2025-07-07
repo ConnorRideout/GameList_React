@@ -82,14 +82,14 @@ export default function BrowseNav({scrollToItem}: {scrollToItem: (idx: number) =
         clickHandler={(evt) => sortHandler(evt,'recentlyPlayed')}
       />
       <TabularButton
-        text='Recently Added'
-        active={sortOrder === 'recentlyAdded'}
-        clickHandler={(evt) => sortHandler(evt,'recentlyAdded')}
-      />
-      <TabularButton
         text='Recently Updated'
         active={sortOrder === 'recentlyUpdated'}
         clickHandler={(evt) => sortHandler(evt,'recentlyUpdated')}
+      />
+      <TabularButton
+        text='Recently Added'
+        active={sortOrder === 'recentlyAdded'}
+        clickHandler={(evt) => sortHandler(evt,'recentlyAdded')}
       />
       <TabularButton
         text='#A'

@@ -1,5 +1,4 @@
 /* eslint-disable func-names */
-// TODO: add validation for logins
 import * as yup from 'yup'
 
 

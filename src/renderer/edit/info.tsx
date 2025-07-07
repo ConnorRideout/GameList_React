@@ -1,4 +1,4 @@
-// TODO: image editor/selector if image isn't 16:9
+// STRETCH: image editor/selector if image isn't 16:9
 import React, {ChangeEvent} from "react"
 import { useDispatch, useSelector } from "react-redux"
 
@@ -73,7 +73,7 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
   }
 
   const handleAutoFill = async () => {
-    // TODO: when updating, show differences in tags/categories/etc and allow user to pick which ones to keep/change
+    // STRETCH: when updating, show differences in tags/categories/etc and allow user to pick which ones to keep/change
     // TODO: move protagonist to categories, and make a selector for it. Have the database be ordered by preference? IDK how to have 'multiple' be an option
     const { url } = formData
     const { website_id } = settings.site_scrapers.find(scraper => url.includes(scraper.base_url))!

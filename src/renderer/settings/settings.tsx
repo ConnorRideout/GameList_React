@@ -221,7 +221,7 @@ export default function Settings() {
 
   // HANDLERS
   const handleSave = () => {
-    // TODO: show a confirmation that the data has been saved
+    // STRETCH: show a confirmation that the data has been saved
     // handle saving settings
     const {
       games_folder,

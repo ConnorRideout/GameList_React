@@ -50,13 +50,14 @@ export default function Aliases({formData, setFormData}: Props) {
 
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | {target: {name: string, value: string}}) => {
     const {name, type, value} = evt.target as HTMLInputElement
-    const [alias_type, str_website_id, str_idx] = name.split('-')
+    const [alias_type, str_website_id, str_idx] = name.split('*')
+    console.log('change: ', name)
     const idx = parseInt(str_idx)
     const website_id = parseInt(str_website_id)
 
     const updated_site_scrapers = structuredClone(formData)
     const scraper = updated_site_scrapers.find(s => s.website_id === website_id)!
-    const new_aliases = scraper.aliases[alias_type]
+    const new_aliases = scraper?.aliases[alias_type]
 
     // type will be undefined if it's the selector, i.e. the el of the array at idx 1
     new_aliases[idx][Number(type !== 'text')] = value
@@ -66,6 +67,7 @@ export default function Aliases({formData, setFormData}: Props) {
 
   const handleBlur = (evt: React.FocusEvent<HTMLInputElement>) => {
     const {name, type, value} = evt.target
+    console.log('blur: ', name)
     const newVal = value.trim()
     handleChange({target: {name, type, value: newVal}})
   }
@@ -109,7 +111,7 @@ export default function Aliases({formData, setFormData}: Props) {
 
                       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                       <select
-                        name={`tags-${website_id}-${idx}`}
+                        name={`tags*${website_id}*${idx}`}
                         value={tag}
                         onChange={handleChange}
                       >
@@ -123,7 +125,7 @@ export default function Aliases({formData, setFormData}: Props) {
 
                       <input
                         type="text"
-                        name={`tags-${website_id}-${idx}`}
+                        name={`tags*${website_id}*${idx}`}
                         data-value={site_text}
                         value={site_text === "~~placeholder~~" ? "" : site_text}
                         onChange={handleChange}
@@ -141,7 +143,7 @@ export default function Aliases({formData, setFormData}: Props) {
                   </button>
                 </div>
               </div>
-              {Object.keys(formData[index].aliases.tags).length > 1 && <span className='separator' />}
+              {formData.length > 1 && <span className='separator' />}
             </React.Fragment>
           ))}
         </fieldset>
@@ -172,7 +174,7 @@ export default function Aliases({formData, setFormData}: Props) {
 
                       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                       <select
-                        name={`categories-${website_id}-${idx}`}
+                        name={`categories*${website_id}*${idx}`}
                         value={category}
                         onChange={handleChange}
                       >
@@ -186,7 +188,7 @@ export default function Aliases({formData, setFormData}: Props) {
 
                       <input
                         type="text"
-                        name={`categories-${website_id}-${idx}`}
+                        name={`categories*${website_id}*${idx}`}
                         data-value={site_text}
                         value={site_text === "~~placeholder~~" ? "" : site_text}
                         onChange={handleChange}
@@ -204,7 +206,7 @@ export default function Aliases({formData, setFormData}: Props) {
                   </button>
                 </div>
               </div>
-              {Object.keys(formData[index].aliases.categories).length > 1 && <span className='separator' />}
+              {formData.length > 1 && <span className='separator' />}
             </React.Fragment>
           ))}
         </fieldset>
@@ -224,7 +226,7 @@ export default function Aliases({formData, setFormData}: Props) {
 
                 <div className='vertical-container'>
                   {site_aliases.statuses.map(([site_text, tag], idx) => (
-                    <div key={`statuses-${website_id}-${idx}`} className='horizontal-container align-center'>
+                    <div key={`statuses-${index}-${idx}`} className='horizontal-container align-center'>
                       <button
                         type='button'
                         className='svg-button small'
@@ -235,7 +237,7 @@ export default function Aliases({formData, setFormData}: Props) {
 
                       {/* eslint-disable-next-line jsx-a11y/control-has-associated-label */}
                       <select
-                        name={`statuses-${website_id}-${idx}`}
+                        name={`statuses*${website_id}*${idx}`}
                         value={tag}
                         onChange={handleChange}
                       >
@@ -249,7 +251,7 @@ export default function Aliases({formData, setFormData}: Props) {
 
                       <input
                         type="text"
-                        name={`statuses-${website_id}-${idx}`}
+                        name={`statuses*${website_id}*${idx}`}
                         data-value={site_text}
                         value={site_text === "~~placeholder~~" ? "" : site_text}
                         onChange={handleChange}
@@ -267,8 +269,7 @@ export default function Aliases({formData, setFormData}: Props) {
                   </button>
                 </div>
               </div>
-              {/* FIXME: all these separators don't properly show. Need to check if there's more than 1 WEBSITE that has aliases */}
-              {Object.keys(formData[index].aliases.statuses).length > 1 && <span className='separator' />}
+              {formData.length > 1 && <span className='separator' />}
             </React.Fragment>
           ))}
         </fieldset>

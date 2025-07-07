@@ -1,5 +1,5 @@
 /* eslint-disable import/no-cycle */
-// TODO: have a 'deleted' item for any removed item, so the user can undo it
+// STRETCH: have a 'deleted' item for any removed item, so the user can undo it
 // TODO: warn about deleting existing items, as it will permanently delete them from all the related games as well
 import React from 'react'
 

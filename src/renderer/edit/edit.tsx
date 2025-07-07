@@ -307,7 +307,7 @@ export default function Edit() {
     const updated = await checkForUpdatedUrl(formData.url).unwrap()
     if (updated.message === 'updated') {
       setFormData(prev => ({...prev, url: updated.redirectedUrl}))
-      // TODO: flash url input to indicate it was updated
+      // STRETCH: flash url input to indicate it was updated
     } else {
       // TODO: indicate the url was not updated
     }
