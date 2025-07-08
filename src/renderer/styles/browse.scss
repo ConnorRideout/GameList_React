@@ -273,7 +273,7 @@
 
 .missing-games-container {
   div.inputbox {
-    min-width: 500px;
+    min-width: 45%;
   }
 
   .tooltip {
@@ -298,23 +298,28 @@
 
       border: 1px solid variables.$fgNormal;
       border-radius: 1.2em;
-      padding: 0 variables.$spacing;
+      padding: variables.$spacing;
       margin-right: 2px;
+      justify-content: space-around;
+      width: 4.5em;
 
       button {
         display: flex;
         height: fit-content;
         min-width: fit-content;
-        font-size: variables.$fontSmall;
+        font-size: variables.$fontDefault;
         border-radius: 5px;
 
         &.symbol-button {
+          justify-content: center;
+          align-items: center;
           margin: 0;
-          background: transparent;
-          border: none;
-          min-width: 1.2em;
+          background: variables.$bgLight;
+          border: 1px solid variables.$fgDark;
+          border-radius: 50%;
+          height: 1.7em;
+          width: 1.7em;
         }
-
       }
     }
 

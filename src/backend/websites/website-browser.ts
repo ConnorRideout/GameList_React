@@ -1,5 +1,7 @@
+import fs from 'fs'
+import path from 'path'
 import puppeteer from "puppeteer-extra"
-import StealthPlugin from "puppeteer-extra-plugin-stealth"
+// import StealthPlugin from "puppeteer-extra-plugin-stealth"
 import axios from "axios"
 
 import type { Browser, Page } from "puppeteer"
@@ -8,6 +10,7 @@ import { LoginType } from "../../types"
 
 
 // puppeteer.use(StealthPlugin())
+const cookies_path = path.join(__dirname, 'cookies.json')
 
 class BrowserManager {
   browser: Browser | null
@@ -22,7 +25,7 @@ class BrowserManager {
   async launch() {
     if (!this.browser) {
       this.browser = await puppeteer.launch({
-        headless: false,
+        // headless: false,
         // add args to hide automation
         args: [
           '--no-sandbox',
@@ -31,27 +34,79 @@ class BrowserManager {
           '--disable-accelerated-2d-canvas',
           '--no-first-run',
           '--no-zygote',
-          '--disable-gpu'
-        ]
+          '--disable-gpu',
+          '--disable-blink-features=AutomationControlled',
+        ],
+        ignoreDefaultArgs: ['--enable-automation']
       })
+      // get existing cookies
+      if (fs.existsSync(cookies_path)) {
+        const cookies = JSON.parse(fs.readFileSync(cookies_path, 'utf-8'))
+        this.browser.setCookie(...cookies)
+      }
     }
     return this.browser
   }
 
   async close() {
     if (this.browser) {
+      // save cookies
+      const cookies = await this.browser.cookies()
+      fs.writeFileSync(cookies_path, JSON.stringify(cookies))
+
       await this.browser.close()
       console.log('Browser closed')
       this.browser = null
     }
   }
 
+  async askForDDoSInput(currentPage: Page, login_url: string) {
+    // create the browser
+    const headedBrowser = await puppeteer.launch({
+      headless: false,
+      defaultViewport: null,
+      args: [
+        '--start-maximized',
+        '--no-sandbox',
+        '--disable-setuid-sandbox'
+      ]
+    })
+
+    let cookies = await this.browser!.cookies()
+    const user_agent = await currentPage.evaluate(() => navigator.userAgent)
+
+    await headedBrowser.setCookie(...cookies)
+    const page = await headedBrowser.newPage()
+    await page.setUserAgent(user_agent)
+    await page.goto(login_url, { waitUntil: 'networkidle2' })
+
+    // wait for DDoS resolution
+    try {
+      await Promise.race([
+        // strategy 1: wait for URL to match login_url
+        page.waitForFunction(url => {
+          return window.location.href === url
+        }, { timeout: 30000 }, login_url),
+
+        // strategy 2: wait for navigation to complete
+        await page.waitForNavigation({
+          waitUntil: 'networkidle2',
+          timeout: 30000
+        })
+      ])
+    } catch (error) {
+      console.error('Timeout waiting for DDoS resolution')
+    }
+
+    // switch back to the headless browser
+    cookies = await headedBrowser.cookies()
+    await this.browser!.setCookie(...cookies)
+    await headedBrowser.close()
+  }
+
   async loginToSite(website_id: number) {
     // FIXME: often, the DDoS blocker will need human input to work
     const page = await this.browser!.newPage()
-
-    // add realistic headers to attempt to avoid DDoS blocker
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36')
 
     const login: LoginType | undefined = (await axios.get(`http://localhost:9000/settings/login/${website_id}`)).data
     if (!login || !login.login_url) {
@@ -62,9 +117,20 @@ class BrowserManager {
     await page.goto(login_url, {waitUntil: 'networkidle2'})
     // wait for possible ddos blocker
     if (page.url() !== login_url) {
-      console.log("Currently appears on DDoS blocker, waiting for redirect...")
-      await page.waitForNavigation({waitUntil: 'networkidle2'})
-      console.log("DDoS passed")
+      try {
+        console.log("Currently appears on DDoS blocker, waiting for redirect...")
+        await page.waitForNavigation({
+          waitUntil: 'networkidle2',
+          timeout: 10000
+        })
+        console.log("DDoS passed")
+      } catch (error) {
+        await this.askForDDoSInput(page, login_url)
+        await page.goto(login_url, {waitUntil: 'networkidle2'})
+        if (page.url() !== login_url) {
+          throw new Error('DDoS bypass failed!')
+        }
+      }
     }
     // type credentials
     await page.locator(username_selector).fill(username)
@@ -106,7 +172,7 @@ class BrowserManager {
     const {page, error} = await this.getPage(website_id)
 
     await page.goto(url, {waitUntil: 'networkidle2'})
-    return {url: page.url(), error}
+    return {redirectedUrl: page.url(), error}
   }
 }
 

@@ -35,8 +35,12 @@ router.post('/urlupdates', (req, res, next) => {
           .catch(next)
       } else {
         browserManager.getRedirectUrl(website_id, check_url)
-          .then(redirectedUrl => {
-            res.status(200).json({message: check_url !== redirectedUrl ? 'updated' : 'no update', redirectedUrl})
+          .then(({redirectedUrl, error}) => {
+            if (error) {
+              res.status(500).json({message: error})
+            } else {
+              res.status(200).json({message: check_url !== redirectedUrl ? 'updated' : 'no update', redirectedUrl})
+            }
           })
           .catch(next)
       }

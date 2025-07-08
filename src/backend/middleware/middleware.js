@@ -13,7 +13,7 @@ function logger(req, res, next) {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function errorHandler(err, req, res, next) {
-  console.error(err.message)
+  console.error(err.message, err.stack)
   res.status(err.status || 500).json({message: err.message})
 }
 

@@ -5,10 +5,10 @@ export const websitesApi = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:9000/websites' }),
   endpoints: builder => ({
     checkUpdatedUrl: builder.mutation<{message: string, redirectedUrl: string}, string>({
-      query: (checkUrl: string) => ({
+      query: (check_url: string) => ({
         url: 'urlupdates',
         method: 'POST',
-        body: {checkUrl}
+        body: {check_url}
       })
     }),
     autofillFromWebsite: builder.mutation<{type: string, parsed: string | string[]}[], {website_id: number, url: string}>({
