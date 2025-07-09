@@ -7,7 +7,7 @@ interface Props {
   isVisible: boolean,
   setIsVisible: React.Dispatch<React.SetStateAction<boolean>>,
   programPaths: [string, string][],
-  clickHandler: {func: (progPath: string) => void},
+  clickHandler: React.MutableRefObject<(progPath: string) => void>,
 }
 export default function GamePicker({isVisible, setIsVisible, programPaths, clickHandler}: Props) {
   const [multiSelect, setMultiSelect] = useState<{[key: string]: boolean}>({})
@@ -26,7 +26,7 @@ export default function GamePicker({isVisible, setIsVisible, programPaths, click
 
   const handleMultipleStarts = () => {
     Object.entries(multiSelect).forEach(([progPath, checked]) => {
-      if (checked) clickHandler.func(progPath)
+      if (checked) clickHandler.current(progPath)
     })
   }
 
@@ -52,7 +52,7 @@ export default function GamePicker({isVisible, setIsVisible, programPaths, click
           />
           <button type="button" onClick={() => {
             setIsVisible(false)
-            clickHandler.func(progPath)
+            clickHandler.current(progPath)
           }}>
             <PlaySvg color="currentColor"/>
           </button>
@@ -66,36 +66,4 @@ export default function GamePicker({isVisible, setIsVisible, programPaths, click
       >Start Multiple</button>
     </InputBox>
   )
-  // return (
-  //   <div className="game-picker-container">
-  //     <div>
-  //       <h1>Select which version(s) you want to play...</h1>
-  //       <div>
-  //         {programPaths.map(([displayText, progPath]) => (
-  //           <span key={displayText}>
-  //             <input
-  //               type="checkbox"
-  //               name={progPath}
-  //               onChange={handleChange}
-  //               checked={multiSelect[progPath]}
-  //             />
-  //             <button type="button" onClick={() => {
-  //               setIsVisible(false)
-  //               clickHandler.func(progPath)
-  //             }}>
-  //               <PlaySvg color="currentColor"/>
-  //             </button>
-  //             <p>{displayText}</p>
-  //           </span>
-  //         ))}
-  //         <button
-  //           type="button"
-  //           onClick={handleMultipleStarts}
-  //           disabled={Object.values(multiSelect).filter(chk => chk).length < 2}
-  //         >Start Multiple</button>
-  //       </div>
-  //       <button type="button" onClick={handleCancel}>Cancel</button>
-  //     </div>
-  //   </div>
-  // )
 }

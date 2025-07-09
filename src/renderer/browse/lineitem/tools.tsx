@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import styled from 'styled-components'
 import { useDispatch } from 'react-redux'
 
@@ -59,23 +59,21 @@ export default function Tools({game_id, path, programPath, url, gamePickerState,
   const [playGame] = usePlayGameMutation()
   const [openUrl] = useOpenUrlMutation()
   const [updatePlayedTimestamp] = useUpdateTimestampMutation()
-  const [showPlay, setShowPlay] = useState(false)
   const [triggerEditGame] = useLazyEditGameQuery()
 
-  const {setShowGamePicker, setGamePickerOptions, setGamePickerClickHandler} = gamePickerState
+  const {setShowGamePicker, setGamePickerOptions, gamePickerClickHandler, shownPlayMessages, setShownPlayMessages} = gamePickerState
 
   const playGameHandler = (progPath: string) => {
     // STRETCH: update play status from 'new' to 'playing'; idk how this would work since play-status can be changed/removed
     // hide the picker if necessary
     setShowGamePicker(false)
     // show the starting game message
-    // FIXME: "starting..." graphic doesn't work when using game picker
-    setShowPlay(true)
+    setShownPlayMessages(prev => [...prev, game_id])
     const filepath = [path, progPath].join('/')
     // run game
     playGame({path: filepath, useLE: isEroge})
     setTimeout(() => {
-      setShowPlay(false)
+      setShownPlayMessages(prev => prev.filter(g_id => g_id !== game_id))
       // STRETCH: only update timestamp/showPlay if playGame succeeds
       // update recently played timestamp
       updatePlayedTimestamp({game_id})
@@ -85,7 +83,7 @@ export default function Tools({game_id, path, programPath, url, gamePickerState,
   const playButtonHandler = () => {
     const progPaths = Object.entries(programPath)
     if (progPaths.length > 1) {
-      setGamePickerClickHandler({func: playGameHandler})
+      gamePickerClickHandler.current = playGameHandler
       setGamePickerOptions(progPaths)
       setShowGamePicker(true)
     } else {
@@ -107,7 +105,7 @@ export default function Tools({game_id, path, programPath, url, gamePickerState,
   return (
     <ToolsFieldset className='vertical-container'>
       <legend>Tools</legend>
-      {showPlay &&
+      {shownPlayMessages.includes(game_id) &&
         <div className='starting-game'>
           <span>Starting Game...</span>
           <div className='loading' />

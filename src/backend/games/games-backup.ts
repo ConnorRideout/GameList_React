@@ -42,7 +42,7 @@ class BackupManager {
   async createBackupOnStartup() {
     try {
       await this.createBackup()
-      console.log('SQLite database backup completed successfully')
+      // console.log('SQLite database backup completed successfully')
     } catch (error) {
       console.error('Backup failed:', error)
       throw error

@@ -49,7 +49,6 @@ router.post('/urlupdates', (req, res, next) => {
 })
 
 router.post('/scrape', (req, res, next) => {
-  // FIXME: scraping doesn't work
   const makeSiteScraper = async () => {
     const categories = await Games.getCategories()
     categories.forEach(cat => {

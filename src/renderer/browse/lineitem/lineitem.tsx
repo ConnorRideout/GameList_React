@@ -32,7 +32,9 @@ const LineitemDiv = styled.div`
 export interface GamePickerState {
   setShowGamePicker: React.Dispatch<React.SetStateAction<boolean>>,
   setGamePickerOptions: React.Dispatch<React.SetStateAction<[string, string][]>>,
-  setGamePickerClickHandler: React.Dispatch<React.SetStateAction<{func: (progPath: string) => void;}>>
+  gamePickerClickHandler: React.MutableRefObject<(progPath: string) => void>,
+  shownPlayMessages: Number[],
+  setShownPlayMessages: React.Dispatch<React.SetStateAction<number[]>>,
 }
 interface Props {
   gamePickerState: GamePickerState,

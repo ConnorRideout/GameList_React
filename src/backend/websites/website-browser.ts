@@ -105,7 +105,7 @@ class BrowserManager {
   }
 
   async loginToSite(website_id: number) {
-    // FIXME: often, the DDoS blocker will need human input to work
+    // TODO: need to check if already logged in
     const page = await this.browser!.newPage()
 
     const login: LoginType | undefined = (await axios.get(`http://localhost:9000/settings/login/${website_id}`)).data

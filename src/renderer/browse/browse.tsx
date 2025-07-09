@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { FixedSizeList as List } from 'react-window'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -9,7 +9,6 @@ import {
   setSearchRestraints,
   clearSearchRestraints
 } from '../../lib/store/gamelibrary'
-// import { useTestMutation } from '../../lib/store/websitesApi'
 import Picker, { FormState } from '../shared/picker/picker'
 import Lineitem from './lineitem/lineitem'
 import BrowseNav from './browseNav'
@@ -32,7 +31,6 @@ const HideCheckbox = styled.label`
 `
 
 export default function Browse() {
-  // const [doTest] = useTestMutation()
   const dispatch = useDispatch()
   const sortedGamelib = useSelector((state: RootState) => state.data.sortedGamelib)
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
@@ -112,7 +110,7 @@ export default function Browse() {
     dispatch(clearSearchRestraints())
   }
 
-  const currentGamlib = sortedGamelib[sortOrder].filter(g => {
+  const currentGamelib = sortedGamelib[sortOrder].filter(g => {
     // check inclusions
     const incl = searchRestraints.include
     if (incl.tags.length) {
@@ -163,8 +161,9 @@ export default function Browse() {
   // game picker state
   const [showGamePicker, setShowGamePicker] = useState(false)
   const [gamePickerOptions, setGamePickerOptions] = useState<[string, string][]>([])
-  const [gamePickerClickHandler, setGamePickerClickHandler] = useState<{ func: (progPath: string) => void }>({ func: () => { } })
-  const gamePickerState = { setShowGamePicker, setGamePickerOptions, setGamePickerClickHandler }
+  const [shownPlayMessages, setShownPlayMessages] = useState<number[]>([])
+  const gamePickerClickHandler = useRef<(progPath: string) => void>(() => {})
+  const gamePickerState = { setShowGamePicker, setGamePickerOptions, gamePickerClickHandler, shownPlayMessages, setShownPlayMessages }
 
   return (
     <div className='main-container'>
@@ -224,13 +223,13 @@ export default function Browse() {
         {status !== 'idle' && (
           <>
             <div className='loading-lineitems'>
-              {Array(Math.min(currentGamlib.length, 10)).fill(null).map((_, i) => <div key={`placeholder${i}`} />)}
+              {Array(Math.min(currentGamelib.length, 10)).fill(null).map((_, i) => <div key={`placeholder${i}`} />)}
               <p>-- end --</p>
             </div>
             <List
               height={document.querySelector('div.game-scroll')?.getBoundingClientRect().height || 865}
               width='100%'
-              itemCount={currentGamlib.length}
+              itemCount={currentGamelib.length}
               itemSize={140}
               overscanCount={10}
               className='game-scroll-list'
@@ -238,9 +237,9 @@ export default function Browse() {
             >
               {({ index, style }) => (
                 <Lineitem
-                  key={currentGamlib[index].game_id}
+                  key={currentGamelib[index].game_id}
                   gamePickerState={gamePickerState}
-                  lineData={currentGamlib[index]}
+                  lineData={currentGamelib[index]}
                   setDislikedGame={setDislikedGame}
                   style={style}
                 />
