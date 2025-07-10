@@ -1,4 +1,3 @@
-// TODO: if settings like the games folder are not set, disable the ability to close settings
 // STRETCH: redo to use grid rather than flex
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable promise/catch-or-return */
@@ -327,7 +326,7 @@ export default function Settings() {
             <button
               type='button'
               onClick={handleClose}
-              disabled={Object.values(formErrors).flat().join(' ').includes('Error')}
+              disabled={Object.values(formErrors).flat().join(' ').includes('Error') || !formDataDisplay.games_folder || !formDataDisplay.file_types.Executables.length || !formDataDisplay.file_types.Images.length}
             >Return</button>
             <button
               type='button'

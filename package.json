@@ -51,10 +51,10 @@
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
     "test": "jest",
     "start:all": "concurrently --names \"Electron,Server\" \"npm start\" \"npm run server\"",
-    "start:dev": "concurrently --names \"Electron,Server\" \"npm start\" \"npm run server:dev\"",
+    "start:dev": "concurrently --names \"Electron,Server\" --prefix-colors \"red,blue\" \"npm start\" \"npm run server:dev\"",
     "start:showcase": "cross-env SHOWCASING=true concurrently --names \"Electron,Server\" \"npm start\" \"npm run server:dev\"",
     "server": "cd ./src/backend && npm start",
-    "server:dev": "cd ./src/backend && start \"Server\" powershell -NoExit -Command cross-env NODE_ENV=development npm run start:dev",
+    "server:dev": "cd ./src/backend && cross-env NODE_ENV=development npm run start:dev",
     "resetdb": "cd ./src/backend && npm run resetdb",
     "resetdb:showcase": "cd ./src/backend && npm run resetdb:showcase"
   },
