@@ -1,3 +1,4 @@
+// FIXME: when a search has been done, the a-z tabs don't scroll to the correct spot
 /* eslint-disable react/no-array-index-key */
 import React, { useState, useEffect, useRef } from 'react'
 import { FixedSizeList as List } from 'react-window'

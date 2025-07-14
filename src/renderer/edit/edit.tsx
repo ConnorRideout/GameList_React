@@ -1,6 +1,4 @@
 // TODO: when updating, auto fill info
-// FIXME: dragndrop with more than 1 file only gets 1 file
-// FIXME: doesn't delete the dragged n dropped files
 
 /* eslint-disable no-use-before-define */
 /* eslint-disable promise/catch-or-return */
