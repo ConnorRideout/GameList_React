@@ -4,8 +4,7 @@ import * as yup from 'yup'
 
 export default function CreateEditFormSchema(existingTitles: string[], currentTitle?: string) {
   return yup.object().shape({
-    path: yup.string()
-      .required("Path is required"),
+    path: yup.string(),
     title: yup.string()
       .required("Title is required")
       .test('check-unique', 'Title must be unique (or the same it used to be)', function (value) {
