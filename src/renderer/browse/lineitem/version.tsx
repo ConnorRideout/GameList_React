@@ -27,11 +27,16 @@ export default function Version({game_id, version, timestamps, url, status_color
     else timetag = `Last ${timetag.slice(0, -3)}`
     return timetag
   }
+
   const convertUTCToLocal = (utcTimestamp: string) => {
     // Parse the UTC timestamp into a Date object
     const date = new Date(`${utcTimestamp}Z`); // 'Z' at the end indicates UTC
     // Return the time as a string formatted using 'sv-SE' which will give the correct appearance
     return date.toLocaleString('sv-SE').slice(0, -3)
+  }
+
+  const splitAtSlash = (text: string) => {
+    return text.replace(/(\/|\\)/g, '$1\u200B')
   }
 
   const handleCheckUpdate = async () => {
@@ -78,7 +83,7 @@ export default function Version({game_id, version, timestamps, url, status_color
         </Tooltip>
       </legend>
       <p id={`version${game_id}`} style={{color: status_color}}>
-        {version}
+        {splitAtSlash(version)}
       </p>
       <Tooltip anchorSelect={`#version${game_id}`}>
         {Object.entries(timestamps).map(([time, timestamp]) => (
