@@ -1,4 +1,6 @@
 // TODO: when updating, auto fill info
+// FIXME: dragndrop with more than 1 file only gets 1 file
+// FIXME: doesn't delete the dragged n dropped files
 
 /* eslint-disable no-use-before-define */
 /* eslint-disable promise/catch-or-return */
@@ -145,7 +147,6 @@ export default function Edit() {
   }, [defaultFormData, formData, formSchema])
 
   const handleFormChange = (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string, value: string | string[] | {id: number, paths: [string, string]}[] } }) => {
-    // FIXME: if formdata image array already has 2 elements, handle updating the old gif/image
     const { name, value: rawVal } = evt.target
     let value: string | string[] | {id: number, paths: [string, string]}[]
     if (name === 'image') {
@@ -328,9 +329,11 @@ export default function Edit() {
   const handleDrop = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault()
     const { items } = event.dataTransfer
+
     Array.from(items).forEach(item => {
       if (item.kind === 'file') {
         const file = item.getAsFile()
+
         if (file) {
           const filePath = file.path
           if (filePath.endsWith('.url')) {
@@ -339,18 +342,26 @@ export default function Edit() {
               const urlContent = e.target?.result
               if (typeof urlContent === 'string') {
                 const weburl = urlContent.split('=')[1]
-                setFormData({ ...formData, url: weburl })
+                setFormData(prev => {
+                  const newFormData = { ...prev, url: weburl }
+                  validateAll(newFormData)
+                  return newFormData
+                })
                 urlFile.current = filePath
               }
             }
             reader.readAsText(file)
           } else if (file.type.startsWith('image/')) {
-            setFormData({ ...formData, image: [filePath] })
+            setFormData(prev => {
+              const newFormData = { ...prev, image: [filePath] }
+              validateAll(newFormData)
+              return newFormData
+            })
           }
         }
       }
     })
-  }, [formData])
+  }, [validateAll])
 
   //    _   _ ___ ___   _ _____ ___ _  _  ___   __  __ ___ ___ ___ ___ _  _  ___    ___   _   __  __ ___ ___
   //   | | | | _ \   \ /_\_   _|_ _| \| |/ __| |  \/  |_ _/ __/ __|_ _| \| |/ __|  / __| /_\ |  \/  | __/ __|
