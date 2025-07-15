@@ -123,7 +123,9 @@ export default class SiteScraper {
                   .trim()
               } else {
                 // get all text
-                text = $(el).text().trim()
+                const $clone = $(el).clone()
+                $clone.find('noscript, script, style').remove()
+                text = $clone.text().trim()
               };
               (textContent as string[]).push(text)
             })
@@ -138,7 +140,9 @@ export default class SiteScraper {
                 .trim()
             } else {
               // get all text
-              textContent = $firstSelected.text().trim()
+              const $clone = $firstSelected.clone()
+              $clone.find('noscript, script, style').remove()
+              textContent = $clone.text().trim()
             }
           }
 
