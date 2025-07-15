@@ -48,11 +48,18 @@ class BrowserManager {
     return this.browser
   }
 
+  async saveCookies() {
+    console.log('saving cookies')
+    if (!this.browser)
+      return
+    const cookies = await this.browser.cookies()
+    fs.writeFileSync(cookies_path, JSON.stringify(cookies))
+  }
+
   async close() {
     if (this.browser) {
       // save cookies
-      const cookies = await this.browser.cookies()
-      fs.writeFileSync(cookies_path, JSON.stringify(cookies))
+      await this.saveCookies()
 
       await this.browser.close()
       console.log('Browser closed')
@@ -60,7 +67,36 @@ class BrowserManager {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  async checkIfOnDDoS(currentPage: Page) {
+    try {
+      const title = await currentPage.title()
+      const content = await currentPage.content()
+
+      const invalidIndicators = [
+        'Just a moment',
+        'Please wait',
+        'Checking your browser',
+        'DDoS protection',
+        'Security check',
+        'Please enable JavaScript and cookies', // Cloudflare
+        'Ray ID:', // Another Cloudflare indicator
+        'Performance & security by Cloudflare'
+      ].map(i => i.toLowerCase())
+
+      const isOnDDoS = invalidIndicators.some(indicator =>
+        title.toLowerCase().includes(indicator) || title.toLowerCase().includes('ddos') || content.toLowerCase().includes(indicator)
+      )
+      console.log('Is On DDoS: ', isOnDDoS)
+      return isOnDDoS
+    } catch (error) {
+      console.error('Failed to check if page is on DDoS: ', error)
+      return false
+    }
+  }
+
   async askForDDoSInput(currentPage: Page, login_url: string) {
+    console.log('asking for ddos input')
     // create the browser
     const headedBrowser = await puppeteer.launch({
       headless: false,
@@ -82,16 +118,39 @@ class BrowserManager {
 
     // wait for DDoS resolution
     try {
-      await Promise.race([
-        // strategy 1: wait for URL to match login_url
-        page.waitForFunction(url => {
-          return window.location.href === url
-        }, { timeout: 30000 }, login_url),
+      await Promise.any([
+        // option 1: wait for navigation and check if its not on DDoS
+        // (async () => {
+        //   await page.waitForNavigation({
+        //     waitUntil: 'networkidle2',
+        //     timeout: 45000
+        //   })
 
-        // strategy 2: wait for navigation to complete
-        await page.waitForNavigation({
-          waitUntil: 'networkidle2',
-          timeout: 30000
+        //   if (page.url() !== login_url || await this.checkIfOnDDoS(page)) {
+        //     console.error('Navigation completed but not to expected URL')
+        //     return { type: 'navigation', success: false, error: 'Wrong URL or DDoS' }
+        //   }
+        //   return { type: 'navigation', success: true }
+        // }),
+        // option 2: wait for the DDoS indicators to be gone
+        new Promise<boolean>((resolve, reject) => {
+          // eslint-disable-next-line no-undef
+          let interval: NodeJS.Timeout
+
+          const timeout = setTimeout(() => {
+            clearInterval(interval)
+            reject(new Error('DDoS was never bypassed'))
+          }, 45000)
+
+          interval = setInterval(async () => {
+            const isOnDDoS = await this.checkIfOnDDoS(page)
+            if (!isOnDDoS) {
+              clearTimeout(timeout)
+              clearInterval(interval)
+              console.log('opt2: not ddos')
+              resolve(true)
+            }
+          }, 500)
         })
       ])
     } catch (error) {
@@ -102,6 +161,7 @@ class BrowserManager {
     cookies = await headedBrowser.cookies()
     await this.browser!.setCookie(...cookies)
     await headedBrowser.close()
+    await this.saveCookies() // make sure our good cookies are saved
   }
 
   async loginToSite(website_id: number) {
@@ -116,13 +176,15 @@ class BrowserManager {
 
     await page.goto(login_url, {waitUntil: 'networkidle2'})
     // wait for possible ddos blocker
-    if (page.url() !== login_url) {
+    if (page.url() !== login_url || (await page.title()).toLowerCase().includes('ddos')) {
       try {
         console.log("Currently appears on DDoS blocker, waiting for redirect...")
         await page.waitForNavigation({
           waitUntil: 'networkidle2',
           timeout: 10000
         })
+        if (page.url() !== login_url || (await page.title()).toLowerCase().includes('ddos') )
+          throw new Error('DDoS still present')
         console.log("DDoS passed")
       } catch (error) {
         await this.askForDDoSInput(page, login_url)
