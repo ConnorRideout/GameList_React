@@ -33,3 +33,4 @@ npm-debug.log.*
 *.ini
 *.db3
 *.bak*
+cookies.json
