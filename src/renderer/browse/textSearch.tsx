@@ -13,8 +13,9 @@ import { GamelibState, RootState } from "../../types"
 
 interface Props {
   scrollToItem: (idx: number) => void,
+  currentGamelib: GamelibState['gamelib']
 }
-export default function TextSearch({scrollToItem}: Props) {
+export default function TextSearch({scrollToItem, currentGamelib}: Props) {
   const dispatch = useDispatch()
   const game_titles = useSelector((state: RootState) => state.data.gamelib).map(g => g.title)
   const [searchValue, setSearchValue] = useState('')
@@ -95,7 +96,8 @@ export default function TextSearch({scrollToItem}: Props) {
       const val = forceVal || searchValue
       // handleReset(false)
       await sortGamelib('alphabetical')
-      const idx = game_titles.indexOf(val)
+      // const idx = game_titles.indexOf(val)
+      const idx = currentGamelib.findIndex(g => g.title === val)
       scrollToItem(idx)
       let iteration = 0
       const checkVisibility = setInterval(()=>{

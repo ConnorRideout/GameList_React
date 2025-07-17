@@ -17,11 +17,11 @@ const NavDiv = styled.div`
   z-index: 1;
 `
 
-export default function BrowseNav({scrollToItem}: {scrollToItem: (idx: number) => void}) {
+export default function BrowseNav({scrollToItem, currentGamelib}: {scrollToItem: (idx: number) => void, currentGamelib: GamelibState['gamelib']}) {
   const dispatch = useDispatch()
 
   const gamelib = useSelector((state: RootState) => state.data.gamelib)
-  const sortedGamelib = useSelector((state: RootState) => state.data.sortedGamelib)
+  // const sortedGamelib = useSelector((state: RootState) => state.data.sortedGamelib)
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
   const status = useSelector((state: RootState) => state.data.status)
 
@@ -50,7 +50,8 @@ export default function BrowseNav({scrollToItem}: {scrollToItem: (idx: number) =
     await sortGamelib('alphabetical')
     const letter_arr = letters.split('')
     for (const l of letter_arr) {
-      const idx = sortedGamelib.alphabetical.findIndex(g => g.title.toUpperCase().startsWith(l))
+      // const idx = sortedGamelib.alphabetical.findIndex(g => g.title.toUpperCase().startsWith(l))
+      const idx = currentGamelib.findIndex(g => g.title.toUpperCase().startsWith(l))
       if (idx) {
         scrollToItem(idx)
         break

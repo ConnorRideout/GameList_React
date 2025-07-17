@@ -1,4 +1,3 @@
-// FIXME: when a search has been done, the a-z tabs don't scroll to the correct spot
 /* eslint-disable react/no-array-index-key */
 import React, { useState, useEffect, useRef } from 'react'
 import { FixedSizeList as List } from 'react-window'
@@ -203,7 +202,7 @@ export default function Browse() {
           }}
           isBrowse
         />
-        <TextSearch scrollToItem={scrollToItem} />
+        <TextSearch scrollToItem={scrollToItem} currentGamelib={currentGamelib} />
       </SearchFieldset>
 
       <HideCheckbox>
@@ -215,7 +214,7 @@ export default function Browse() {
         Hide beaten games in recent lists
       </HideCheckbox>
 
-      <BrowseNav scrollToItem={scrollToItem} />
+      <BrowseNav scrollToItem={scrollToItem} currentGamelib={currentGamelib}/>
 
       <div className='game-scroll'>
         {['loading', 'updating'].includes(status) && <div className='loading' />}
