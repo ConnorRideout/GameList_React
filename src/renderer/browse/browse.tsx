@@ -1,3 +1,4 @@
+// FIXME: when returning from edit, if a search was active, the search continues to be active but the picker no longer reflects it
 /* eslint-disable react/no-array-index-key */
 import React, { useState, useEffect, useRef } from 'react'
 import { FixedSizeList as List } from 'react-window'
@@ -36,7 +37,7 @@ export default function Browse() {
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
   const searchRestraints = useSelector((state: RootState) => state.data.searchRestraints)
   const status = useSelector((state: RootState) => state.data.status)
-  const [hideBeatenInRecents, setHideBeatenInRecents] = useState(false)
+  const [hideBeatenInRecents, setHideBeatenInRecents] = useState<boolean>(JSON.parse(sessionStorage.getItem('hideBeatenInRecents') || 'false'))
   // new games
   const newGames = useSelector((state: RootState) => state.data.newGames)
   const [handleNewGames, setHandleNewGames] = useState(false)
@@ -141,6 +142,7 @@ export default function Browse() {
 
   const hideBeatenChangeHandler = (evt: React.ChangeEvent<HTMLInputElement>) => {
     const { checked } = evt.target
+    sessionStorage.setItem('hideBeatenInRecents', JSON.stringify(checked))
     setHideBeatenInRecents(checked)
   }
 

@@ -62,6 +62,8 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
   const tags = useSelector((state: RootState) => state.data.tags)
   const statuses = useSelector((state: RootState) => state.data.statuses)
 
+  const searchRestraints = useSelector((state: RootState) => state.data.searchRestraints)
+
   const tagValues = useMemo(() => tags.map(({tag_name}) => tag_name), [tags])
   const statusValues = useMemo(() => statuses.map(({status_name}) => status_name), [statuses])
 
@@ -80,18 +82,46 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
   const defaultFormData = useMemo(() => ({
     categories: categories.reduce((acc: FormState['categories'], cur) => {
       const {category_name, default_option} = cur
-      acc[category_name] = isBrowse ? 'Any' : (additionalFormData ? additionalFormData.defaults?.categories[category_name] || default_option || '' : default_option || '')
+      if (isBrowse) {
+        acc[category_name] = searchRestraints.include.categories[category_name] || 'Any'
+      } else {
+        acc[category_name] = additionalFormData ? additionalFormData.defaults?.categories[category_name] || default_option || '' : default_option || ''
+      }
       return acc
-    }, {protagonist: isBrowse ? 'Any' : (additionalFormData ? additionalFormData.defaults?.categories.protagonist || '' : '')}),
+    }, {protagonist: isBrowse
+        ? (searchRestraints.include.categories.protagonist || 'Any')
+        : (additionalFormData ? additionalFormData.defaults?.categories.protagonist || '' : '')}),
+
     statuses: statusValues.reduce((acc: FormState['statuses'], cur) => {
-      acc[cur] = isBrowse ? -1 : (additionalFormData ? Number(additionalFormData.defaults?.status.includes(cur)) || 0 : 0)
+      if (isBrowse) {
+        if (searchRestraints.include.status.includes(cur)) {
+          acc[cur] = 1
+        } else if (searchRestraints.exclude.status.includes(cur)) {
+          acc[cur] = 0
+        } else {
+          acc[cur] = -1
+        }
+      } else {
+        acc[cur] = additionalFormData ? Number(additionalFormData.defaults.status.includes(cur)) || 0 : 0
+      }
       return acc
     }, {}),
+
     tags: tagValues.reduce((acc: FormState['tags'], cur) => {
-      acc[cur] = isBrowse ? -1 : (additionalFormData ? Number(additionalFormData.defaults?.tags.includes(cur)) || 0 : 0)
+      if (isBrowse) {
+        if (searchRestraints.include.tags.includes(cur)) {
+          acc[cur] = 1
+        } else if (searchRestraints.exclude.tags.includes(cur)) {
+          acc[cur] = 0
+        } else {
+          acc[cur] = -1
+        }
+      } else {
+        acc[cur] = additionalFormData ? Number(additionalFormData.defaults?.tags.includes(cur)) || 0 : 0
+      }
       return acc
     }, {}),
-  }), [tagValues, statusValues, categories, isBrowse, additionalFormData])
+  }), [tagValues, statusValues, categories, isBrowse, additionalFormData, searchRestraints])
 
   const defaultFormDataRef = useRef<{
     categories: {
