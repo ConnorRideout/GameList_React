@@ -13,7 +13,11 @@ const filesystemRoutes = require('./filesystem/filesystem-router.ts')
 const websitesRoutes = require('./websites/websites-router.ts')
 const settingsRoutes = require('./settings/settings-router.ts')
 
-const { logger, errorHandler } = require('./middleware/middleware')
+const {
+  logger,
+  errorHandler,
+  returnLogger
+} = require('./middleware/middleware')
 
 if (existsSync('../../.env')) {
   dotenv.config({path: path.resolve(__dirname, '../../.env')})
@@ -35,6 +39,7 @@ server.use(cors())
 server.use(express.json({limit: '10mb'}))
 
 server.use(logger)
+server.use(returnLogger)
 
 server.use('/api', gameRoutes)
 server.use('/filesystem', filesystemRoutes)

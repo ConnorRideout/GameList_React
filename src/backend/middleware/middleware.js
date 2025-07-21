@@ -11,6 +11,12 @@ function logger(req, res, next) {
     next()
 }
 
+function returnLogger(req, res, next) {
+  const time = new Date()
+  console.log(`RETURNED TO IDLE: ${time.toLocaleString()}`)
+  next()
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function errorHandler(err, req, res, next) {
   console.error(err.message, err.stack)
@@ -20,4 +26,5 @@ function errorHandler(err, req, res, next) {
 module.exports = {
   logger,
   errorHandler,
+  returnLogger,
 }
