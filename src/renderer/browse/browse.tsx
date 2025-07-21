@@ -1,6 +1,5 @@
-// FIXME: when returning from edit, if a search was active, the search continues to be active but the picker no longer reflects it
 /* eslint-disable react/no-array-index-key */
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import { FixedSizeList as List } from 'react-window'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -20,7 +19,7 @@ import MissingGames from './dialogs/missingGames'
 import DislikeGame from './dialogs/dislike'
 import NewGames from './dialogs/newGames'
 
-import { SearchRestraints, RootState } from '../../types'
+import { SearchRestraints, RootState, GameEntry } from '../../types'
 
 
 const SearchFieldset = styled.fieldset`
@@ -111,34 +110,43 @@ export default function Browse() {
     dispatch(clearSearchRestraints())
   }
 
-  const currentGamelib = sortedGamelib[sortOrder].filter(g => {
-    // check inclusions
-    const incl = searchRestraints.include
-    if (incl.tags.length) {
-      if (!incl.tags.every(t => g.tags.includes(t))) return false
-    }
-    if (incl.status.length) {
-      if (!incl.status.every(s => g.status.includes(s))) return false
-    }
-    if (Object.keys(incl.categories).length) {
-      if (!Object.keys(incl.categories).every(k => g.categories[k] === incl.categories[k])) return false
-    }
-    // check exclusions
-    const excl = searchRestraints.exclude
-    if (excl.tags.length) {
-      if (excl.tags.every(t => g.tags.includes(t))) return false
-    }
-    if (excl.status.length) {
-      if (excl.status.every(s => g.status.includes(s))) return false
-    }
-    if (Object.keys(excl.categories).length) {
-      if (Object.keys(excl.categories).every(k => g.categories[k] === excl.categories[k])) return false
-    }
-    if (hideBeatenInRecents && sortOrder.startsWith('recent')) {
-      if (Object.values(g.categories).find(c => c.toLowerCase() === 'beaten')) return false
-    }
-    return true
-  })
+  const filterGamelib = (
+    gamelib: GameEntry[] = sortedGamelib[sortOrder],
+    restraints: typeof searchRestraints = searchRestraints,
+    hideBeaten: boolean = hideBeatenInRecents,
+    isRecent: boolean = sortOrder.startsWith('recent')
+  ) => {
+    return gamelib.filter(g => {
+      // check inclusions
+      const incl = restraints.include
+      if (incl.tags.length) {
+        if (!incl.tags.every(t => g.tags.includes(t))) return false
+      }
+      if (incl.status.length) {
+        if (!incl.status.every(s => g.status.includes(s))) return false
+      }
+      if (Object.keys(incl.categories).length) {
+        if (!Object.keys(incl.categories).every(k => g.categories[k] === incl.categories[k])) return false
+      }
+      // check exclusions
+      const excl = restraints.exclude
+      if (excl.tags.length) {
+        if (excl.tags.every(t => g.tags.includes(t))) return false
+      }
+      if (excl.status.length) {
+        if (excl.status.every(s => g.status.includes(s))) return false
+      }
+      if (Object.keys(excl.categories).length) {
+        if (Object.keys(excl.categories).every(k => g.categories[k] === excl.categories[k])) return false
+      }
+      if (hideBeaten && isRecent) {
+        if (Object.values(g.categories).find(c => c.toLowerCase() === 'beaten')) return false
+      }
+      return true
+    })
+  }
+
+  const currentGamelib = filterGamelib()
 
   const hideBeatenChangeHandler = (evt: React.ChangeEvent<HTMLInputElement>) => {
     const { checked } = evt.target
@@ -204,7 +212,7 @@ export default function Browse() {
           }}
           isBrowse
         />
-        <TextSearch scrollToItem={scrollToItem} currentGamelib={currentGamelib} />
+        <TextSearch scrollToItem={scrollToItem} filterGamelib={filterGamelib} />
       </SearchFieldset>
 
       <HideCheckbox>
@@ -216,7 +224,7 @@ export default function Browse() {
         Hide beaten games in recent lists
       </HideCheckbox>
 
-      <BrowseNav scrollToItem={scrollToItem} currentGamelib={currentGamelib}/>
+      <BrowseNav scrollToItem={scrollToItem} filterGamelib={filterGamelib}/>
 
       <div className='game-scroll'>
         {['loading', 'updating'].includes(status) && <div className='loading' />}

@@ -17,12 +17,18 @@ const NavDiv = styled.div`
   z-index: 1;
 `
 
-export default function BrowseNav({scrollToItem, currentGamelib}: {scrollToItem: (idx: number) => void, currentGamelib: GamelibState['gamelib']}) {
+interface Props {
+  scrollToItem: (idx: number) => void,
+  filterGamelib: (gamelib: GamelibState['gamelib'], restraints: GamelibState['searchRestraints'], hideBeaten: boolean, isRecent: boolean) => GamelibState['gamelib']
+}
+
+export default function BrowseNav({scrollToItem, filterGamelib}: Props) {
   const dispatch = useDispatch()
 
   const gamelib = useSelector((state: RootState) => state.data.gamelib)
-  // const sortedGamelib = useSelector((state: RootState) => state.data.sortedGamelib)
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
+  const searchRestraints = useSelector((state: RootState) => state.data.searchRestraints)
+  const sortedGamelib = useSelector((state: RootState) => state.data.sortedGamelib)
   const status = useSelector((state: RootState) => state.data.status)
 
   const sortGamelib = (sortby: GamelibState['sortOrder']) => {
@@ -49,10 +55,16 @@ export default function BrowseNav({scrollToItem, currentGamelib}: {scrollToItem:
   const scrollToLetter = async (letters: string) => {
     await sortGamelib('alphabetical')
     const letter_arr = letters.split('')
+    const currentGamelib = filterGamelib(
+      sortedGamelib.alphabetical,
+      searchRestraints,
+      false,
+      false
+    )
     for (const l of letter_arr) {
       // const idx = sortedGamelib.alphabetical.findIndex(g => g.title.toUpperCase().startsWith(l))
       const idx = currentGamelib.findIndex(g => g.title.toUpperCase().startsWith(l))
-      if (idx) {
+      if (idx !== -1) {
         scrollToItem(idx)
         break
       }

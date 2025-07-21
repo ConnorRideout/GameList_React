@@ -13,11 +13,13 @@ import { GamelibState, RootState } from "../../types"
 
 interface Props {
   scrollToItem: (idx: number) => void,
-  currentGamelib: GamelibState['gamelib']
+  filterGamelib: (gamelib: GamelibState['gamelib'], restraints: GamelibState['searchRestraints'], hideBeaten: boolean, isRecent: boolean) => GamelibState['gamelib']
 }
-export default function TextSearch({scrollToItem, currentGamelib}: Props) {
+export default function TextSearch({scrollToItem, filterGamelib}: Props) {
   const dispatch = useDispatch()
   const game_titles = useSelector((state: RootState) => state.data.gamelib).map(g => g.title)
+  const searchRestraints = useSelector((state: RootState) => state.data.searchRestraints)
+  const sortedGamelib = useSelector((state: RootState) => state.data.sortedGamelib)
   const [searchValue, setSearchValue] = useState('')
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -94,8 +96,14 @@ export default function TextSearch({scrollToItem, currentGamelib}: Props) {
     if (forceVal || game_titles.includes(searchValue)) {
       inputRef.current?.blur()
       const val = forceVal || searchValue
-      // handleReset(false)
+
       await sortGamelib('alphabetical')
+      const currentGamelib = filterGamelib(
+        sortedGamelib.alphabetical,
+        searchRestraints,
+        false,
+        false
+      )
       // const idx = game_titles.indexOf(val)
       const idx = currentGamelib.findIndex(g => g.title === val)
       scrollToItem(idx)
