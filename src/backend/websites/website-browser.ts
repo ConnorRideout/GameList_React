@@ -196,7 +196,6 @@ class BrowserManager {
     }
     // type credentials
     await page.locator(username_selector).fill(username)
-    console.log(password)
     await page.locator(password_selector).fill(password)
     // submit credentials
     await page.locator(submit_selector).click()
