@@ -42,7 +42,7 @@ router.post('/open/:type', async (req, res, next) => {
         } else {
           commandArgs = `"${filepath.path}"`
         }
-        command = `"${nircmd.path}" exec2 show "${workingdir}" ${commandArgs}`
+        command = `"${nircmd.path}" elevatecmd exec2 show "${workingdir}" ${commandArgs}`
       } else {
         command = `"${nircmd.path}" shexec "open" "${filepath.path}"`
       }
