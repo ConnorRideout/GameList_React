@@ -253,6 +253,7 @@ export default function Edit() {
       if (version !== updatedData.version && !ignoreUpdatedVersion)
         await updateTimestamp({ game_id, type: 'updated_at' })
       if (urlFile.current) {
+        // FIXME: urlfile is not being deleted
         deleteUrlFile(urlFile.current)
         urlFile.current = ''
       }

@@ -87,9 +87,9 @@ export default function Version({game_id, version, timestamps, url, status_color
       </p>
       <Tooltip anchorSelect={`#version${game_id}`}>
         {Object.entries(timestamps).map(([time, timestamp]) => (
-          timestamp == null
-            ? ''
-            : <p key={timestamp}>{`${parseTimestamp(time)}: ${convertUTCToLocal(timestamp)}`}</p>
+          timestamp
+          ? <p key={timestamp}>{`${parseTimestamp(time)}: ${convertUTCToLocal(timestamp)}`}</p>
+          : ''
         ))}
       </Tooltip>
     </fieldset>

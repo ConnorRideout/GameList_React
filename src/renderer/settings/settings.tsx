@@ -2,6 +2,8 @@
 /* eslint-disable react/no-array-index-key */
 /* eslint-disable promise/catch-or-return */
 /* eslint-disable import/no-cycle */
+// TODO: have the option to search a specific scraper for ANY subcategory of a top category (i.e. try to get the engine from one selector)
+// TODO: add a "fallback" scraper option the user can set
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
