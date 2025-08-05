@@ -177,7 +177,7 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
         className="grid-column-2 grid-row-3 info-justify-stretch"
         name="image"
         onChange={handleFormChange}
-        value={formData.image[0]}
+        value={formData.image[1] || formData.image[0]}
       />
       <button
         type='button'
