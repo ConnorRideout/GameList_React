@@ -79,6 +79,8 @@ router.post('/open/:type', async (req, res, next) => {
     else
       run('explorer.exe', `"${games_folder}"`)
   }
+
+  res.status(200).json({message: "opened path"})
 })
 
 async function getNewGames(settings: SettingsType) {
