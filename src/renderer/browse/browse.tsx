@@ -64,7 +64,6 @@ export default function Browse() {
 
   const getScrollOffset = () => {
     const offset = parseInt(sessionStorage.getItem('scrollPosition') || '0')
-    sessionStorage.removeItem('scrollPosition')
     return offset
   }
 
