@@ -1,4 +1,5 @@
 // STRETCH: image editor/selector if image isn't 16:9
+// TODO: if image is changed, attempt to delete the old image so it's not still sitting in the fol
 import React, {ChangeEvent} from "react"
 import { useDispatch, useSelector } from "react-redux"
 
@@ -149,13 +150,13 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
         anchorSelect='#imagePreview'
       >
         <img
-          src={`load-image://${formData.image[0].replaceAll(' ', '_')}`}
+          src={`load-image://${encodeURIComponent(formData.image[1] || formData.image[0])}`}
           alt="Dynamic Local Resource Tooltip"
         />
       </Tooltip>
       <img
         id="imagePreview"
-        src={`load-image://${formData.image[0].replaceAll('\\', '/').replaceAll(' ', '_')}`}
+        src={`load-image://${encodeURIComponent(formData.image[0])}`}
         alt="[image preview]"
         className="grid-column-4 grid-row-1 grid-row-span-4"
       />

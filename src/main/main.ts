@@ -189,9 +189,10 @@ app
     )
 
     protocol.handle('load-image', async (request) => {
-      const rawImgPath = request.url
-        .replace('load-image://', '')
-        .replaceAll('_', ' ')
+      const rawImgPath = decodeURIComponent(
+        request.url
+          .replace('load-image://', '')
+      )
       const isRelative = !/^[A-Z]\//.test(rawImgPath)
       const imgPath = isRelative ? imgDir.join(rawImgPath) : new Path(rawImgPath.replace(/^([A-Z])/, '$1:'))
       if (rawImgPath && imgPath.existsSync())

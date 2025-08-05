@@ -34,7 +34,7 @@ interface Props {
   status_color: string,
 }
 export default function Title({game_id, title, img, status_color}: Props) {
-  const imgPaths = img.map(i => i.replaceAll(' ', '_'))
+  const imgPaths = img.map(i => encodeURIComponent(i))
   return (
     <TitleFieldset id={`title-${game_id}`}>
       <legend>Title</legend>
