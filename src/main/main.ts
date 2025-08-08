@@ -193,8 +193,8 @@ app
         request.url
           .replace('load-image://', '')
       )
-      const isRelative = !/^[A-Z]\//.test(rawImgPath)
-      const imgPath = isRelative ? imgDir.join(rawImgPath) : new Path(rawImgPath.replace(/^([A-Z])/, '$1:'))
+      const isRelative = !/^[A-Z]:(\/|\\)/.test(rawImgPath)
+      const imgPath = isRelative ? imgDir.join(rawImgPath) : new Path(rawImgPath)
       if (rawImgPath && imgPath.existsSync())
         return net.fetch(`file://${imgPath.path}`)
       else
