@@ -16,7 +16,7 @@ import CreateEditFormSchema from "./edit_schema"
 
 import {
   clearEditGame,
-  setError,
+  // setError,
   dequeueMissingGame,
   setEditGame,
   dequeueNewGame,
@@ -87,23 +87,23 @@ export default function Edit() {
   const [ignoreUpdatedVersion, setIgnoreUpdatedVersion] = useState(false)
 
   const game_data = useSelector((state: RootState) => state.data.editGame)
-  const { path, title, url, image, version, description, program_path: prog_obj, tags, status, categories }: Omit<GameEntry, 'game_id' | 'timestamps' | 'timestamps_sec'> = useMemo(() => (
+  const { path, title, url, image, version, description, program_path: prog_obj, tags, status, categories }: Omit<GameEntry, 'game_id' | 'image' | 'timestamps' | 'timestamps_sec'> & {image: string} = useMemo(() => (
     {
       path: '',
       title: '',
       url: '',
-      image: [''],
       version: '',
       description: '',
       program_path: { "": "" },
       tags: [],
       status: [],
       categories: {},
-      ...game_data
+      ...game_data,
+      image: (game_data?.image?.at(-1) as string) || ''
     }
   ), [game_data])
   const program_path = Object.entries(prog_obj).map((paths, id) => ({id, paths}))
-  const defaultFormData = useMemo<Pick<GameEntry, "url" | "path" | "title" | "image" | "version" | "description"> & { program_path: { id: number; paths: [string, string] }[] }>(
+  const defaultFormData = useMemo<Pick<GameEntry, "url" | "path" | "title" | "version" | "description"> & { image: string, program_path: { id: number; paths: [string, string] }[] }>(
     () => ({ path, title, url, image, version, description, program_path }),
     [path, title, url, image, version, description, program_path]
   )
@@ -145,14 +145,14 @@ export default function Edit() {
   }, [defaultFormData, formData, formSchema])
 
   const handleFormChange = (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | { target: { name: string, value: string | string[] | {id: number, paths: [string, string]}[] } }) => {
-    const { name, value: rawVal } = evt.target
-    let value: string | string[] | {id: number, paths: [string, string]}[]
-    if (name === 'image') {
-      value = [...formData.image]
-      value[0] = rawVal as string
-    } else {
-      value = rawVal
-    }
+    const { name, value } = evt.target
+    // let value: string | string[] | {id: number, paths: [string, string]}[]
+    // if (name === 'image') {
+    //   value = [...formData.image]
+    //   value[0] = rawVal as string
+    // } else {
+    //   value = rawVal
+    // }
     const schema = yup_reach(formSchema, name) as StringSchema
     const kwargs = name === 'program_path' ? {context: (value as {id: number, paths: [string, string]}[])} : {}
     schema.validate(value, kwargs)
@@ -240,7 +240,7 @@ export default function Edit() {
         closeEdit()
     } else {
       const { game_id, timestamps, timestamps_sec } = (game_data as GameEntry)
-      const updatedGame: GameEntry = {
+      const updatedGame: Omit<GameEntry, 'image'> & {image: string} = {
         game_id,
         ...updatedData,
         tags: updatedTags,
@@ -253,7 +253,6 @@ export default function Edit() {
       if (version !== updatedData.version && !ignoreUpdatedVersion)
         await updateTimestamp({ game_id, type: 'updated_at' })
       if (urlFile.current) {
-        // FIXME: urlfile is not being deleted
         deleteUrlFile(urlFile.current)
         urlFile.current = ''
       }
@@ -352,7 +351,7 @@ export default function Edit() {
             reader.readAsText(file)
           } else if (file.type.startsWith('image/')) {
             setFormData(prev => {
-              const newFormData = { ...prev, image: [filePath] }
+              const newFormData = { ...prev, image: filePath }
               validateAll(newFormData)
               return newFormData
             })
@@ -444,7 +443,7 @@ export default function Edit() {
       <EditDiv className="main-container center">
         {isLoading && <div className='loading' />}
         <h1>{editType === 'new' ? 'ADD NEW' : 'EDIT'} GAME</h1>
-        <button style={{ position: 'fixed', left: 0, top: '30px' }} type='button' onClick={() => dispatch(setError('test error'))}>Test</button>
+        {/* <button style={{ position: 'fixed', left: 0, top: '30px' }} type='button' onClick={() => dispatch(setError('test error'))}>Test</button> */}
         <ErrorMessage />
 
         <fieldset className={`horizontal-container ${flashPath ? 'flash-twice-invert' : ''}`}>

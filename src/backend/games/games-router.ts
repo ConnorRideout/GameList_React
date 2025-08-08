@@ -165,7 +165,7 @@ router.post('/games/new', async (req, res, next) => {
   const game = req.body
   // properly format the game data
   try {
-    game.image = await handleImage(game.image[0])
+    game.image = handleImage(game.image)
   } catch (error) {
     next(error)
     return
@@ -221,7 +221,7 @@ router.put('/games/:game_id', async (req, res, next) => {
   // overwrite oldGameData with updatedGameData
   const game = {...oldGameData, ...updatedGameData}
   // properly format the game data
-  game.image = await handleImage(game.image[0])
+  game.image = handleImage(game.image)
   game.protagonist = game.categories.protagonist
   delete game.categories.protagonist
   game.program_path = JSON.stringify(game.program_path)

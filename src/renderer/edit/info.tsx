@@ -1,5 +1,6 @@
 // STRETCH: image editor/selector if image isn't 16:9
 // TODO: if image is changed, attempt to delete the old image so it's not still sitting in the fol
+// FIXME: image handling with gifs seems broken when editing. Make sure the right field is being edited
 import React, {ChangeEvent} from "react"
 import { useDispatch, useSelector } from "react-redux"
 
@@ -21,12 +22,12 @@ import { GameEntry, RootState, StringMap } from "../../types"
 
 export interface Props {
   handleFormChange: (evt: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | {target: {name: string, value: string | {id: number, paths: [string, string]}[]}}) => void,
-  formData: Pick<GameEntry, 'path' | 'title' | 'url' | 'image' | 'version' | 'description'> & {program_path: {id: number, paths: [string, string]}[]},
+  formData: Pick<GameEntry, 'path' | 'title' | 'url' | 'version' | 'description'> & {image: string, program_path: {id: number, paths: [string, string]}[]},
   setFormData: React.Dispatch<React.SetStateAction<{
     path: string;
     title: string;
     url: string;
-    image: string[];
+    image: string;
     version: string;
     description: string;
     program_path: {
@@ -53,7 +54,7 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
       'images'
     )
     if (img !== undefined) {
-      setFormData(prevVal => ({...prevVal, image: [img]}))
+      setFormData(prevVal => ({...prevVal, image: img}))
     }
   }
 
@@ -74,7 +75,7 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
   }
 
   const handleAutoFill = async () => {
-    // STRETCH: when updating, show differences in tags/categories/etc and allow user to pick which ones to keep/change
+    // TODO: when updating, show differences in tags/categories/etc and allow user to pick which ones to keep/change
     // TODO: move protagonist to categories, and make a selector for it. Have the database be ordered by preference? IDK how to have 'multiple' be an option
     const { url } = formData
     const { website_id } = settings.site_scrapers.find(scraper => url.includes(scraper.base_url))!
@@ -150,13 +151,13 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
         anchorSelect='#imagePreview'
       >
         <img
-          src={`load-image://${encodeURIComponent(formData.image[1] || formData.image[0])}`}
+          src={`load-image://${encodeURIComponent(formData.image)}`}
           alt="Dynamic Local Resource Tooltip"
         />
       </Tooltip>
       <img
         id="imagePreview"
-        src={`load-image://${encodeURIComponent(formData.image[0])}`}
+        src={`load-image://${encodeURIComponent(formData.image)}`}
         alt="[image preview]"
         className="grid-column-4 grid-row-1 grid-row-span-4"
       />
@@ -178,7 +179,7 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
         className="grid-column-2 grid-row-3 info-justify-stretch"
         name="image"
         onChange={handleFormChange}
-        value={formData.image[1] || formData.image[0]}
+        value={formData.image}
       />
       <button
         type='button'

@@ -55,7 +55,7 @@ export const gamelibApi = createApi({
       invalidatesTags: ['Games']
     }),
     updateGame: builder.mutation({
-      query: ({game_id, updatedGameData}: { game_id: number, updatedGameData: { [K in keyof GameEntry]?: GameEntry[K] } }) => ({
+      query: ({game_id, updatedGameData}: { game_id: number, updatedGameData: { [K in keyof Omit<GameEntry, 'image'>]?: GameEntry[K] } & {image: string} }) => ({
         url: `games/${game_id}`,
         method: 'PUT',
         body: updatedGameData,
@@ -63,7 +63,7 @@ export const gamelibApi = createApi({
       invalidatesTags: ['Games']
     }),
     newGame: builder.mutation({
-      query: (game: Omit<GameEntry, 'game_id' | 'timestamps' | 'timestamps_sec'>) => ({
+      query: (game: Omit<GameEntry, 'game_id' | 'timestamps' | 'timestamps_sec' | 'image'> & {image: string}) => ({
         url: 'games/new',
         method: 'POST',
         body: game,

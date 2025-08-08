@@ -16,12 +16,8 @@ export default function CreateEditFormSchema(existingTitles: string[], currentTi
       }),
     url: yup.string()
       .required("Url is required"),
-    image: yup.array()
-      .of(
-        yup.string()
-          .required("Image is required"),
-      )
-      .min(1, "Image is required"),
+    image: yup.string()
+      .required("Image is required"),
     version: yup.string()
       .required("Version is required"),
     description: yup.string()
