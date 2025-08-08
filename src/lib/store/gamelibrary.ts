@@ -24,7 +24,7 @@ function sortGamelib(gamelib: GameEntry[], sortOrder: string): GameEntry[] {
         .filter(g => g.timestamps.updated_at)
         .sort((a, b) => b.timestamps_sec.updated_at - a.timestamps_sec.updated_at)
     case 'alphabetical':
-      return [...gamelib]
+      return [...gamelib].sort((a , b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()))
     default:
       return gamelib
   }
