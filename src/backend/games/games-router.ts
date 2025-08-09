@@ -22,16 +22,16 @@ function parseRawGameData(game: Games.RawGameEntry, catOrder: CategoryEntry[]) {
   // format tags
   (game as any).tags = typeof game.tags === 'string' ? game.tags.split(',').sort() : []
   // format categories
-  const { categories, protagonist } = game
-  delete (game as any).protagonist
+  // const { categories, protagonist } = game
+  // delete (game as any).protagonist
   const parsedCats: StringMap = {}
-  categories.split(',').sort((a, b) => (
+  game.categories.split(',').sort((a, b) => (
     catOrder.find(c => a.startsWith(c.category_name))!.category_id - catOrder.find(c => b.startsWith(c.category_name))!.category_id
   )).forEach(category => {
     const [cat, val] = category.split(':')
     parsedCats[cat] = val
-  })
-  parsedCats.protagonist = protagonist;
+  });
+  // parsedCats.protagonist = protagonist;
   (game as any).categories = parsedCats;
   // format status
   (game as any).status = game.status !== null ? game.status.split(',') : []
@@ -72,6 +72,7 @@ function handleImage(img: string): string {
   if (!img_path.existsSync()) {
     throw new Error(`Image at path "${img_path}" does not exist`)
   }
+  // TODO: if image is changed, attempt to delete the old image so it's not still sitting in the fol
   // create a copy of img (if img is a gif, take the first frame) that is 720p in the image dir
   const new_image_path = img_dir.join(img_path.withExtension('jpg').basename)
   imageMagick(img_path.path, new_image_path.path)
@@ -170,8 +171,8 @@ router.post('/games/new', async (req, res, next) => {
     next(error)
     return
   }
-  game.protagonist = game.categories.protagonist
-  delete game.categories.protagonist
+  // game.protagonist = game.categories.protagonist
+  // delete game.categories.protagonist
   game.program_path = JSON.stringify(game.program_path)
   // insert it
   Games.insertNewGame(game)
@@ -222,8 +223,8 @@ router.put('/games/:game_id', async (req, res, next) => {
   const game = {...oldGameData, ...updatedGameData}
   // properly format the game data
   game.image = handleImage(game.image)
-  game.protagonist = game.categories.protagonist
-  delete game.categories.protagonist
+  // game.protagonist = game.categories.protagonist
+  // delete game.categories.protagonist
   game.program_path = JSON.stringify(game.program_path)
   // update it
   Games.updateGame(game)

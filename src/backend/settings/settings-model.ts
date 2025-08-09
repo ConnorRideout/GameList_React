@@ -5,6 +5,7 @@ import { settingsdb } from "../data/db-config"
 import { getCategoriesForSettings, updateGamesSettings, RawGameSettings } from '../games/games-model'
 
 import { StringMap } from "../../types"
+import { ParsedRawSettingsType } from "./settings-parsers"
 
 
 type BaseScraperAlias = {
@@ -139,7 +140,7 @@ async function getAll() {
   return {defaults, file_types, ignored_exes, site_scrapers, logins, site_scraper_aliases, categories}
 }
 
-async function updateSettings(newSettings: RawSettings & RawGameSettings) {
+async function updateSettings(newSettings: ParsedRawSettingsType) {
   // save settings
   const {tags, categories, statuses, defaults, file_types, ignored_exes, logins, site_scrapers, site_scraper_aliases} = newSettings
 

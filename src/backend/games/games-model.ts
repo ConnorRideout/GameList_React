@@ -11,7 +11,7 @@ import compareData from './games-parsers'
 // eslint-disable-next-line import/no-cycle
 import { RawSettings } from '../settings/settings-model'
 
-import { StatusEntry, TagEntry } from '../../types'
+import { CategorySettingsEntry, StatusEntry, TagEntry } from '../../types'
 
 
 export interface RawGameEntry {
@@ -23,7 +23,6 @@ export interface RawGameEntry {
   version: string,
   description: string,
   program_path: string,
-  protagonist: string,
   tags: string | null,
   status: string | null,
   categories: string,
@@ -154,7 +153,7 @@ function getCategories(trx?: Knex.Transaction<any, any[]>) {
     .groupBy('c.category_id')
 }
 
-function getCategoriesForSettings() {
+function getCategoriesForSettings(trx?: Knex.Transaction<any, any[]>) {
   /*
   SELECT
     c.*,
@@ -167,7 +166,7 @@ function getCategoriesForSettings() {
   GROUP BY
     c.category_id
   */
-  return gamesdb('categories as c')
+  return (trx ? trx('categories as c') : gamesdb('categories as c'))
     .select(
       'c.*',
       gamesdb.raw(`'[' || GROUP_CONCAT('{"option_id":' || o.option_id || ',"option_name":"' || o.option_name || '"}') || ']' AS options`),
@@ -229,13 +228,12 @@ async function insertNewGame(game: {
   version: string,
   description: string,
   program_path: string,
-  protagonist: string,
   tags: string[],
   status: string[],
   categories: {[key: string]: string},
   timestamps?: {[key: string]: string}
 }) {
-  const { path, title, url, image, version, description, program_path, protagonist, tags, status, categories } = game
+  const { path, title, url, image, version, description, program_path, tags, status, categories } = game
   const timestamps = game.timestamps || {}
 
   // Fetch all necessary IDs before starting the transaction
@@ -253,7 +251,7 @@ async function insertNewGame(game: {
   try {
     // Insert into games
     const [game_id] = await trx('games')
-      .insert({ path, title, url, image, version, description, program_path, protagonist })
+      .insert({ path, title, url, image, version, description, program_path })
 
     // Insert tags
     for (const { tag_id } of tagIds) {
@@ -312,14 +310,13 @@ async function updateGame(game: {
   version: string,
   description: string,
   program_path: string,
-  protagonist: string,
   tags: string[],
   status: string[],
   categories: {[key: string]: string},
   timestamps: {[key: string]: string},
   [key: string]: number | string | string[] | {[key: string]: string},
  }) {
-  const { game_id, path, title, url, image, version, description, program_path, protagonist, tags, status, categories, timestamps } = game
+  const { game_id, path, title, url, image, version, description, program_path, tags, status, categories, timestamps } = game
   // get old game data
   const oldGame: RawGameEntry = await getById(game_id)
 
@@ -348,7 +345,7 @@ async function updateGame(game: {
     // Update games
     await trx('games')
       .where({ game_id })
-      .update({ path, title, url, image, version, description, program_path, protagonist })
+      .update({ path, title, url, image, version, description, program_path })
 
     // Update tags
     if (delTagIds.length > 0) {
@@ -438,84 +435,103 @@ async function deleteDislike(dislike_id: number) {
   return deleted_record
 }
 
-async function updateGamesSettings(rawGameSettings: RawGameSettings) {
+async function updateGamesSettings(raw_game_settings: Omit<RawGameSettings, 'categories'> & {categories: CategorySettingsEntry[]}) {
+  type CategoryCompareType = {
+    category_id: number;
+    category_name: string
+  }
+  type CategoryOptionCompareType = {
+    option_id: number;
+    category_id: number;
+    option_name: string;
+    option_is_default: boolean;
+  }
+  const compareAndProcess = async <T extends TagEntry | StatusEntry | CategoryCompareType | CategoryOptionCompareType>(
+    current_data: T[],
+    updated_data: T[],
+    id_field: keyof T,
+    table_name: string
+  ) => {
+    // compare what needs to be updated vs deleted vs inserted
+    const changes = compareData(current_data, updated_data, id_field)
+    // delete
+    if (changes.toDelete.length) {
+      await trx(table_name)
+        .whereIn(id_field, changes.toDelete)
+        .del()
+    }
+    // update
+    for (const row of changes.toUpdate) {
+      await trx(table_name)
+        .where(id_field as string, row[id_field] as number)
+        .update(row)
+    }
+    // insert
+    if (changes.toInsert.length) {
+      await trx(table_name)
+        .insert(changes.toInsert)
+    }
+  }
+
   const trx = await gamesdb.transaction()
 
   try {
     // get current data
-    const currentTags = await getTags(trx)
-    const currentStatuses = await getStatus(trx)
-    const currentCategories = await getCategories(trx)
+    const current_tags = await getTags(trx)
 
-    // compare what needs to be updated vs deleted
-    const tagChanges = compareData(currentTags, rawGameSettings.tags, 'tag_id')
-    const statusChanges = compareData(currentStatuses, rawGameSettings.statuses, 'status_id')
-    const categoryChanges = compareData(currentCategories, rawGameSettings.categories, 'category_id')
+    const current_statuses = await getStatus(trx)
 
-    // process tags
-    if (tagChanges.toDelete.length) {
-      await trx('tags').whereIn('tag_id', tagChanges.toDelete).del()
-    }
+    const current_categories_full: CategorySettingsEntry[] = (await getCategoriesForSettings(trx)).map(cat => {
+      cat.options = JSON.parse(cat.options)
+      return cat
+    })
+    const { categories: current_categories, options: current_category_options } = current_categories_full.reduce(
+      (acc, {category_id, category_name, options, default_option}) => {
+        acc.categories.push({
+          category_id,
+          category_name
+        })
 
-    for (const tag of tagChanges.toUpdate) {
-      await trx('tags')
-        .where('tag_id', tag.tag_id)
-        .update({tag_name: tag.tag_name})
-    }
+        acc.options.push(...options.map(({option_id, option_name}) => ({
+          option_id,
+          category_id,
+          option_name,
+          option_is_default: option_name === default_option
+        })))
 
-    if (tagChanges.toInsert.length) {
-      await trx('tags').insert(tagChanges.toInsert.map(tag => ({
-        tag_id: tag.tag_id,
-        tag_name: tag.tag_name
-      })))
-    }
+        return acc
+      },
+      { categories: [] as CategoryCompareType[], options: [] as CategoryOptionCompareType[] }
+    )
 
-    // process statuses
-    if (statusChanges.toDelete.length > 0) {
-      await trx('status').whereIn('status_id', statusChanges.toDelete).del();
-    }
-
-    for (const status of statusChanges.toUpdate) {
-      await trx('status')
-        .where('status_id', status.status_id)
-        .update({
-          status_name: status.status_name,
-          status_priority: status.status_priority,
-          status_color: status.status_color,
-          status_color_applies_to: status.status_color_applies_to
+    // get updated data
+    const {tags: updated_tags, statuses: updated_statuses} = raw_game_settings
+    const { categories: updated_categories, options: updated_category_options } = raw_game_settings.categories.reduce(
+      (acc, {category_id, category_name, options, default_option}) => {
+        acc.categories.push({
+          category_id,
+          category_name
         });
-    }
 
-    if (statusChanges.toInsert.length > 0) {
-      await trx('status').insert(statusChanges.toInsert.map(status => ({
-        status_id: status.status_id,
-        status_name: status.status_name,
-        status_priority: status.status_priority,
-        status_color: status.status_color,
-        status_color_applies_to: status.status_color_applies_to
-      })));
-    }
+        acc.options.push(...options.map(({option_id, option_name}) => ({
+          option_id,
+          category_id,
+          option_name,
+          option_is_default: option_name === default_option
+        })));
 
-    // process categories
-    if (categoryChanges.toDelete.length > 0) {
-      await trx('categories').whereIn('category_id', categoryChanges.toDelete).del();
-    }
+        return acc;
+      },
+      { categories: [] as CategoryCompareType[], options: [] as CategoryOptionCompareType[] }
+    )
 
-    for (const category of categoryChanges.toUpdate) {
-      await trx('categories')
-        .where('category_id', category.category_id)
-        .update({
-          category_name: category.category_name
-          // Note: options and default_option are computed from joins
-        });
-    }
+    // process data
+    await compareAndProcess(current_tags, updated_tags, 'tag_id', 'tags')
 
-    if (categoryChanges.toInsert.length > 0) {
-      await trx('categories').insert(categoryChanges.toInsert.map(category => ({
-        category_id: category.category_id,
-        category_name: category.category_name
-      })));
-    }
+    await compareAndProcess(current_statuses, updated_statuses, 'status_id', 'status')
+
+    await compareAndProcess(current_categories, updated_categories, 'category_id', 'categories')
+    await compareAndProcess(current_category_options, updated_category_options, 'option_id', 'category_options')
 
     // commit game changes
     await trx.commit()

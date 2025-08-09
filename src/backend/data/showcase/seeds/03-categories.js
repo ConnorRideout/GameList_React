@@ -9,5 +9,6 @@ exports.seed = (knex) => {
     {category_name: 'engine'},
     {category_name: 'genre'},
     {category_name: 'play-status'},
+    {category_name: 'protagonist'},
   ]);
 };
