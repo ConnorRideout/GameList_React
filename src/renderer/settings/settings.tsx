@@ -82,7 +82,7 @@ export default function Settings() {
   const statuses = useSelector((state: RootState) => state.data.statuses)
   const tags = useSelector((state: RootState) => state.data.tags)
   const settings = useSelector((state: RootState) => state.data.settings)
-  const { categories } = settings
+  // const { categories } = settings
 
   const [curTab, setCurTab] = useState<'display' | 'games' | 'scrapers'>('display')
   const [isDisabled, setIsDisabled] = useState(true)
@@ -110,6 +110,10 @@ export default function Settings() {
 
   const [formDataDisplay, setFormDataDisplay] = useState<DefaultDisplayFormType>(defaultDisplayFormData)
 
+  useEffect(() => {
+    setFormDataDisplay(defaultDisplayFormData)
+  }, [defaultDisplayFormData])
+
   const formSchemaDisplay = CreateDisplayFormSchema()
   useEffect(() => {
     // console.log('running display schema effect')
@@ -135,13 +139,17 @@ export default function Settings() {
 
   // games
   const defaultGamesFormData: DefaultGamesFormType = useMemo(() => ({
-      categories,
+      categories: settings.categories,
       statuses,
       tags
     }
-  ), [categories, statuses, tags])
+  ), [settings.categories, statuses, tags])
 
   const [formDataGames, setFormDataGames] = useState<DefaultGamesFormType>(defaultGamesFormData)
+
+  useEffect(() => {
+    setFormDataGames(defaultGamesFormData)
+  }, [defaultGamesFormData])
 
   const formSchemaGames = CreateGamesFormSchema()
   useEffect(() => {
@@ -186,6 +194,10 @@ export default function Settings() {
   }, [settings.site_scrapers])
 
   const [formDataScrapers, setFormDataScrapers] = useState<DefaultScrapersFormType>(defaultScrapersFormData)
+
+  useEffect(() => {
+    setFormDataScrapers(defaultScrapersFormData)
+  }, [defaultScrapersFormData])
 
   const formSchemaScrapers = CreateScrapersFormSchema()
   useEffect(() => {

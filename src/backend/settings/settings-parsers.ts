@@ -2,7 +2,7 @@
 import crypto from 'crypto'
 
 import { RawSettings } from './settings-model'
-import { StringMap, LoginType, SettingsType, UpdatedSettingsType, ScraperAliasesType } from '../../types'
+import { StringMap, LoginType, SettingsType, UpdatedSettingsType, ScraperAliasesType, CategorySettingsEntry } from '../../types'
 import { RawGameSettings } from '../games/games-model'
 
 
@@ -131,11 +131,13 @@ export function parseRawSettings(settings: RawSettings) {
   })
 }
 
-export function parseUpdatedSettingsToRaw(settings: UpdatedSettingsType, existingRawSettings: RawSettings): RawSettings & RawGameSettings {
+export type ParsedRawSettingsType = Omit<RawSettings, 'categories'> & Omit<RawGameSettings, 'categories'> & {categories: CategorySettingsEntry[]}
+
+export function parseUpdatedSettingsToRaw(settings: UpdatedSettingsType, existingRawSettings: RawSettings): ParsedRawSettingsType {
   if (passwordEncryptor === undefined)
     passwordEncryptor = new PasswordEncryptor()
   const {
-    categories: raw_categories, statuses, tags,
+    categories, statuses, tags,
     games_folder, locale_emulator, file_types: raw_file_types, ignored_exes: raw_ignored_exes, site_scrapers: raw_scrapers
   } = settings
 
@@ -202,11 +204,11 @@ export function parseUpdatedSettingsToRaw(settings: UpdatedSettingsType, existin
   })
 
   // reformat gamesformtype (only categories is different)
-  const categories = raw_categories.reduce((acc: RawGameSettings['categories'], cat) => {
-    const options = JSON.stringify(cat.options)
-    acc.push({...cat, options})
-    return acc
-  }, [])
+  // const categories = raw_categories.reduce((acc: RawGameSettings['categories'], cat) => {
+  //   const options = JSON.stringify(cat.options)
+  //   acc.push({...cat, options})
+  //   return acc
+  // }, [])
 
   return {
     tags,
