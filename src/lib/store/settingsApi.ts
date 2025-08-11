@@ -1,6 +1,8 @@
 /* eslint-disable import/no-cycle */
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react'
 
+import { GAMELIB_TAG } from './gamelibApi'
+
 import { UpdatedSettingsType, SettingsType } from '../../types'
 
 
@@ -8,7 +10,7 @@ import { UpdatedSettingsType, SettingsType } from '../../types'
 export const settingsApi = createApi({
   reducerPath: 'settingsApi',
   baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:9000/settings' }),
-  tagTypes: ['Settings'],
+  tagTypes: ['Settings', GAMELIB_TAG.SearchParams],
   endpoints: builder => ({
     getSettings: builder.query<SettingsType, void>({
       query: () => '',
@@ -20,7 +22,7 @@ export const settingsApi = createApi({
         method: 'PUT',
         body: updatedSettings
       }),
-      invalidatesTags: ['Settings']
+      invalidatesTags: ['Settings', GAMELIB_TAG.SearchParams]
     }),
   })
 })

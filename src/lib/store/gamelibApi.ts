@@ -10,15 +10,18 @@ import {
   DislikedGamesType
 } from '../../types'
 
+
+export const GAMELIB_TAG = {
+  SearchParams: 'SearchParams'
+}
+
 export const gamelibApi = createApi({
   reducerPath: 'gamelibApi',
   baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:9000/api/' }),
   tagTypes: [
     'Games',
-    'Categories',
-    'Statuses',
-    'Tags',
     'Dislikes',
+    GAMELIB_TAG.SearchParams
   ],
   endpoints: builder => ({
     getGames: builder.query<GameEntry[], void>({
@@ -27,15 +30,15 @@ export const gamelibApi = createApi({
     }),
     getCategories: builder.query<CategoryEntry[], void>({
       query: () => 'categories',
-      providesTags: ['Categories']
+      providesTags: [GAMELIB_TAG.SearchParams]
     }),
     getStatuses: builder.query<StatusEntry[], void>({
       query: () => 'statuses',
-      providesTags: ['Statuses']
+      providesTags: [GAMELIB_TAG.SearchParams]
     }),
     getTags: builder.query<TagEntry[], void>({
       query: () => 'tags',
-      providesTags: ['Tags']
+      providesTags: [GAMELIB_TAG.SearchParams]
     }),
     getStyleVars: builder.query<StringMap, void>({
       query: () => 'styles'
