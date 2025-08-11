@@ -384,8 +384,8 @@ async function updateGame(game: {
       .insert(updatedCats)
 
     // Update timestamps
-    const {played_at} = timestamps
-    const updated_at = gamesdb.fn.now()
+    const {played_at, updated_at} = timestamps
+    // const updated_at = gamesdb.fn.now()
     await trx('timestamps')
       .where({ game_id })
       .update({ updated_at, played_at })
