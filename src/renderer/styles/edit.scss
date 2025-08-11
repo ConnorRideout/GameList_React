@@ -9,6 +9,16 @@
   grid-template-columns: max-content 1fr min-content min-content;
   grid-template-rows: repeat(5, min-content) 1fr min-content;
 
+  #versionIgnoreCheckbox {
+    text-wrap: nowrap;
+    padding: 0 3px;
+
+    i {
+      font-size: variables.$fontSmall;
+      padding: 0 3px;
+    }
+  }
+
   .align-start {
     align-self: flex-start
   }
