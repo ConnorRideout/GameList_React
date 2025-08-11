@@ -1,4 +1,5 @@
 /* eslint-disable react/no-array-index-key */
+// FIXME: very broken with multiple programs. auto search fails. search doesn't work. Removing doesn't always work
 import React, { ChangeEvent } from "react"
 
 import SortableList from "./sortableList"

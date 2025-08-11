@@ -153,6 +153,7 @@ router.post('/missinggames', async (req, res, next) => {
 router.delete('/file', (req, res, next) => {
   try {
     const { file } = req.body
+    console.log(`deleting file: "${file}"`)
     const filePath = new Path(file)
     filePath.removeSync()
     res.status(200).json({message: `deleted file "${file}"`})

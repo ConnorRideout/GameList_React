@@ -5,7 +5,8 @@
 exports.up = (knex) => {
   return knex.schema
     .alterTable('selectors', tbl => {
-      tbl.boolean('limit_text').defaultTo(false)
+      tbl.boolean('limit_text')
+        .defaultTo(false)
       tbl.string('remove_regex')
     })
 };
