@@ -188,11 +188,13 @@ export default function TextSearch({scrollToItem, filterGamelib}: Props) {
         ref={inputRef}
         className={suggestions.length && suggestions[0] === noMatch ? 'error' : ''}
       />
-      <button
-        type="button"
-        className="clear"
-        onClick={() => handleReset()}
-      >X</button>
+      {searchValue.length > 0 && (
+        <button
+          type="button"
+          className="clear"
+          onClick={() => handleReset()}
+        >X</button>
+      )}
       {showSuggestions && suggestions.length > 0 && (
         <List
           // height={375}
