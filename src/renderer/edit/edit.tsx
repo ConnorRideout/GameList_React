@@ -208,6 +208,11 @@ export default function Edit() {
     },
     */
     setIsLoading(true)
+    // delete the dropped url file (if it exists)
+    if (urlFile.current) {
+      deleteUrlFile(urlFile.current)
+      urlFile.current = ''
+    }
     // parse data
     const { categories: updatedCategories, statuses: rawStatuses, tags: rawTags } = data
     const updatedStatuses = Object.entries(rawStatuses).reduce((acc: string[], [stat, isChecked]) => {
@@ -252,10 +257,6 @@ export default function Edit() {
       await updateGame({ game_id, updatedGameData: updatedGame })
       if (version !== updatedData.version && !ignoreUpdatedVersion)
         await updateTimestamp({ game_id, type: 'updated_at' })
-      if (urlFile.current) {
-        deleteUrlFile(urlFile.current)
-        urlFile.current = ''
-      }
       setIsLoading(false)
       if (editType === 'update') {
         // handle updating missingGames
@@ -504,6 +505,7 @@ export default function Edit() {
           setIsLoading={setIsLoading}
           ignoreUpdatedVersion={ignoreUpdatedVersion}
           setIgnoreUpdatedVersion={setIgnoreUpdatedVersion}
+          validateAll={validateAll}
         />
 
         <Picker
