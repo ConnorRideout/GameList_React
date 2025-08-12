@@ -9,6 +9,7 @@ function generateOptions(game_id) {
     { game_id, option_id: randInt(5, 13) },
     { game_id, option_id: randInt(14, 22) },
     { game_id, option_id: randInt(23, 27) },
+    { game_id, option_id: randInt(28, 33) },
   ]
 }
 

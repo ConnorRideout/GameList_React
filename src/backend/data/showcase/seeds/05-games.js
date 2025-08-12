@@ -36,8 +36,7 @@ function generateGame(idx, titleStartswith) {
     version: generateVersion(),
     description: lorem.generateParagraphs(1),
     program_path: '{"":"game.exe"}',
-    // FIXME: protagonist is in categories now
-    protagonist: generateProtag(),
+    // protagonist: generateProtag(),
   }
 }
 
