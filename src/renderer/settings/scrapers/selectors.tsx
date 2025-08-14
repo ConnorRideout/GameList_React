@@ -115,16 +115,16 @@ export default function Selectors({formData, setFormData}: Props) {
     <fieldset className='scrapers'>
       <legend><h1>SITE SCRAPERS</h1></legend>
       <div className='scraper-header'>
-        <span className='btn-span'/>
-        <h2 className='short-span'>
+        <span className='btn-span-big'/>
+        <h2 className='short-span no-grow'>
           Site URL
           <span
             data-tooltip-id="selectors-info-tooltip"
             data-tooltip-content="The base URL of the website to scrape (i.e. 'google.com')"
           >?</span>
         </h2>
-        <span className='btn-span'/>
-        <h2 className='medium-span'>
+        <span className='btn-span-small'/>
+        <h2 className='select-span'>
           Ref Type
           <span
             data-tooltip-id="selectors-info-tooltip"
@@ -138,14 +138,14 @@ export default function Selectors({formData, setFormData}: Props) {
             data-tooltip-content="The JavaScript selector that will be passed to 'document.querySelector[All]' on the game's webpage"
           >?</span>
         </h2>
-        <h4 className='btn-span'>
+        <h4 className='checkbox-span'>
           Query<br/>All<br/>
           <span
             data-tooltip-id="selectors-info-tooltip"
             data-tooltip-content="Whether to use 'document.querySelector()' or 'document.querySelectorAll()'"
           >?</span>
         </h4>
-        <h2 className='matcher-span'>
+        <h2 className='medium-span'>
           Matcher
           <span
             data-tooltip-id="selectors-info-tooltip"
@@ -158,7 +158,7 @@ export default function Selectors({formData, setFormData}: Props) {
               -- If not [Query All], the matcher will find every instance of text that matches the regex within the [JS Selector]'s text content and return that array instead."
           >?</span>
         </h2>
-        <h4 className='btn-span'>
+        <h4 className='checkbox-span'>
           Limit<br/>Text<br/>
           <span
             data-tooltip-id="selectors-info-tooltip"
@@ -190,7 +190,7 @@ export default function Selectors({formData, setFormData}: Props) {
 
               <input
                 type="text"
-                className='short'
+                className='short no-grow'
                 name='base_url'
                 data-value={base_url}
                 value={base_url === "~~placeholder~~" ? "" : base_url}
@@ -198,7 +198,7 @@ export default function Selectors({formData, setFormData}: Props) {
                 onBlur={(evt) => handleBlur(evt, index)}
               />
 
-              <div className='vertical-container'>
+              <div className='vertical-container per-site-container'>
                 {selectors.map(({type, selector, queryAll, regex, limit_text, remove_regex}, idx) => {
                   return (
                     <div key={`scrapers-${index}-${idx}`} className='horizontal-container align-center'>
@@ -262,6 +262,7 @@ export default function Selectors({formData, setFormData}: Props) {
 
                       <input
                         type="text"
+                        className='medium'
                         name="selector-regex"
                         value={regex}
                         onChange={(evt) => handleChange(evt, index, idx)}
@@ -276,6 +277,7 @@ export default function Selectors({formData, setFormData}: Props) {
 
                       <input
                         type="text"
+                        className='medium'
                         name="selector-remove_regex"
                         value={remove_regex}
                         onChange={(evt) => handleChange(evt, index, idx)}

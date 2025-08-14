@@ -239,34 +239,65 @@
       flex-direction: column;
     }
 
-    .btn-span {
+    .btn-span-big {
+      min-width: 25px;
+    }
+
+    .btn-span-small {
       min-width: 22px;
     }
 
     .short-span {
-      min-width: 7rem;
-    }
+      flex-basis: 0;
+      flex-grow: 7;
 
-    .medium-short-span {
-      min-width: 10rem;
-      margin-right: 3px;
+      &.no-grow {
+        min-width: 7rem;
+        width: 7rem;
+        flex-grow: 0;
+      }
     }
 
     .medium-span {
-      min-width: 12rem;
+      // min-width: 12rem;
+      flex-basis: 0;
+      flex-grow: 10;
     }
 
     .long-span {
-      min-width: 18rem;
+      // min-width: 18rem;
+      flex-basis: 0;
+      flex-grow: 29;
     }
 
-    .matcher-span {
-      min-width: 10.4rem;
+    .select-span {
+      flex-basis: 0;
+      flex-grow: 12;
     }
+
+    .checkbox-span {
+      min-width: 12px;
+      max-width: 12px;
+      text-wrap: nowrap;
+      padding: 0;
+
+      * {
+        padding: 0;
+        margin: 0;
+      }
+    }
+
+    // .matcher-span {
+    //   min-width: 10.4rem;
+    // }
   }
 
   fieldset {
     @extend .vertical-container;
+
+    .per-site-container {
+      flex-grow: 1;
+    }
 
     &.logins {
       max-height: 18%;
@@ -300,24 +331,36 @@
     min-width: 12em;
 
     &.short {
-      min-width: 7rem;
-      width: 7rem;
+      flex-basis: 0;
+      flex-grow: 7;
       align-self: stretch;
+
+      &.no-grow {
+        min-width: 7rem;
+        width: 7rem;
+        flex-grow: 0;
+      }
     }
 
-    &.login-url {
-      min-width: 10rem;
-      max-width: 10rem;
+    &.medium {
+      // min-width: 10rem;
+      // max-width: 10rem;
+      flex-basis: 0;
+      flex-grow: 10;
     }
 
     &.long {
-      min-width: 18rem;
+      // min-width: 18rem;
+      flex-basis: 0;
+      flex-grow: 30;
     }
   }
 
   select {
-    min-width: 12rem;
-    max-width: 12rem;
+    // min-width: 12rem;
+    // max-width: 12rem;
+    flex-basis: 0;
+    flex-grow: 12;
     position: relative;
     top: 2px;
   }

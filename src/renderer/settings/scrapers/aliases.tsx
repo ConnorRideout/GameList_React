@@ -85,10 +85,11 @@ export default function Aliases({formData, setFormData}: Props) {
       <legend><h1>SCRAPER ALIASES</h1></legend>
       <div className='scraper-header'>
         <span style={{minWidth: '10px'}} />
-        <h2 className='short-span'>Site URL</h2>
-        <span className='btn-span'/>
-        <h2 className='medium-span'>Native Name</h2>
-        <h2 className='medium-span'>Site Text</h2>
+        <h2 className='short-span no-grow'>Site URL</h2>
+        <span className='btn-span-small'/>
+        <h2 className='select-span'>Native Name</h2>
+        <h2 className='long-span'>Site Text</h2>
+        <span style={{minWidth: '15px'}} />
       </div>
       <span className='separator' />
 
@@ -100,13 +101,13 @@ export default function Aliases({formData, setFormData}: Props) {
               <div className='horizontal-container align-center'>
                 <input
                   type="text"
-                  className='short'
+                  className='short no-grow'
                   name='aliases-base_url'
                   value={base_url === '~~placeholder~~' ? '': base_url}
                   disabled
                 />
 
-                <div className='vertical-container'>
+                <div className='vertical-container per-site-container'>
                   {site_aliases.tags.map(([site_text, tag], idx) => (
                     <div key={`tags-${index}-${idx}`} className='horizontal-container align-center'>
                       <button
@@ -137,6 +138,7 @@ export default function Aliases({formData, setFormData}: Props) {
 
                       <input
                         type="text"
+                        className='long'
                         name={`tags*${website_id}*${idx}`}
                         data-value={site_text}
                         value={site_text === "~~placeholder~~" ? "" : site_text}
@@ -167,13 +169,13 @@ export default function Aliases({formData, setFormData}: Props) {
               <div className='horizontal-container align-center'>
                 <input
                   type="text"
-                  className='short'
+                  className='short no-grow'
                   name='aliases-base_url'
                   value={base_url === '~~placeholder~~' ? '': base_url}
                   disabled
                 />
 
-                <div className='vertical-container'>
+                <div className='vertical-container per-site-container'>
                   {site_aliases.categories.map(([site_text, category], idx) => (
                     <div key={`categories-${index}-${idx}`} className='horizontal-container align-center'>
                       <button
@@ -204,6 +206,7 @@ export default function Aliases({formData, setFormData}: Props) {
 
                       <input
                         type="text"
+                        className='long'
                         name={`categories*${website_id}*${idx}`}
                         data-value={site_text}
                         value={site_text === "~~placeholder~~" ? "" : site_text}
@@ -234,13 +237,13 @@ export default function Aliases({formData, setFormData}: Props) {
               <div className='horizontal-container align-center'>
                 <input
                   type="text"
-                  className='short'
+                  className='short no-grow'
                   name='aliases-base_url'
                   value={base_url === '~~placeholder~~' ? '': base_url}
                   disabled
                 />
 
-                <div className='vertical-container'>
+                <div className='vertical-container per-site-container'>
                   {site_aliases.statuses.map(([site_text, tag], idx) => (
                     <div key={`statuses-${index}-${idx}`} className='horizontal-container align-center'>
                       <button
@@ -271,6 +274,7 @@ export default function Aliases({formData, setFormData}: Props) {
 
                       <input
                         type="text"
+                        className='long'
                         name={`statuses*${website_id}*${idx}`}
                         data-value={site_text}
                         value={site_text === "~~placeholder~~" ? "" : site_text}

@@ -20,8 +20,8 @@ export default function Logins({formData, setFormData}: Props) {
     <fieldset className='logins'>
       <legend><h1>SITE LOGINS</h1></legend>
       <div className='scraper-header'>
-        <h2 className='short-span'>Site URL</h2>
-        <h2 className='medium-short-span'>
+        <h2 className='short-span no-grow'>Site URL</h2>
+        <h2 className='medium-span'>
           Login URL
           <span
             data-tooltip-id="logins-info-tooltip"
@@ -73,7 +73,7 @@ export default function Logins({formData, setFormData}: Props) {
             <div className='horizontal-container align-center'>
               <input
                 type="text"
-                className='short'
+                className='short no-grow'
                 name='base_url'
                 value={base_url}
                 disabled
@@ -81,7 +81,7 @@ export default function Logins({formData, setFormData}: Props) {
 
               <input
                 type="text"
-                className='login-url'
+                className='medium'
                 name='login_url'
                 value={login_url}
                 onChange={evt => handleChange(evt, website_id)}
@@ -97,6 +97,7 @@ export default function Logins({formData, setFormData}: Props) {
 
               <input
                 type="text"
+                className='medium'
                 name='username_selector'
                 value={username_selector}
                 onChange={evt => handleChange(evt, website_id)}
@@ -112,6 +113,7 @@ export default function Logins({formData, setFormData}: Props) {
 
               <input
                 type="text"
+                className='medium'
                 name='password_selector'
                 value={password_selector}
                 onChange={evt => handleChange(evt, website_id)}
@@ -119,6 +121,7 @@ export default function Logins({formData, setFormData}: Props) {
 
               <input
                 type="text"
+                className='medium'
                 name='submit_selector'
                 value={submit_selector}
                 onChange={evt => handleChange(evt, website_id)}
