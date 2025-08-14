@@ -16,7 +16,6 @@ exports.up = (knex) => {
         .onDelete('CASCADE')
       tbl
         .string('website_tag')
-        .unique()
         .notNullable()
       tbl
         .string('category_option_name')
