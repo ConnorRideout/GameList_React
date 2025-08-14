@@ -16,6 +16,7 @@ export interface Props {
 }
 export default function Scrapers({formData, setFormData}: Props) {
   return (
+    // TODO: create a "advanced users only" warning
     <div className='settings-scrapers-container'>
       <Selectors formData={formData} setFormData={setFormData}/>
       <Logins formData={formData} setFormData={setFormData} />

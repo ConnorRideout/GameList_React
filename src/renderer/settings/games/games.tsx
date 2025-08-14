@@ -1,6 +1,7 @@
 /* eslint-disable import/no-cycle */
 // STRETCH: have a 'deleted' item for any removed item, so the user can undo it
 // TODO: warn about deleting existing items, as it will permanently delete them from all the related games as well
+// TODO: indicate which games will be effected by removing something. force them to update said games if they commit it
 import React from 'react'
 
 import Categories from './categories'

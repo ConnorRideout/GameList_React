@@ -1,3 +1,4 @@
+// FIXME: improperly displays default options (seemingly if it isn't the first option?)
 import React, { useEffect, useRef, useState } from 'react'
 
 import {
