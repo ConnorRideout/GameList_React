@@ -158,7 +158,7 @@ function getCategoriesForSettings(trx?: Knex.Transaction<any, any[]>) {
   SELECT
     c.*,
     '[' || GROUP_CONCAT('{"option_id":' || o.option_id || ',"option_name":"' || o.option_name || '"}') || ']' AS options,
-    CASE WHEN o.option_is_default THEN o.option_name END AS default_option
+    MAX(CASE WHEN o.option_is_default THEN o.option_name END) AS default_option
   FROM
     categories AS c
   JOIN
@@ -170,7 +170,7 @@ function getCategoriesForSettings(trx?: Knex.Transaction<any, any[]>) {
     .select(
       'c.*',
       gamesdb.raw(`'[' || GROUP_CONCAT('{"option_id":' || o.option_id || ',"option_name":"' || o.option_name || '"}') || ']' AS options`),
-      gamesdb.raw('CASE WHEN o.option_is_default THEN o.option_name END AS default_option')
+      gamesdb.raw('MAX(CASE WHEN o.option_is_default THEN o.option_name END) AS default_option')
     )
     .join('category_options AS o', 'c.category_id', 'o.category_id')
     .groupBy('c.category_id')
