@@ -180,11 +180,11 @@ interface LoginType {
   [key: string]: string | number | null;
 }
 interface ScraperAliasesType {
-  // [site_tag, native_value]
-  tags: [string, string][];
-  categories: [string, string][];
-  statuses: [string, string][];
-  [key: string]: [string, string][];
+  // [site_tag, native_value, id]
+  tags: [string, string, number][];
+  categories: [string, string, number][];
+  statuses: [string, string, number][];
+  [key: string]: [string, string, number][];
 }
 interface SettingsType {
   games_folder: string;
@@ -221,22 +221,8 @@ interface SettingsType {
       limit_text: boolean;
       remove_regex: string | null;
     }[];
-    aliases: {
-      tags: [string, string][];
-      categories: [string, string][];
-      statuses: [string, string][];
-      [key: string]: [string, string][];
-    };
-  }[] | {
-    category_id: number;
-    category_name: string;
-    options: {
-      option_id: number,
-      option_name: string
-    }[];
-    default_option: string | null
-    [key: string]: number | string | {[option: string]: number | string}[] | null;
-  }[];
+    aliases: ScraperAliasesType;
+  }[] | CategorySettingsEntry[];
 }
 type MissingGamesType = {
   game_id: number,

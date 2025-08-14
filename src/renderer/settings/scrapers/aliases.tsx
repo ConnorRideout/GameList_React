@@ -12,8 +12,8 @@ import { RootState } from '../../../types'
 export default function Aliases({formData, setFormData}: Props) {
   const tags = useSelector((state: RootState) => state.data.tags)
   const statuses = useSelector((state: RootState) => state.data.statuses)
-  const categories = useSelector((state: RootState) => state.data.categories)
-  const category_options = categories.flatMap(c => c.options.map(o => [c.category_name, o]))
+  const categories = useSelector((state: RootState) => state.data.settings.categories)
+  const category_options = categories.flatMap(c => c.options.map(({option_name, option_id}) => [c.category_name, option_name, option_id]))
   const aliasRef = useRef<HTMLDivElement>(null)
   const [newAliasAdded, setNewAliasAdded] = useState(false)
 
@@ -33,7 +33,7 @@ export default function Aliases({formData, setFormData}: Props) {
     const updated_site_scrapers = structuredClone(formData)
     const scraper = updated_site_scrapers.find(s => s.website_id === website_id)
     const aliases = scraper?.aliases[type]
-    aliases?.push(["~~placeholder~~", ""])
+    aliases?.push(["~~placeholder~~", "", -1])
 
     setNewAliasAdded(true)
     setFormData(updated_site_scrapers)
@@ -51,13 +51,21 @@ export default function Aliases({formData, setFormData}: Props) {
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement | HTMLSelectElement> | {target: {name: string, value: string}}) => {
     const {name, type, value} = evt.target as HTMLInputElement
     const [alias_type, str_website_id, str_idx] = name.split('*')
-    console.log('change: ', name)
+    // console.log('change: ', name)
     const idx = parseInt(str_idx)
     const website_id = parseInt(str_website_id)
 
     const updated_site_scrapers = structuredClone(formData)
     const scraper = updated_site_scrapers.find(s => s.website_id === website_id)!
     const new_aliases = scraper?.aliases[alias_type]
+
+    // handle selectors; update the alias *_ID
+    if (type === 'select-one') {
+      const {options, selectedIndex} = evt.target as HTMLSelectElement
+      const selected_option = options[selectedIndex]
+      const id = selected_option.dataset.id!
+      new_aliases[idx][2] = parseInt(id)
+    }
 
     // type will be undefined if it's the selector, i.e. the el of the array at idx 1
     new_aliases[idx][Number(type !== 'text')] = value
@@ -67,7 +75,7 @@ export default function Aliases({formData, setFormData}: Props) {
 
   const handleBlur = (evt: React.FocusEvent<HTMLInputElement>) => {
     const {name, type, value} = evt.target
-    console.log('blur: ', name)
+    // console.log('blur: ', name)
     const newVal = value.trim()
     handleChange({target: {name, type, value: newVal}})
   }
@@ -119,7 +127,11 @@ export default function Aliases({formData, setFormData}: Props) {
                           <option value="">{}</option>
                         )}
                         {tags.map(({tag_name, tag_id}) => (
-                          <option key={`tag-${tag_id}`} value={tag_name}>{tag_name}</option>
+                          <option
+                            key={`tag-option-${tag_id}`}
+                            value={tag_name}
+                            data-id={tag_id}
+                          >{tag_name}</option>
                         ))}
                       </select>
 
@@ -181,8 +193,12 @@ export default function Aliases({formData, setFormData}: Props) {
                         {formData[index].aliases.categories[idx][1] === "" && (
                           <option value="">{}</option>
                         )}
-                        {category_options.map(([category_name, option], i) => (
-                          <option key={`tag-${index}-${i}`} value={option}>{`${category_name} > ${option}`}</option>
+                        {category_options.map(([category_name, option, option_id], i) => (
+                          <option
+                            key={`category-option-${index}-${i}`}
+                            data-id={option_id}
+                            value={option}
+                          >{`${category_name} > ${option}`}</option>
                         ))}
                       </select>
 
@@ -245,7 +261,11 @@ export default function Aliases({formData, setFormData}: Props) {
                           <option value="">{}</option>
                         )}
                         {statuses.map(({status_name, status_id}) => (
-                          <option key={`tag-${index}-${status_id}`} value={status_name}>{status_name}</option>
+                          <option
+                            key={`status-option-${index}-${status_id}`}
+                            data-id={status_id}
+                            value={status_name}
+                          >{status_name}</option>
                         ))}
                       </select>
 

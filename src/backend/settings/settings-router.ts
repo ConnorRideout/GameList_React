@@ -22,7 +22,7 @@ router.get('/', (req, res, next) => {
 router.get('/login/:website_id', (req, res, next) => {
   const {website_id} = req.params
   Settings.getWebsiteLogin(parseInt(website_id))
-    .then(raw_login => {
+    .then((raw_login: Settings.RawSettings['logins'][0]) => {
       const login = parseRawLogin(raw_login)
       res.status(200).json(login)
     })

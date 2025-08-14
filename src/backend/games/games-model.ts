@@ -435,7 +435,7 @@ async function deleteDislike(dislike_id: number) {
   return deleted_record
 }
 
-async function updateGamesSettings(raw_game_settings: Omit<RawGameSettings, 'categories'> & {categories: CategorySettingsEntry[]}) {
+async function updateGamesSettings(raw_game_settings: Omit<RawGameSettings, 'categories'> & {categories: CategorySettingsEntry[]}, trx: Knex.Transaction<any, any[]>) {
   type CategoryCompareType = {
     category_id: number;
     category_name: string
@@ -473,7 +473,7 @@ async function updateGamesSettings(raw_game_settings: Omit<RawGameSettings, 'cat
     }
   }
 
-  const trx = await gamesdb.transaction()
+  // const trx = await gamesdb.transaction()
 
   try {
     // get current data
@@ -534,9 +534,9 @@ async function updateGamesSettings(raw_game_settings: Omit<RawGameSettings, 'cat
     await compareAndProcess(current_category_options, updated_category_options, 'option_id', 'category_options')
 
     // commit game changes
-    await trx.commit()
+    // await trx.commit()
   } catch (error) {
-    await trx.rollback()
+    // await trx.rollback()
     throw error
   }
 }

@@ -6,7 +6,7 @@ function createAliasTest(type: string) {
   return yup.array()
     .of(
       yup.array()
-        .length(2)
+        .length(3)
         .test('site-text-check', `Scrapers > Scraper Aliases Warning: ${type} aliases need text from the website`,
           (site_text) => !!(site_text && site_text[0])
         )

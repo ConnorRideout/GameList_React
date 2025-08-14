@@ -65,8 +65,11 @@ function parseAliases(scraper_aliases: RawSettings['site_scraper_aliases']) {
     aliases.forEach(row => {
       const {website_id, website_tag} = row
       // find the native name, i.e. tag_name, category_name, or status_name
-      const native_name = Object.keys(row).at(-1)!
-      const native_value = (row[native_name] as string)
+      const native_name = Object.keys(row).find(k => k.endsWith('_name'))!
+      const native_value = row[native_name] as string
+      const native_id = Object.entries(row).find(([key]) => (
+        /^(tag|status|category_option)_id/.test(key)
+      ))![1] as number
       // check if the website_id already is in the accumulator
       if (!acc[website_id]) {
         acc[website_id] = {
@@ -78,7 +81,7 @@ function parseAliases(scraper_aliases: RawSettings['site_scraper_aliases']) {
       const cur_site = acc[website_id]
       // add the aliases
       const cur_type = cur_site[type]
-      cur_type.push([website_tag, native_value])
+      cur_type.push([website_tag, native_value, native_id])
     })
     return acc
   }, {})
@@ -189,16 +192,16 @@ export function parseUpdatedSettingsToRaw(settings: UpdatedSettingsType, existin
       })
     }
     // aliases
-    aliases.tags.forEach(([website_tag, tag_name]) => {
-      site_scraper_aliases.tags.push({website_id, website_tag, tag_name})
+    aliases.tags.forEach(([website_tag, tag_name, tag_id]) => {
+      site_scraper_aliases.tags.push({website_id, website_tag,  tag_id})
     })
 
-    aliases.categories.forEach(([website_tag, category_option_name]) => {
-      site_scraper_aliases.categories.push({website_id, website_tag, category_option_name})
+    aliases.categories.forEach(([website_tag, category_option_name, category_option_id]) => {
+      site_scraper_aliases.categories.push({website_id, website_tag, category_option_id})
     })
 
-    aliases.statuses.forEach(([website_tag, status_name]) => {
-      site_scraper_aliases.statuses.push({website_id, website_tag, status_name})
+    aliases.statuses.forEach(([website_tag, status_name, status_id]) => {
+      site_scraper_aliases.statuses.push({website_id, website_tag, status_id})
     })
 
   })

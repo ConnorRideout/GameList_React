@@ -189,7 +189,6 @@ export default function Settings() {
       }, {})
       return {...scraper, selectors, login}
     })
-    // FIXME: properly handle aliases when the category/tag/status from the games table change/are deleted
     return site_scrapers
   }, [settings.site_scrapers])
 

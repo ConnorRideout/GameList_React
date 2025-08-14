@@ -21,18 +21,18 @@ const sharedConfig = {
  * @type { Object.<string, import("knex").Knex.Config> }
  */
 module.exports = {
-  settings: {
-    ...sharedConfig,
-    connection: {
-      filename: './settings/database/settings.db3'
-    },
-    migrations: {
-      directory: './settings/database/migrations'
-    },
-    seeds: {
-      directory: './settings/database/seeds'
-    }
-  },
+  // settings: {
+  //   ...sharedConfig,
+  //   connection: {
+  //     filename: './settings/database/settings.db3'
+  //   },
+  //   migrations: {
+  //     directory: './settings/database/migrations'
+  //   },
+  //   seeds: {
+  //     directory: './settings/database/seeds'
+  //   }
+  // },
 
   development: {
     ...sharedConfig,
@@ -44,21 +44,21 @@ module.exports = {
     },
   },
 
-  development_settings: {
-    client: 'sqlite3',
-    connection: {
-      filename: './settings/database/settings.db3'
-    },
-    seeds: {
-      directory: './data/development/seeds_settings'
-    },
-    pool: {
-      afterCreate: (conn, done) => {
-        conn.run('PRAGMA foreign_keys = ON', done)
-      },
-    },
-    useNullAsDefault: true,
-  },
+  // development_settings: {
+  //   client: 'sqlite3',
+  //   connection: {
+  //     filename: './settings/database/settings.db3'
+  //   },
+  //   seeds: {
+  //     directory: './data/development/seeds_settings'
+  //   },
+  //   pool: {
+  //     afterCreate: (conn, done) => {
+  //       conn.run('PRAGMA foreign_keys = ON', done)
+  //     },
+  //   },
+  //   useNullAsDefault: true,
+  // },
 
   showcasing: {
     ...sharedConfig,

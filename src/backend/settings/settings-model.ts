@@ -38,9 +38,9 @@ export interface RawSettings {
     submit_selector: string | null,
   }[],
   site_scraper_aliases: {
-    tags: (BaseScraperAlias & {tag_name: string})[],
-    categories: (BaseScraperAlias & {category_option_name: string})[],
-    statuses: (BaseScraperAlias & {status_name: string})[]
+    tags: (BaseScraperAlias & {tag_id: number, tag_name?: string})[],
+    categories: (BaseScraperAlias & {category_option_id: number, category_option_name?: string})[],
+    statuses: (BaseScraperAlias & {status_id: number, status_name?: string})[]
   },
   categories: {
     category_id: number,
@@ -51,12 +51,12 @@ export interface RawSettings {
 }
 function getIgnoredExes() {
   // SELECT * FROM ignored_exes
-  return settingsdb('ignored_exes')
+  return settingsdb('settings_ignored_exes')
 }
 
 function getFiletypes() {
   // SELECT * FROM filetypes
-  return settingsdb('filetypes')
+  return settingsdb('settings_filetypes')
 }
 
 function getWebsiteScrapers() {
@@ -75,12 +75,12 @@ function getWebsiteScrapers() {
       ELSE 4
     END, s.type
   */
-  return settingsdb('websites as w')
+  return settingsdb('settings_websites as w')
     .select(
       'w.website_id', 'w.base_url',
       's.type', 's.selector', 's.queryAll', 's.regex', 's.limit_text', 's.remove_regex'
     )
-    .leftJoin('selectors AS s', 'w.website_id', 's.website_id')
+    .leftJoin('settings_selectors AS s', 'w.website_id', 's.website_id')
     .orderByRaw(`
         CASE s.type
           WHEN 'title' THEN 1
@@ -95,7 +95,7 @@ function getWebsiteLogins() {
   /*
   SELECT * FROM websites
   */
-  return settingsdb('websites')
+  return settingsdb('settings_websites')
 }
 
 function getWebsiteLogin(website_id: number) {
@@ -107,30 +107,36 @@ function getWebsiteLogin(website_id: number) {
 async function getWebsiteScraperAliases() {
   /*
   SELECT
-     website_id, website_tag, tag_name
-  FROM scraper_tag_aliases
+    a.website_id, a.website_tag, a.tag_id, t.tag_name
+  FROM settings_scraper_tag_aliases AS a
+  LEFT JOIN tags AS t ON a.tag_id = t.tag_id
   */
-  const tags = await settingsdb('scraper_tag_aliases')
-    .select('website_id', 'website_tag', 'tag_name')
+  const tags = await settingsdb('settings_scraper_tag_aliases AS a')
+    .select('a.website_id', 'a.website_tag', 'a.tag_id', 't.tag_name')
+    .leftJoin('tags as t', 'a.tag_id', 't.tag_id')
   /*
   SELECT
-     website_id, website_tag, category_option_name
-  FROM scraper_category_aliases
+    a.website_id, a.website_tag, a.category_option_id, co.option_name AS category_option_name
+  FROM settings_scraper_category_aliases AS a
+  LEFT JOIN category_options AS co ON a.category_option_id = co.option_id
   */
-  const categories = await settingsdb('scraper_category_aliases')
-    .select('website_id', 'website_tag', 'category_option_name')
+  const categories = await settingsdb('settings_scraper_category_aliases AS a')
+    .select('a.website_id', 'a.website_tag', 'a.category_option_id', 'co.option_name AS category_option_name')
+    .leftJoin('category_options AS co', 'a.category_option_id', 'co.option_id')
   /*
   SELECT
-     website_id, website_tag, status_name
-  FROM scraper_status_aliases
+    a.website_id, a.website_tag, a.status_id, s.status_name
+  FROM settings_scraper_status_aliases AS a
+  LEFT JOIN status AS s ON a.status_id = s.status_id
   */
-  const statuses = await settingsdb('scraper_status_aliases')
-    .select('website_id', 'website_tag', 'status_name')
+  const statuses = await settingsdb('settings_scraper_status_aliases AS a')
+    .select('a.website_id', 'a.website_tag', 'a.status_id', 's.status_name')
+    .leftJoin('status AS s', 'a.status_id', 's.status_id')
   return {tags, categories, statuses}
 }
 
 async function getAll() {
-  const defaults = await settingsdb('default').select('name', 'value')
+  const defaults = await settingsdb('settings_default').select('name', 'value')
   const file_types = await getFiletypes()
   const ignored_exes = await getIgnoredExes()
   const site_scrapers = await getWebsiteScrapers()
@@ -148,54 +154,54 @@ async function updateSettings(newSettings: ParsedRawSettingsType) {
 
   try {
     // update defaults
-    await trx('default').del()
-    await trx('default').insert(defaults)
+    await trx('settings_default').del()
+    await trx('settings_default').insert(defaults)
 
     // update file_types
-    await trx('filetypes').del()
-    await trx('filetypes').insert(file_types)
+    await trx('settings_filetypes').del()
+    await trx('settings_filetypes').insert(file_types)
 
     // update ignored_exes
-    await trx('ignored_exes').del()
+    await trx('settings_ignored_exes').del()
     if (ignored_exes.length) {
-      await trx('ignored_exes').insert(ignored_exes)
+      await trx('settings_ignored_exes').insert(ignored_exes)
     }
 
     // update websites (from logins data)
-    await trx('websites').del()
+    await trx('settings_websites').del()
     if (logins.length) {
-      await trx('websites').insert(logins)
+      await trx('settings_websites').insert(logins)
     }
 
     // update selectors
-    await trx('selectors').del()
+    await trx('settings_selectors').del()
     const selectorData = site_scrapers.map(scraper => {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const {base_url, ...rest} = scraper
       return rest
     })
-    await trx('selectors').insert(selectorData)
+    await trx('settings_selectors').insert(selectorData)
 
     // update scraper_tag_aliases
-    await trx('scraper_tag_aliases').del()
+    await trx('settings_scraper_tag_aliases').del()
     if (site_scraper_aliases.tags.length) {
-      await trx('scraper_tag_aliases').insert(site_scraper_aliases.tags)
+      await trx('settings_scraper_tag_aliases').insert(site_scraper_aliases.tags)
     }
 
     // update scraper_category_aliases
-    await trx('scraper_category_aliases').del()
+    await trx('settings_scraper_category_aliases').del()
     if (site_scraper_aliases.categories.length) {
-      await trx('scraper_category_aliases').insert(site_scraper_aliases.categories)
+      await trx('settings_scraper_category_aliases').insert(site_scraper_aliases.categories)
     }
 
     // update scraper_status_aliases
-    await trx('scraper_status_aliases').del()
+    await trx('settings_scraper_status_aliases').del()
     if (site_scraper_aliases.statuses.length) {
-      await trx('scraper_status_aliases').insert(site_scraper_aliases.statuses)
+      await trx('settings_scraper_status_aliases').insert(site_scraper_aliases.statuses)
     }
 
     // update game settings
-    await updateGamesSettings({tags, categories, statuses})
+    await updateGamesSettings({tags, categories, statuses}, trx)
 
     await trx.commit()
     return await getAll()
