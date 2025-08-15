@@ -63,19 +63,39 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
     }
   }
 
-  const handleAutoExeSearch = async () => {
+  const handleAutoExeSearch = async (autofill = false) => {
     const existing_paths = formData.program_path.map(({paths: [,prog_pth]}) => prog_pth).filter(p => p.trim())
     let program_path: {id: number, paths: [string, string]}[] = []
     try {
       const {filepaths}: {filepaths: string[]} = await getExecutables({top_path: formData.path, existing_paths}).unwrap()
       program_path = filepaths.map((pth, id) => {
-        const basepath = pth.replace(/\.[^.]*?$/, '')
-        const split_path = basepath.replaceAll(/(?<=[a-z])(?=[A-Z])|_/g, ' ')
-        return {id, paths: [toTitleCase(split_path).trim(), pth]}
+        // extension removal regex
+        const exeRegex = new RegExp(`(?:.${settings.file_types.Executables.join('|.')})$`)
+
+        const parsed_path = pth
+          // remove extensions
+          .replace(exeRegex, '')
+          // insert spaces where necessary ( aA | a[ | a- | -a | ]a ) and replace underscores with them
+          .replace(/(?<=[a-z\])-])(?=[A-Z([]-)|_/g, ' ')
+          // remove leading and trailing whitespace/symbols
+          .replace(/^[^a-zA-Z0-9([]|[^a-zA-Z0-9)\]]$/g, '')
+
+        return {id, paths: [toTitleCase(parsed_path).trim(), pth]}
       })
+      if (!program_path.length) {
+        // ensure program_path is NEVER an empty array, as that breaks the dnd
+        program_path.push({id: 1, paths:["", ""]})
+      }
       setFormData(prevVal => ({...prevVal, program_path}))
     } catch (err) {
       console.error(err)
+    }
+    if (!autofill) {
+      validateAll({...formData, program_path})
+    }
+    if (!program_path.length) {
+      // ensure program_path is NEVER an empty array, as that breaks the dnd
+      program_path.push({id: 1, paths:["", ""]})
     }
     return program_path
   }
@@ -112,9 +132,9 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
     } catch (error: any) {
       dispatch(setError(error.message))
     }
-    setIsLoading(false)
-    const program_path = await handleAutoExeSearch()
+    const program_path = await handleAutoExeSearch(true)
     validateAll({...formData, ...newEditFormData, program_path})
+    setIsLoading(false)
   }
 
   const toggleIgnoreVersion = () => {
@@ -224,7 +244,7 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
       <button
         type='button'
         className="svg-button grid-column-1 grid-row-6 align-start"
-        onClick={handleAutoExeSearch}
+        onClick={() => handleAutoExeSearch()}
       >
         <FileAutoSearchSvg />
         Auto search

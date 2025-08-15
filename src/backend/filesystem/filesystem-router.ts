@@ -166,34 +166,75 @@ router.post('/getexecutables', async (req, res, next) => {
   try {
     const settings = await getSettings()
 
+    const max_depth = 4
+
     const { top_path, existing_paths }: { top_path: string, existing_paths: string[] } = req.body
     const parent_path = new Path(settings.games_folder, top_path)
+    console.log(`parent_path is: ${parent_path.path} exists: ${parent_path.existsSync()}`)
     // get new paths
     const file_extensions = settings.file_types.Executables.map(ext => ext.toLowerCase())
     const regex_tests = settings.ignored_exes.map(re_str => new RegExp(re_str))
 
+    const validateFile = (p: Path) => {
+      if (!file_extensions.includes(p.ext.toLowerCase().slice(1)))
+        return false
+      // eslint-disable-next-line no-restricted-syntax
+      for (const re of regex_tests) {
+        if (re.test(p.basename))
+          return false
+      }
+      return true
+    }
+
     const getFilepathsNLevelsAway = async (n: number) => {
       const all_filepaths = await parent_path.getPathsNLevelsAway(n, false, { onlyFiles: true })
-      const valid_files = all_filepaths.filter(p => {
-        if (!file_extensions.includes(p.ext.toLowerCase().slice(1)))
-          return false
-        // eslint-disable-next-line no-restricted-syntax
-        for (const re of regex_tests) {
-          if (re.test(p.basename))
-            return false
-        }
-        return true
-      })
+
+      const valid_files = all_filepaths.filter(p => validateFile(p))
       const valid_filepaths = valid_files.map(p => parent_path.relative(p))
       return valid_filepaths
     }
 
-    let filepaths = await getFilepathsNLevelsAway(1)
-    if (!filepaths.length) {
-      filepaths = await getFilepathsNLevelsAway(2)
+    const getFilepathsByDepth = () => {
+      const result = [] as string[][]
+
+      const traverse = ({depth, filepath, children}: typeof all_children) => {
+        // add current node to its depth group
+        if (depth > 0 && !result[depth]) {
+          result[depth] = []
+        }
+        if (validateFile(filepath)) {
+          const relative_fpath = parent_path.relative(filepath)
+          result[depth].push(relative_fpath)
+        }
+        // recursively process children, up to max_depth
+        if (children && depth < max_depth) {
+          children.forEach(child => traverse(child))
+        }
+      }
+
+      const all_children = parent_path.treeSync(false)
+      traverse(all_children)
+      return result
     }
-    if (!filepaths.length) {
-      filepaths = await getFilepathsNLevelsAway(3)
+
+    let filepaths: string[] | undefined
+
+    if (/\(|\)/.test(parent_path.path)) {
+      // can't use the getFilepathsNLevelsAway function; globbing is broken with parentheses
+      console.log('using tree')
+      const filepaths_by_depth = getFilepathsByDepth()
+      filepaths = filepaths_by_depth.find(depth => depth && depth.length)
+    } else {
+      console.log('using NLevelsAway')
+      for (let n = 1; n <= max_depth; n++) {
+        filepaths = await getFilepathsNLevelsAway(n)
+        if (filepaths.length)
+          break
+      }
+    }
+
+    if (!filepaths || !filepaths.length) {
+      throw new Error('No valid filepaths found!')
     }
 
     // check existing paths, and if they still exist, insert them in the same order where they previously were
