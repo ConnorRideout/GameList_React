@@ -1,7 +1,7 @@
 /* eslint-disable no-use-before-define */
 /* eslint-disable no-constructor-return */
 import BasePath from "pathlib-js"
-import { join as parsePath } from "path"
+import { normalize as parsePath } from "path"
 
 
 function stringParser(str: string) {
@@ -96,7 +96,7 @@ class Path extends BasePath {
             if (Array.isArray(result)) {
               return result.map(item => {
                 const isBasePathArr = checkInstanceBasePath(item)
-                if (isBasePath) return isBasePathArr
+                if (isBasePathArr) return isBasePathArr
                 else return deepChangeStrings(item)
               })
             }
