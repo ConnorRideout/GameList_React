@@ -28,7 +28,6 @@ interface Props {
   formData: FormState,
 }
 export default function Categories({categories, statuses, handleFormChange, isBrowse, formData}: Props) {
-  // TODO: move protagonist to categories, and make a selector for it. Have the database be ordered by preference? IDK how to have 'multiple' be an option
   // const protagonists = ['Male', 'Female', 'Futa/Trans', 'Multiple', 'Created', 'Unknown']
   return (
     <CatFieldset className='horizontal-container'>

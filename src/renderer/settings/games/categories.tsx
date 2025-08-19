@@ -1,3 +1,4 @@
+// TODO: make 'protagonist' and 'play-status' into "locked" categories (user can't delete the basics but can add/rename. Make it toggleable instead?)
 import React, { useEffect, useRef, useState } from 'react'
 
 import {
