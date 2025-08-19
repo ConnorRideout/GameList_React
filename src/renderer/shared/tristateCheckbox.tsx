@@ -26,7 +26,7 @@ export default function TristateCheckbox({children, labelText, handleFormChange,
 
   return (
     // eslint-disable-next-line jsx-a11y/label-has-associated-control
-    <label style={style}>
+    <label style={style} className="tristate-checkbox">
       <input
         className="tristate"
         type="checkbox"
