@@ -1,14 +1,13 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React from "react"
 
-interface Props {
-  children: React.ReactNode,
+interface Props extends React.ComponentProps<'div'> {
   title: string,
   buttons: {text: string, clickHandler: React.MouseEventHandler<HTMLButtonElement>, disabledState?: boolean}[],
-  className?: string
 }
-export default function InputBox({children, title, buttons, className=''}: Props) {
+export default function InputBox({title, buttons, children, className='', ...divProps}: Props) {
   return (
-    <div className={`inputbox-container ${className}`}>
+    <div className={`inputbox-container ${className}`} {...divProps}>
       <div className="inputbox">
         <h1>{title}</h1>
         <div className="inputbox-content">

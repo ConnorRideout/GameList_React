@@ -16,6 +16,9 @@ import { useGetExecutablesMutation } from "../../lib/store/filesystemApi"
 import { setError } from "../../lib/store/gamelibrary"
 
 import { GameEntry, RootState, StringMap } from "../../types"
+// eslint-disable-next-line import/no-cycle
+import { AutofillComparisonType } from "./edit"
+import { FormState as PickerFormType } from "../shared/picker/picker"
 
 
 export interface Props {
@@ -31,9 +34,9 @@ export interface Props {
     program_path: {
         id: number;
         paths: [string, string];
-    }[];
-}>>,
-  updatePickerDefaults: (newDefaults: {[type: string]: string | string[] | StringMap}) => void,
+    }[],
+  }>>,
+  updatePickerDefaults: (newDefaults: {[type: string]: string[] | StringMap}) => void,
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
   ignoreUpdatedVersion: boolean,
   setIgnoreUpdatedVersion: React.Dispatch<React.SetStateAction<boolean>>,
@@ -43,9 +46,10 @@ export interface Props {
         id: number;
         paths: [string, string];
     }[];
-}) => void
+  }) => void,
+  autofillDataSetter: React.Dispatch<React.SetStateAction<AutofillComparisonType | false>>
 }
-export default function Info({handleFormChange, formData, setFormData, updatePickerDefaults, setIsLoading, ignoreUpdatedVersion, setIgnoreUpdatedVersion, validateAll}: Props) {
+export default function Info({handleFormChange, formData, setFormData, updatePickerDefaults, setIsLoading, ignoreUpdatedVersion, setIgnoreUpdatedVersion, validateAll, autofillDataSetter}: Props) {
   const dispatch = useDispatch()
   const settings = useSelector((state: RootState) => state.data.settings)
   const [autoFillFromWebsite] = useAutofillFromWebsiteMutation()
@@ -86,12 +90,12 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
         // ensure program_path is NEVER an empty array, as that breaks the dnd
         program_path.push({id: 1, paths:["", ""]})
       }
-      setFormData(prevVal => ({...prevVal, program_path}))
-    } catch (err) {
-      console.error(err)
-    }
-    if (!autofill) {
-      validateAll({...formData, program_path})
+      if (!autofill) {
+        setFormData(prevVal => ({...prevVal, program_path}))
+        validateAll({...formData, program_path})
+      }
+    } catch (error: any) {
+      dispatch(setError(error.message))
     }
     if (!program_path.length) {
       // ensure program_path is NEVER an empty array, as that breaks the dnd
@@ -108,7 +112,7 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
     const newEditFormData: StringMap = {}
     try {
       const scraper_result = await autoFillFromWebsite({website_id, url}).unwrap()
-      const newPickerFormData: {[type: string]: string | string[] | StringMap} = {}
+      const newPickerFormData: {[type: string]: string[] | StringMap} = {}
       scraper_result.forEach(({type, parsed}) => {
         if (['title', 'description', 'version'].includes(type)) {
           // type is title, description, or version from Edit FormData
@@ -122,18 +126,36 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
               : 'status'
           const newValues = updateType === 'categories'
             ? {[type.match(/_(.+)$/)![1]]: parsed[0], ...((newPickerFormData.categories as StringMap | undefined) || {})}
-            : parsed
+            : parsed as string[]
           // console.log('changing picker', updateType, newValues)
           newPickerFormData[updateType] = newValues
         }
       })
-      setFormData({...formData, ...newEditFormData})
-      updatePickerDefaults(newPickerFormData)
+      const program_path = await handleAutoExeSearch(true)
+      // show the comparison dialog
+      const updated = {
+        ...newEditFormData,
+        program_path,
+        ...newPickerFormData
+      } as any
+      const submitHandler = (updatedFormData: typeof formData, updatedPickerData: PickerFormType) => {
+        validateAll({...formData, ...updatedFormData})
+        setFormData(prevVal => ({...prevVal, program_path}))
+        updatePickerDefaults(updatedPickerData as any)
+      }
+      autofillDataSetter({
+        current: {
+          title: formData.title,
+          version: formData.version,
+          description: formData.description,
+          program_path: formData.program_path,
+        },
+        updated,
+        submitHandler
+      })
     } catch (error: any) {
       dispatch(setError(error.message))
     }
-    const program_path = await handleAutoExeSearch(true)
-    validateAll({...formData, ...newEditFormData, program_path})
     setIsLoading(false)
   }
 

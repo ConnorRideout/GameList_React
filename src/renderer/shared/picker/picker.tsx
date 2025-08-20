@@ -10,8 +10,10 @@ import { reach as yup_reach, StringSchema } from 'yup'
 import CreatePickerFormSchema from './picker_schema'
 import Categories from './pick_categories'
 import Tags from './pick_tags'
+import AutofillCompare from '../../edit/autofillCompare'
 
 import { RootState, GameEntry } from '../../../types'
+import { AutofillComparisonType } from '../../edit/edit'
 
 
 const PickerForm = styled.form`
@@ -50,8 +52,10 @@ interface Props {
     isLoading: boolean,
     formErrors: {[key: string]: string}
   } | null,
+  autofillComparisonData?: AutofillComparisonType | false,
+  autofillDataSetter?: React.Dispatch<React.SetStateAction<AutofillComparisonType | false>>
 }
-export default function Picker({submitHandler, cancelHandler, isBrowse=false, additionalFormData=null}: Props) {
+export default function Picker({submitHandler, cancelHandler, isBrowse=false, additionalFormData=null, autofillComparisonData=false, autofillDataSetter=undefined}: Props) {
 
   //    ___ _____ _ _____ ___
   //   / __|_   _/_\_   _| __|
@@ -210,6 +214,13 @@ export default function Picker({submitHandler, cancelHandler, isBrowse=false, ad
 
   return (
     <PickerForm className={flashClear ? 'flash-once' : ''}>
+      {autofillComparisonData && (
+        <AutofillCompare
+          currentPickerData={formData}
+          autofillComparisonData={autofillComparisonData}
+          setAutofillComparisonData={autofillDataSetter!}
+        />
+      )}
       <Categories
         categories={categories}
         statuses={statuses}

@@ -126,3 +126,79 @@ button.svg-button.small.floating {
   background: transparent;
   border: none;
 }
+
+#autofillComparisonContainer .inputbox {
+  max-width: 60%;
+  max-height: 75%;
+
+  .inputbox-content {
+    .tristate-checkbox {
+      flex-direction: column-reverse;
+      padding-left: 0;
+
+      .tristate {
+        margin: 0;
+      }
+    }
+
+    h2 {
+      color: variables.$fgHighlightedText;
+      flex-grow: 1;
+      text-align: center;
+    }
+
+    h3 {
+      font-weight: bold;
+      font-style: italic;
+      text-align: center;
+
+      u {
+        color: variables.$fgLight;
+      }
+    }
+
+    div.comparison {
+      @extend .horizontal-container;
+      flex-grow: 1;
+      align-items: center;
+
+      input[type="checkbox"] {
+        margin: 0 0.4em;
+      }
+
+      >div,
+      p {
+        flex-grow: 1;
+        flex-basis: 0;
+        height: 100%;
+        min-height: 1.75em;
+      }
+
+      div.horizontal-container {
+        align-items: center;
+      }
+
+      div.comparison-line {
+        @extend .horizontal-container;
+        background-color: variables.$bgLight;
+        margin: variables.$spacing 0;
+
+        &.left {
+          padding-left: variables.$spacing;
+          border-top-left-radius: 1em;
+          border-bottom-left-radius: 1em;
+        }
+
+        &.right {
+          padding-right: variables.$spacing;
+          border-top-right-radius: 1em;
+          border-bottom-right-radius: 1em;
+
+          p {
+            text-align: right;
+          }
+        }
+      }
+    }
+  }
+}

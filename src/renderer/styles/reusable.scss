@@ -286,6 +286,13 @@ span.separator {
   border-bottom: 1px solid variables.$bgLight;
 }
 
+span.vertical-separator {
+  height: 100%;
+  margin: 0 variables.$spacing;
+  padding: 0;
+  border-left: 1px solid variables.$bgLight;
+}
+
 .grid-column-1 {
   grid-column: 1;
 }

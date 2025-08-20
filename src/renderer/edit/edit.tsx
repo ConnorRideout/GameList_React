@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux"
 import { StringSchema, reach as yup_reach } from "yup"
 
-import Picker, { FormState } from "../shared/picker/picker"
+import Picker, { FormState as PickerFormType } from "../shared/picker/picker"
 import ErrorMessage from "../shared/errorMessage"
 import Tooltip from "../shared/tooltip"
 import Info from "./info"
@@ -58,6 +58,20 @@ const EditDiv = styled.div`
 const PathP = styled.p`
   font-size: var(--font-header);
 `
+
+type DefaultFormDataType = Pick<GameEntry, "url" | "path" | "title" | "version" | "description"> & { image: string, program_path: { id: number; paths: [string, string] }[] }
+export interface AutofillComparisonType {
+  current: Pick<DefaultFormDataType, "title" | "version" | "description" | "program_path">,
+  updated: Omit<GameEntry, "game_id" | "program_path" | "timestamps" | "timestamps_sec"> & Pick<DefaultFormDataType, "program_path">,
+  submitHandler: (updatedFormData: Pick<GameEntry, "url" | "path" | "title" | "version" | "description"> & {
+    image: string;
+    program_path: {
+        id: number;
+        paths: [string, string];
+    }[];
+  }, updatedPickerData: PickerFormType) => void
+}
+
 export default function Edit() {
   const navigate = useNavigate()
   const dispatch = useDispatch()
@@ -103,7 +117,7 @@ export default function Edit() {
     }
   ), [game_data])
   const program_path = Object.entries(prog_obj).map((paths, id) => ({id, paths}))
-  const defaultFormData = useMemo<Pick<GameEntry, "url" | "path" | "title" | "version" | "description"> & { image: string, program_path: { id: number; paths: [string, string] }[] }>(
+  const defaultFormData = useMemo<DefaultFormDataType>(
     () => ({ path, title, url, image, version, description, program_path }),
     [path, title, url, image, version, description, program_path]
   )
@@ -173,7 +187,7 @@ export default function Edit() {
     navigate('/')
   }
 
-  const submitHandler = async (data: FormState) => {
+  const submitHandler = async (data: PickerFormType) => {
     /*
     data = {
       categories: {[key: string]: string},
@@ -280,6 +294,20 @@ export default function Edit() {
     }
   }
 
+  const handleCheckUpdatedUrl = async () => {
+    const updated = await checkForUpdatedUrl(formData.url).unwrap()
+    if (updated.message === 'updated') {
+      setFormData(prev => ({...prev, url: updated.redirectedUrl}))
+      // STRETCH: flash url input to indicate it was updated
+    } else {
+      // TODO: indicate the url was not updated
+    }
+  }
+
+  // ------------
+  // PICKER STATE
+  // ------------
+
   const [additionalFormDataDefaults, setAdditionalFormDataDefaults] = useState({ tags, status, categories})
   const additionalFormData = {
     defaults: additionalFormDataDefaults,
@@ -288,7 +316,7 @@ export default function Edit() {
     formErrors
   }
 
-  const updatePickerDefaults = (newDefaults: {[type: string]: string | string[] | StringMap}) => {
+  const updatePickerDefaults = (newDefaults: {[type: string]: string[] | StringMap}) => {
     // ensure other categories aren't destroyed
     const updateDefaults = {
       ...newDefaults,
@@ -303,15 +331,8 @@ export default function Edit() {
     })
   }
 
-  const handleCheckUpdatedUrl = async () => {
-    const updated = await checkForUpdatedUrl(formData.url).unwrap()
-    if (updated.message === 'updated') {
-      setFormData(prev => ({...prev, url: updated.redirectedUrl}))
-      // STRETCH: flash url input to indicate it was updated
-    } else {
-      // TODO: indicate the url was not updated
-    }
-  }
+  // AUTOFILL STATE
+  const [autofillComparisonData, setAutofillComparisonData] = useState<AutofillComparisonType | false>(false)
 
   //    ___  ___    _   ___ _ _  _ _ ___  ___  ___  ___
   //   |   \| _ \  /_\ / __( ) \| ( )   \| _ \/ _ \| _ \
@@ -506,6 +527,7 @@ export default function Edit() {
           ignoreUpdatedVersion={ignoreUpdatedVersion}
           setIgnoreUpdatedVersion={setIgnoreUpdatedVersion}
           validateAll={validateAll}
+          autofillDataSetter={setAutofillComparisonData}
         />
 
         <Picker
@@ -518,6 +540,8 @@ export default function Edit() {
             handler: closeEdit
           }}
           additionalFormData={additionalFormData}
+          autofillComparisonData={autofillComparisonData}
+          autofillDataSetter={setAutofillComparisonData}
         />
       </EditDiv>
     </div>
