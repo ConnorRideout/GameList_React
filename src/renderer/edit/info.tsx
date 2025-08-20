@@ -133,6 +133,12 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
       })
       const program_path = await handleAutoExeSearch(true)
       // show the comparison dialog
+      const current = {
+        title: formData.title,
+        version: formData.version,
+        description: formData.description,
+        program_path: formData.program_path,
+      }
       const updated = {
         ...newEditFormData,
         program_path,
@@ -144,12 +150,7 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
         updatePickerDefaults(updatedPickerData as any)
       }
       autofillDataSetter({
-        current: {
-          title: formData.title,
-          version: formData.version,
-          description: formData.description,
-          program_path: formData.program_path,
-        },
+        current,
         updated,
         submitHandler
       })

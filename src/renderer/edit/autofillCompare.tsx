@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 
 import InputBox from '../shared/inputBox'
-import TristateCheckbox from '../shared/tristateCheckbox'
+// import TristateCheckbox from '../shared/tristateCheckbox'
+// eslint-disable-next-line import/no-cycle
 import ComparisonBlock from './comparisonBlock'
 
 // eslint-disable-next-line import/no-cycle
@@ -14,6 +15,7 @@ type DifferencesObject = Record<string, {
   current?: DataValue;
   updated?: DataValue;
 }>
+export type FormDataValue = boolean | boolean[] | Record<string, boolean>
 
 interface Props {
   currentPickerData: PickerFormType,
@@ -38,7 +40,9 @@ export default function AutofillCompare({currentPickerData, autofillComparisonDa
     ...parsed_picker_data
   }
 
+
   const {updated, submitHandler} = autofillComparisonData
+  // TODO: only show the differences dialog when the form has data; otherwise just fill it
 
   // compare current and updated
   const normalizeForComparison = (value: DataValue) => {
@@ -121,7 +125,43 @@ export default function AutofillCompare({currentPickerData, autofillComparisonDa
     }
   })
 
+  console.log(allKeys)
   console.log(differences)
+
+  const defaultFormData = Object.entries(differences).reduce((acc, [header, val]) => {
+    acc[header] = {}
+
+    Object.entries(val).forEach(([k, v]) => {
+      // k = current/updated, v = DataValue
+      let parsed_v: FormDataValue
+      if (header === 'program_path') {
+        parsed_v = (v as {id: number,paths: [string, string]}[]).map(() => (
+          k === 'current'
+        ))
+      } else if (header === 'categories') {
+        parsed_v = Object.fromEntries(
+          Object.keys(v as Record<string, string>).map(cat => [cat, k === 'current'])
+        )
+      } else if (['title', 'version', 'description'].includes(header)) {
+        parsed_v = k === 'current'
+      } else {
+        parsed_v = (v as string[]).map(() => true)
+
+      }
+      acc[header][k as 'current' | 'updated'] = parsed_v
+    })
+
+    return acc
+  }, {} as Record<string, {
+    current?: FormDataValue,
+    updated?: FormDataValue
+  }>)
+
+  console.log(defaultFormData)
+
+  const [formData, setFormData] = useState(defaultFormData)
+
+  const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {}
 
 
   return (
@@ -134,26 +174,21 @@ export default function AutofillCompare({currentPickerData, autofillComparisonDa
       ]}
     >
       <div className='horizontal-container'>
-        <TristateCheckbox
-          labelText='use'
-          handleFormChange={() => {}}
-          checkState={1}
-        />
+        <p>use</p>
         <h2>Existing</h2>
         <span className='vertical-separator'/>
         <h2>Updated</h2>
-        <TristateCheckbox
-          labelText='use'
-          handleFormChange={() => {}}
-          checkState={1}
-        />
+        <p>use</p>
       </div>
       <span className='separator' />
       <div className='vertical-container scrollable'>
         {Object.entries(differences).map(([header, data]) => (
           <ComparisonBlock
+            key={`${header}--comparison`}
             header={header}
             data={data}
+            formData={formData[header]}
+            handleChange={handleChange}
           />
         ))}
       </div>
