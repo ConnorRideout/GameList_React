@@ -173,7 +173,7 @@ export default class SiteScraper {
             }
             if (remove_regex) {
               const rem_re = new RegExp(remove_regex, 'g')
-              parsed = (parsed as string).replaceAll(rem_re, '')
+              parsed = (parsed as string).replace(rem_re, '')
             }
           } else {
             parsed = []
@@ -203,7 +203,7 @@ export default class SiteScraper {
             }
             if (remove_regex) {
               const rem_re = new RegExp(remove_regex, 'g')
-              parsed = (parsed as string[]).map(str => str.replaceAll(rem_re, ''))
+              parsed = (parsed as string[]).map(str => str.replace(rem_re, ''))
             }
           }
 
