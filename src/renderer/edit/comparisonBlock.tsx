@@ -2,7 +2,7 @@
 import React from 'react'
 
 // eslint-disable-next-line import/no-cycle
-import { DataValue, FormDataValue } from './autofillCompare'
+import { CategoryObj, DataValue, FormDataValue, Multiselect } from './autofillCompare'
 
 interface Props {
   header: string,
@@ -10,11 +10,8 @@ interface Props {
     current?: DataValue;
     updated?: DataValue;
   },
-  formData: {
-    current?: FormDataValue,
-    updated?: FormDataValue
-  },
-  handleChange: (evt: React.ChangeEvent<HTMLInputElement>) => void
+  formData: FormDataValue,
+  handleChange: (evt: React.ChangeEvent<HTMLInputElement>, current: boolean, change_type: string) => void
 }
 // TODO: handle form
 export default function ComparisonBlock({header, data, formData, handleChange}: Props) {
@@ -31,7 +28,7 @@ export default function ComparisonBlock({header, data, formData, handleChange}: 
         {
           type: "checkbox",
           name: `${header}--comparison-block--progs`,
-          checked: (formData.current as boolean[])[idx],
+          checked: (formData as Multiselect).current![idx],
           node: <p>{progs.paths[1]}</p>
         }
       ))
@@ -41,7 +38,7 @@ export default function ComparisonBlock({header, data, formData, handleChange}: 
         {
           type: "checkbox",
           name: `${header}--comparison-block--progs`,
-          checked: (formData.updated as boolean[])[idx],
+          checked: (formData as Multiselect).updated![idx],
           node: <p>{progs.paths[1]}</p>
         }
       ))
@@ -52,7 +49,7 @@ export default function ComparisonBlock({header, data, formData, handleChange}: 
         {
           type: "radio",
           name: `${header}--comparison-block--cats-${cat}`,
-          checked: (formData.current as Record<string, boolean>)[cat],
+          checked: (formData as CategoryObj)[cat] === 'current',
           node: <p>{`${cat}: ${val}`}</p>
         }
       ))
@@ -62,7 +59,7 @@ export default function ComparisonBlock({header, data, formData, handleChange}: 
         {
           type: "radio",
           name: `${header}--comparison-block--cats-${cat}`,
-          checked: (formData.updated as Record<string, boolean>)[cat],
+          checked: (formData as CategoryObj)[cat] === 'updated',
           node: <p>{`${cat}: ${val}`}</p>
         }
       ))
@@ -73,7 +70,7 @@ export default function ComparisonBlock({header, data, formData, handleChange}: 
         {
           type: "radio",
           name: `${header}--comparison-block--${header}`,
-          checked: (formData.current as boolean),
+          checked: formData === 'current',
           node: <p>{cur as string}</p>
         }
       ]
@@ -83,18 +80,19 @@ export default function ComparisonBlock({header, data, formData, handleChange}: 
         {
           type: "radio",
           name: `${header}--comparison-block--${header}`,
-          checked: (formData.updated as boolean),
+          checked: formData === 'updated',
           node: <p>{upd as string}</p>
         }
       ]
     }
   } else {
+    // status or tags
     if (cur) {
       cur_child = (cur as string[]).map((v, idx) => (
         {
           type: "checkbox",
           name: `${header}--comparison-block--${header}`,
-          checked: (formData.current as boolean[])[idx],
+          checked: (formData as Multiselect).current![idx],
           node: <p>{v}</p>
         }
       ))
@@ -104,7 +102,7 @@ export default function ComparisonBlock({header, data, formData, handleChange}: 
         {
           type: "checkbox",
           name: `${header}--comparison-block--${header}`,
-          checked: (formData.updated as boolean[])[idx],
+          checked: (formData as Multiselect).updated![idx],
           node: <p>{v}</p>
         }
       ))
@@ -118,12 +116,11 @@ export default function ComparisonBlock({header, data, formData, handleChange}: 
         <div className='vertical-container'>
           {cur_child?.map(({type, name, checked, node}, idx) => (
             <div key={`${header}--comparison-current-${idx}`} className='comparison-line left'>
-              {/* TODO: radio name needs to match for like entries */}
               <input
                 type={type}
                 name={name}
                 checked={checked}
-                onChange={handleChange}
+                onChange={(evt) => handleChange(evt, true, header)}
               />
               {node}
             </div>
@@ -138,7 +135,7 @@ export default function ComparisonBlock({header, data, formData, handleChange}: 
                 type={type}
                 name={name}
                 checked={checked}
-                onChange={handleChange}
+                onChange={(evt) => handleChange(evt, false, header)}
               />
             </div>
           ))}

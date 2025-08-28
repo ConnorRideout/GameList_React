@@ -15,7 +15,11 @@ type DifferencesObject = Record<string, {
   current?: DataValue;
   updated?: DataValue;
 }>
-export type FormDataValue = boolean | boolean[] | Record<string, boolean>
+export type FormDataStrings = 'current' | 'updated'
+export type Multiselect = { current?: boolean[], updated?: boolean[] }
+export type CategoryObj = Record<string, FormDataStrings>
+export type FormDataValue = FormDataStrings | Multiselect | CategoryObj
+
 
 interface Props {
   currentPickerData: PickerFormType,
@@ -135,33 +139,56 @@ export default function AutofillCompare({currentPickerData, autofillComparisonDa
       // k = current/updated, v = DataValue
       let parsed_v: FormDataValue
       if (header === 'program_path') {
-        parsed_v = (v as {id: number,paths: [string, string]}[]).map(() => (
-          k === 'current'
-        ))
+        parsed_v = {
+          // retrieve the existing object if it exists to add to
+          ...(acc[header] as Multiselect || {}),
+          [k as 'current' | 'updated']: (v as {id: number, paths: [string, string]}[]).map(() => (
+            k === 'updated'
+          ))
+        }
       } else if (header === 'categories') {
-        parsed_v = Object.fromEntries(
-          Object.keys(v as Record<string, string>).map(cat => [cat, k === 'current'])
+        const existing_cat_obj = (acc[header] as object) || {}
+        const new_v = Object.fromEntries(
+          Object.keys(v as Record<string, string>).map(cat => [cat, 'current'])
         )
+        if (k === 'current') {
+          // overwrite any existing updated values with currents
+          parsed_v = {
+            ...existing_cat_obj,
+            ...new_v
+          }
+        } else {
+          // ensure existing current values don't get overwritten by updated
+          parsed_v = {
+            ...new_v,
+            ...existing_cat_obj
+          }
+        }
       } else if (['title', 'version', 'description'].includes(header)) {
-        parsed_v = k === 'current'
+        parsed_v = k as 'current' | 'updated'
       } else {
-        parsed_v = (v as string[]).map(() => true)
-
+        // tags or status
+        parsed_v = {
+          ...(acc[header] as Multiselect || {}),
+          [k as 'current' | 'updated']: (v as string[]).map(() => true)
+        }
       }
-      acc[header][k as 'current' | 'updated'] = parsed_v
+      acc[header] = parsed_v
     })
 
     return acc
-  }, {} as Record<string, {
-    current?: FormDataValue,
-    updated?: FormDataValue
-  }>)
+  }, {} as Record<string, FormDataValue>)
 
+  console.log('default form data:')
   console.log(defaultFormData)
 
   const [formData, setFormData] = useState(defaultFormData)
 
-  const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {}
+  const handleChange = (evt: React.ChangeEvent<HTMLInputElement>, is_current: boolean, change_type: string) => {}
+
+  const handleSubmit = () => {}
+
+  const handleCancel = () => {}
 
 
   return (
@@ -169,8 +196,8 @@ export default function AutofillCompare({currentPickerData, autofillComparisonDa
       id='autofillComparisonContainer'
       title="Autofill"
       buttons={[
-        { text: 'Cancel', clickHandler: () => {} },
-        { text: 'Update', clickHandler: () => {} },
+        { text: 'Cancel', clickHandler: handleCancel },
+        { text: 'Update', clickHandler: handleSubmit },
       ]}
     >
       <div className='horizontal-container'>
