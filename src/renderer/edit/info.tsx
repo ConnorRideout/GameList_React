@@ -17,8 +17,7 @@ import { setError } from "../../lib/store/gamelibrary"
 
 import { GameEntry, RootState, StringMap } from "../../types"
 // eslint-disable-next-line import/no-cycle
-import { AutofillComparisonType } from "./edit"
-import { FormState as PickerFormType } from "../shared/picker/picker"
+import { AutofillComparisonType, DefaultFormDataType } from "./edit"
 
 
 export interface Props {
@@ -132,28 +131,48 @@ export default function Info({handleFormChange, formData, setFormData, updatePic
         }
       })
       const program_path = await handleAutoExeSearch(true)
-      // show the comparison dialog
-      const current = {
-        title: formData.title,
-        version: formData.version,
-        description: formData.description,
-        program_path: formData.program_path,
-      }
+      // prepare to show the comparison dialog
+      const current = Object.fromEntries([
+        ['title', formData.title],
+        ['version', formData.version],
+        ['description', formData.description],
+      ].filter(([, v]) => v?.length > 0)) as Omit<DefaultFormDataType, 'image'>
+      if (formData.program_path[0].paths[0].length > 0) current.program_path = formData.program_path
       const updated = {
         ...newEditFormData,
         program_path,
         ...newPickerFormData
-      } as any
-      const submitHandler = (updatedFormData: typeof formData, updatedPickerData: PickerFormType) => {
+      } as Omit<GameEntry, "game_id" | "program_path" | "timestamps" | "timestamps_sec"> & Pick<DefaultFormDataType, "program_path">
+      const submitHandler = (updatedFormData: Omit<DefaultFormDataType, 'image' | 'path' | 'url'>, updatedPickerData: { [type: string]: string[] | StringMap }) => {
+        console.log('submission data:')
+        console.log(updatedFormData)
+        console.log(updatedPickerData)
         validateAll({...formData, ...updatedFormData})
-        setFormData(prevVal => ({...prevVal, program_path}))
-        updatePickerDefaults(updatedPickerData as any)
+        setFormData(prevVal => ({...prevVal, ...updatedFormData}))
+        updatePickerDefaults(updatedPickerData)
       }
-      autofillDataSetter({
-        current,
-        updated,
-        submitHandler
-      })
+      if (!Object.values(current).some(v => v.length > 0)) {
+        // check if current even has any data; if it doesn't, just fill with updated
+        console.log('current has no fields; bypassing comparison check')
+        const upd_f_data = {
+          title: updated.title,
+          version: updated.version,
+          description: updated.description,
+          program_path: updated.program_path
+        }
+        const upd_p_data = {
+          categories: updated.categories,
+          statuses: updated.status,
+          tags: updated.tags,
+        }
+        submitHandler(upd_f_data, upd_p_data)
+      } else {
+        autofillDataSetter({
+          current,
+          updated,
+          submitHandler
+        })
+      }
     } catch (error: any) {
       dispatch(setError(error.message))
     }

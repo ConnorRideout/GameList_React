@@ -1,3 +1,4 @@
+/* eslint-disable import/no-cycle */
 // TODO: when updating, auto fill info
 
 /* eslint-disable no-use-before-define */
@@ -59,7 +60,8 @@ const PathP = styled.p`
   font-size: var(--font-header);
 `
 
-type DefaultFormDataType = Pick<GameEntry, "url" | "path" | "title" | "version" | "description"> & { image: string, program_path: { id: number; paths: [string, string] }[] }
+export type DefaultFormDataType = Pick<GameEntry, "url" | "path" | "title" | "version" | "description"> & { image: string, program_path: { id: number; paths: [string, string] }[] }
+
 export interface AutofillComparisonType {
   current: Pick<DefaultFormDataType, "title" | "version" | "description" | "program_path">,
   updated: Omit<GameEntry, "game_id" | "program_path" | "timestamps" | "timestamps_sec"> & Pick<DefaultFormDataType, "program_path">,
@@ -69,7 +71,9 @@ export interface AutofillComparisonType {
         id: number;
         paths: [string, string];
     }[];
-  }, updatedPickerData: PickerFormType) => void
+  }, updatedPickerData: {
+    [type: string]: string[] | StringMap;
+  }) => void
 }
 
 export default function Edit() {
