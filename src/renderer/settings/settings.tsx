@@ -3,6 +3,7 @@
 /* eslint-disable promise/catch-or-return */
 /* eslint-disable import/no-cycle */
 // TODO: add a "fallback" scraper option the user can set
+// FIXME: updating some of the scraper values (specifically remove_regex at least) won't signal the form should be submittable
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'

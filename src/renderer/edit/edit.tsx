@@ -321,9 +321,10 @@ export default function Edit() {
   }
 
   const updatePickerDefaults = (newDefaults: {[type: string]: string[] | StringMap}) => {
-    // ensure other categories aren't destroyed
+
     const updateDefaults = {
       ...newDefaults,
+      // ensure other categories aren't destroyed
       ...(newDefaults.categories
         ? {...additionalFormDataDefaults.categories, ...(newDefaults.categories as StringMap)}
         : {}

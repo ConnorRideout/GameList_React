@@ -46,7 +46,6 @@ export default function AutofillCompare({currentPickerData, autofillComparisonDa
 
 
   const {updated, submitHandler} = autofillComparisonData
-  // TODO: only show the differences dialog when the form has data; otherwise just fill it
 
   // compare current and updated
   const normalizeForComparison = (value: DataValue) => {
@@ -131,6 +130,7 @@ export default function AutofillCompare({currentPickerData, autofillComparisonDa
 
   console.log(allKeys)
   console.log(differences)
+  // TODO: if there are no differences, notify there's no changes and return
 
   const defaultFormData = Object.entries(differences).reduce((acc, [header, val]) => {
     acc[header] = {}
