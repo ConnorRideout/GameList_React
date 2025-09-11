@@ -207,6 +207,8 @@ export default class SiteScraper {
             }
           }
 
+          parsed = typeof parsed === 'string' ? parsed.trim() : parsed.map(s => s.trim())
+
           parsedSelectors.push({type, parsed})
         })
 
