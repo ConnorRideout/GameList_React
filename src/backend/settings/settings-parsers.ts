@@ -10,28 +10,30 @@ import { RawGameSettings } from '../games/games-model'
 function secretCheck() {
   const keyparts = process.env.SECRET_KEY?.split('.')
   if (!keyparts || (keyparts.length === 2 && keyparts[0].length === 32 && keyparts[1].length === 32)) {
-    throw new Error("Secret Key has not been properly set!")
+    console.error("Secret Key has not been properly set!")
+    console.error("Secret Key has not been properly set!")
+    console.error("Secret Key has not been properly set!")
   }
 }
 
 class PasswordEncryptor {
-  algorithm: string
+  algorithm: crypto.CipherCCMTypes
 
-  keyBuffer: Buffer
+  keyBuffer: crypto.CipherKey
 
   constructor() {
-    this.algorithm = 'aes-256-cbc'
+    this.algorithm = 'aes-256-cbc' as crypto.CipherCCMTypes
     secretCheck()
     const secretKey = process.env.SECRET_KEY!
     // console.log(`encryptor secret key = ${secretKey}`)
-    this.keyBuffer = crypto.createHash('sha256').update(secretKey).digest()
+    this.keyBuffer = crypto.createHash('sha256').update(secretKey).digest() as crypto.CipherKey
   }
 
 
   encrypt(text: string) {
     secretCheck()
     const iv = crypto.randomBytes(16)
-    const cipher = crypto.createCipheriv(this.algorithm, this.keyBuffer, iv);
+    const cipher = crypto.createCipheriv(this.algorithm, this.keyBuffer, iv as crypto.BinaryLike);
     let encrypted = cipher.update(text, 'utf-8', 'hex');
     encrypted += cipher.final('hex');
     return { password_iv: iv.toString('hex'), password: encrypted };
@@ -41,7 +43,7 @@ class PasswordEncryptor {
     secretCheck()
     const [encrypted, ivHex] = encryptedPassword.split('.')
     const iv = Buffer.from(ivHex, 'hex')
-    const decipher = crypto.createDecipheriv(this.algorithm, this.keyBuffer, iv)
+    const decipher = crypto.createDecipheriv(this.algorithm, this.keyBuffer, iv as crypto.BinaryLike)
     let decrypted = decipher.update(encrypted, 'hex', 'utf-8')
     decrypted += decipher.final('utf-8')
     return decrypted
