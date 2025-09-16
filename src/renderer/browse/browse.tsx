@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { FixedSizeList as List } from 'react-window'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -37,6 +37,9 @@ export default function Browse() {
   const searchRestraints = useSelector((state: RootState) => state.data.searchRestraints)
   const status = useSelector((state: RootState) => state.data.status)
   const [hideBeatenInRecents, setHideBeatenInRecents] = useState<boolean>(JSON.parse(sessionStorage.getItem('hideBeatenInRecents') || 'false'))
+  const listRef = useRef<HTMLDivElement>()
+  const [listHeight, setListHeight] = useState(865)
+  const [currentScrolledGameId, setCurrentScrolledGameId] = useState<number>()
   // new games
   const newGames = useSelector((state: RootState) => state.data.newGames)
   const [handleNewGames, setHandleNewGames] = useState(false)
@@ -57,14 +60,40 @@ export default function Browse() {
     }
   }, [editGame, navigate])
 
+  const gamescrollCallbackRef = useCallback((node: HTMLDivElement | null) => {
+    // this sets the height of the list
+    if (node) {
+      setListHeight(node.getBoundingClientRect().height)
+    }
+  }, [])
+
   const scrollToItem = (idx: number, smooth = true) => {
     const offset = idx * 140
-    document.querySelector('div.game-scroll-list')?.scrollTo({ top: offset, behavior: smooth ? 'smooth' : 'instant' })
+    listRef.current?.scrollTo({ top: offset, behavior: smooth ? 'smooth' : 'instant' })
   }
 
   const getScrollOffset = () => {
     const offset = parseInt(sessionStorage.getItem('scrollPosition') || '0')
     return offset
+  }
+
+  const saveCurrentScrolledItem = () => {
+    const scroll_offset = listRef.current?.scrollTop || 0
+    // find which item is currently at the top of the scroll
+    const item_idx = Math.ceil(scroll_offset / 140)
+    // eslint-disable-next-line no-use-before-define
+    const current_item = currentGamelib[item_idx]
+    setCurrentScrolledGameId(current_item.game_id)
+  }
+
+  const maintainScroll = (cur_gamelib: GameEntry[]) => {
+    if (currentScrolledGameId) {
+      const cur_idx = cur_gamelib.findIndex(g => g.game_id === currentScrolledGameId)
+      setTimeout(() => {
+        scrollToItem(cur_idx === -1 ? 0 : cur_idx, false)
+      }, 10)
+      setCurrentScrolledGameId(undefined)
+    }
   }
 
   const searchHandler = (data: FormState) => {
@@ -87,6 +116,9 @@ export default function Browse() {
         statuses: {[key: string]: number},
         tags: {[key: string]: number},
     */
+
+    saveCurrentScrolledItem()
+
     const { categories, statuses, tags } = data
     const restraints: SearchRestraints = {
       include: { tags: [], status: [], categories: {} },
@@ -105,7 +137,9 @@ export default function Browse() {
     })
     dispatch(setSearchRestraints(restraints))
   }
+
   const clearHandler = () => {
+    saveCurrentScrolledItem()
     dispatch(clearSearchRestraints())
   }
 
@@ -115,7 +149,7 @@ export default function Browse() {
     hideBeaten: boolean = hideBeatenInRecents,
     isRecent: boolean = sortOrder.startsWith('recent')
   ) => {
-    return gamelib.filter(g => {
+    const filtered_gamelib = gamelib.filter(g => {
       // check inclusions
       const incl = restraints.include
       if (incl.tags.length) {
@@ -143,6 +177,10 @@ export default function Browse() {
       }
       return true
     })
+
+    maintainScroll(filtered_gamelib)
+
+    return filtered_gamelib
   }
 
   const currentGamelib = filterGamelib()
@@ -225,7 +263,7 @@ export default function Browse() {
 
       <BrowseNav scrollToItem={scrollToItem} filterGamelib={filterGamelib}/>
 
-      <div className='game-scroll'>
+      <div className='game-scroll' ref={gamescrollCallbackRef}>
         {['loading', 'updating'].includes(status) && <div className='loading' />}
         <ErrorMessage />
 
@@ -236,7 +274,9 @@ export default function Browse() {
               <p>-- end --</p>
             </div>
             <List
-              height={document.querySelector('div.game-scroll')?.getBoundingClientRect().height || 865}
+              outerRef={listRef}
+              // height={document.querySelector('div.game-scroll')?.getBoundingClientRect().height || 865}
+              height={listHeight}
               width='100%'
               itemCount={currentGamelib.length}
               itemSize={140}
