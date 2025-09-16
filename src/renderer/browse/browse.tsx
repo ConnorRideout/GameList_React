@@ -57,9 +57,9 @@ export default function Browse() {
     }
   }, [editGame, navigate])
 
-  const scrollToItem = (idx: number) => {
+  const scrollToItem = (idx: number, smooth = true) => {
     const offset = idx * 140
-    document.querySelector('div.game-scroll-list')?.scrollTo({ top: offset, behavior: 'smooth' })
+    document.querySelector('div.game-scroll-list')?.scrollTo({ top: offset, behavior: smooth ? 'smooth' : 'instant' })
   }
 
   const getScrollOffset = () => {

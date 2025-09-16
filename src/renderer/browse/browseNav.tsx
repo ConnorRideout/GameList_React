@@ -18,7 +18,7 @@ const NavDiv = styled.div`
 `
 
 interface Props {
-  scrollToItem: (idx: number) => void,
+  scrollToItem: (idx: number, smooth?: boolean) => void,
   filterGamelib: (gamelib: GamelibState['gamelib'], restraints: GamelibState['searchRestraints'], hideBeaten: boolean, isRecent: boolean) => GamelibState['gamelib']
 }
 
@@ -45,14 +45,17 @@ export default function BrowseNav({scrollToItem, filterGamelib}: Props) {
     return 'done'
   }
 
-  const scrollToTop = async (alpha=true) => {
+  const scrollToTop = async (alpha=true, instantScroll=false) => {
+    const behavior = instantScroll || (alpha && sortOrder !== 'alphabetical') || (!alpha && sortOrder === 'alphabetical') ? "instant" : "smooth"
     if (alpha) await sortGamelib('alphabetical')
     const browse = document.querySelector('div.game-scroll-list')
     if (browse) {
-      browse.scrollTo({top: 0, behavior: "smooth"})
+      browse.scrollTo({top: 0, behavior})
     }
   }
+
   const scrollToLetter = async (letters: string) => {
+    const smooth = sortOrder === 'alphabetical'
     await sortGamelib('alphabetical')
     const letter_arr = letters.split('')
     const currentGamelib = filterGamelib(
@@ -65,7 +68,7 @@ export default function BrowseNav({scrollToItem, filterGamelib}: Props) {
       // const idx = sortedGamelib.alphabetical.findIndex(g => g.title.toUpperCase().startsWith(l))
       const idx = currentGamelib.findIndex(g => g.title.toUpperCase().startsWith(l))
       if (idx !== -1) {
-        scrollToItem(idx)
+        scrollToItem(idx, smooth)
         break
       }
     }
@@ -83,8 +86,9 @@ export default function BrowseNav({scrollToItem, filterGamelib}: Props) {
   }
 
   const sortHandler = (evt: React.MouseEvent<HTMLButtonElement>, sortby: GamelibState['sortOrder']) => {
+    const instant_scroll = sortOrder !== sortby
     sortGamelib(sortby)
-    scrollToTop(false)
+    scrollToTop(false, instant_scroll)
   }
 
   return (
