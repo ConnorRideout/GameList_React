@@ -36,7 +36,7 @@ export default function Browse() {
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
   const searchRestraints = useSelector((state: RootState) => state.data.searchRestraints)
   const status = useSelector((state: RootState) => state.data.status)
-  const [hideBeatenInRecents, setHideBeatenInRecents] = useState<boolean>(JSON.parse(sessionStorage.getItem('hideBeatenInRecents') || 'false'))
+  const [hideBeaten, setHideBeaten] = useState<boolean>(JSON.parse(sessionStorage.getItem('hideBeaten') || 'false'))
   const listRef = useRef<HTMLDivElement>()
   const [listHeight, setListHeight] = useState(865)
   const [currentScrolledGameId, setCurrentScrolledGameId] = useState<number>()
@@ -146,8 +146,7 @@ export default function Browse() {
   const filterGamelib = (
     gamelib: GameEntry[] = sortedGamelib[sortOrder],
     restraints: typeof searchRestraints = searchRestraints,
-    hideBeaten: boolean = hideBeatenInRecents,
-    isRecent: boolean = sortOrder.startsWith('recent')
+    hideBeatenGames: boolean = hideBeaten
   ) => {
     const filtered_gamelib = gamelib.filter(g => {
       // check inclusions
@@ -172,7 +171,7 @@ export default function Browse() {
       if (Object.keys(excl.categories).length) {
         if (Object.keys(excl.categories).every(k => g.categories[k] === excl.categories[k])) return false
       }
-      if (hideBeaten && isRecent) {
+      if (hideBeatenGames) {
         if (Object.values(g.categories).find(c => c.toLowerCase() === 'beaten')) return false
       }
       return true
@@ -187,8 +186,8 @@ export default function Browse() {
 
   const hideBeatenChangeHandler = (evt: React.ChangeEvent<HTMLInputElement>) => {
     const { checked } = evt.target
-    sessionStorage.setItem('hideBeatenInRecents', JSON.stringify(checked))
-    setHideBeatenInRecents(checked)
+    sessionStorage.setItem('hideBeaten', JSON.stringify(checked))
+    setHideBeaten(checked)
   }
 
   const clearDislikedGame = () => {
@@ -255,10 +254,10 @@ export default function Browse() {
       <HideCheckbox>
         <input
           type="checkbox"
-          checked={hideBeatenInRecents}
+          checked={hideBeaten}
           onChange={hideBeatenChangeHandler}
         />
-        Hide beaten games in recent lists
+        Hide beaten games
       </HideCheckbox>
 
       <BrowseNav scrollToItem={scrollToItem} filterGamelib={filterGamelib}/>

@@ -12,7 +12,7 @@ import { GamelibState, RootState } from "../../types"
 
 
 interface Props {
-  scrollToItem: (idx: number) => void,
+  scrollToItem: (idx: number, smooth?: boolean) => void,
   filterGamelib: (gamelib: GamelibState['gamelib'], restraints: GamelibState['searchRestraints'], hideBeaten: boolean, isRecent: boolean) => GamelibState['gamelib']
 }
 export default function TextSearch({scrollToItem, filterGamelib}: Props) {
@@ -106,7 +106,7 @@ export default function TextSearch({scrollToItem, filterGamelib}: Props) {
       )
       // const idx = game_titles.indexOf(val)
       const idx = currentGamelib.findIndex(g => g.title === val)
-      scrollToItem(idx)
+      scrollToItem(idx, false)
       let iteration = 0
       const checkVisibility = setInterval(()=>{
         const element = document.querySelector(`div.horizontal-container[data-title="${val}"]`)
