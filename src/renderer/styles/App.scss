@@ -83,6 +83,10 @@ select {
   outline: 1px solid black;
   padding: 0 6px 2px 0;
   margin: 0 variables.$spacing variables.$spacing;
+
+  option {
+    background-color: variables.$bgLight;
+  }
 }
 
 fieldset {

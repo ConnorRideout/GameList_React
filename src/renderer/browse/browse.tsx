@@ -1,5 +1,5 @@
 /* eslint-disable react/no-array-index-key */
-import React, { useState, useEffect, useRef, useCallback } from 'react'
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { FixedSizeList as List } from 'react-window'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -28,6 +28,11 @@ const SearchFieldset = styled.fieldset`
 
 const HideCheckbox = styled.label`
   align-self: flex-start;
+
+  &:has(input:disabled) {
+    pointer-events: none;
+    opacity: 0.6;
+  }
 `
 
 export default function Browse() {
@@ -36,7 +41,7 @@ export default function Browse() {
   const sortOrder = useSelector((state: RootState) => state.data.sortOrder)
   const searchRestraints = useSelector((state: RootState) => state.data.searchRestraints)
   const status = useSelector((state: RootState) => state.data.status)
-  const [hideBeaten, setHideBeaten] = useState<boolean>(JSON.parse(sessionStorage.getItem('hideBeaten') || 'false'))
+  // const [hideBeaten, setHideBeaten] = useState<boolean>(JSON.parse(sessionStorage.getItem('hideBeaten') || 'false'))
   const listRef = useRef<HTMLDivElement>()
   const [listHeight, setListHeight] = useState(865)
   const [currentScrolledGameId, setCurrentScrolledGameId] = useState<number>()
@@ -86,7 +91,7 @@ export default function Browse() {
     setCurrentScrolledGameId(current_item.game_id)
   }
 
-  const maintainScroll = (cur_gamelib: GameEntry[]) => {
+  const maintainScroll = useCallback((cur_gamelib: GameEntry[]) => {
     if (currentScrolledGameId) {
       const cur_idx = cur_gamelib.findIndex(g => g.game_id === currentScrolledGameId)
       setTimeout(() => {
@@ -94,7 +99,7 @@ export default function Browse() {
       }, 10)
       setCurrentScrolledGameId(undefined)
     }
-  }
+  }, [currentScrolledGameId])
 
   const searchHandler = (data: FormState) => {
     /*
@@ -135,6 +140,10 @@ export default function Browse() {
     Object.entries(categories).forEach(([catName, val]) => {
       if (val !== 'Any') restraints.include.categories[catName] = val
     })
+
+    const hideBeaten = searchRestraints.exclude.categories['play-status']
+    if (hideBeaten && !restraints.include.categories['play-status'])
+      restraints.exclude.categories['play-status'] = hideBeaten
     dispatch(setSearchRestraints(restraints))
   }
 
@@ -143,10 +152,9 @@ export default function Browse() {
     dispatch(clearSearchRestraints())
   }
 
-  const filterGamelib = (
+  const filterGamelib = useCallback((
     gamelib: GameEntry[] = sortedGamelib[sortOrder],
     restraints: typeof searchRestraints = searchRestraints,
-    hideBeatenGames: boolean = hideBeaten
   ) => {
     const filtered_gamelib = gamelib.filter(g => {
       // check inclusions
@@ -171,23 +179,28 @@ export default function Browse() {
       if (Object.keys(excl.categories).length) {
         if (Object.keys(excl.categories).every(k => g.categories[k] === excl.categories[k])) return false
       }
-      if (hideBeatenGames) {
-        if (Object.values(g.categories).find(c => c.toLowerCase() === 'beaten')) return false
-      }
       return true
     })
 
     maintainScroll(filtered_gamelib)
 
     return filtered_gamelib
-  }
+  }, [maintainScroll, searchRestraints, sortOrder, sortedGamelib])
 
-  const currentGamelib = filterGamelib()
+  const currentGamelib = useMemo(
+    () => filterGamelib(sortedGamelib[sortOrder], searchRestraints),
+    [filterGamelib, sortedGamelib, sortOrder, searchRestraints]
+  )
 
   const hideBeatenChangeHandler = (evt: React.ChangeEvent<HTMLInputElement>) => {
     const { checked } = evt.target
-    sessionStorage.setItem('hideBeaten', JSON.stringify(checked))
-    setHideBeaten(checked)
+    const curSearchRestraints = structuredClone(searchRestraints)
+    if (checked) {
+      curSearchRestraints.exclude.categories['play-status'] = 'Beaten'
+    } else {
+      delete curSearchRestraints.exclude.categories['play-status']
+    }
+    dispatch(setSearchRestraints(curSearchRestraints))
   }
 
   const clearDislikedGame = () => {
@@ -254,8 +267,9 @@ export default function Browse() {
       <HideCheckbox>
         <input
           type="checkbox"
-          checked={hideBeaten}
+          checked={searchRestraints.exclude.categories['play-status'] === 'Beaten'}
           onChange={hideBeatenChangeHandler}
+          disabled={!!searchRestraints.include.categories['play-status']}
         />
         Hide beaten games
       </HideCheckbox>
@@ -274,7 +288,6 @@ export default function Browse() {
             </div>
             <List
               outerRef={listRef}
-              // height={document.querySelector('div.game-scroll')?.getBoundingClientRect().height || 865}
               height={listHeight}
               width='100%'
               itemCount={currentGamelib.length}
@@ -282,12 +295,13 @@ export default function Browse() {
               overscanCount={10}
               className='game-scroll-list'
               initialScrollOffset={getScrollOffset()}
+              itemData={{games: currentGamelib}}
             >
-              {({ index, style }) => (
+              {({ index, style, data }) => (
                 <Lineitem
-                  key={currentGamelib[index].game_id}
+                  key={data.games[index].game_id}
                   gamePickerState={gamePickerState}
-                  lineData={currentGamelib[index]}
+                  lineData={data.games[index]}
                   setDislikedGame={setDislikedGame}
                   style={style}
                 />

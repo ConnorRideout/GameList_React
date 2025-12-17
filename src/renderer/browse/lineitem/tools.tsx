@@ -1,5 +1,4 @@
 import React from 'react'
-import styled from 'styled-components'
 import { useDispatch } from 'react-redux'
 
 import Tooltip from '../../shared/tooltip'
@@ -18,33 +17,6 @@ import {
 import { GamePickerState } from './lineitem'
 import { setEditType } from '../../../lib/store/gamelibrary'
 
-const ToolsFieldset = styled.fieldset`
-  min-width: max-content;
-  justify-content: space-around;
-  padding: 0 6px;
-  z-index: 2;
-`
-const PlayButton = styled.button`
-  background: SpringGreen;
-
-  &:hover {
-    background: Green;
-  }
-`
-const WebButton = styled.button`
-  background: LightSkyBlue;
-
-  &:hover {
-    background: SteelBlue;
-  }
-`
-const EditButton = styled.button`
-  background: Tan;
-
-  &:hover {
-    background: Sienna;
-  }
-`
 
 interface Props {
   game_id: number,
@@ -103,7 +75,7 @@ export default function Tools({game_id, path, programPath, url, gamePickerState,
   }
 
   return (
-    <ToolsFieldset className='vertical-container'>
+    <fieldset className='vertical-container tools'>
       <legend>Tools</legend>
       {shownPlayMessages.includes(game_id) &&
         <div className='starting-game'>
@@ -111,16 +83,16 @@ export default function Tools({game_id, path, programPath, url, gamePickerState,
           <div className='loading' />
         </div>
       }
-      <PlayButton
+      <button
         type='button'
-        className='circle-button'
+        className='circle-button play'
         onClick={playButtonHandler}
       >
         <PlaySvg color='black' />
-      </PlayButton>
-      <WebButton
+      </button>
+      <button
         type='button'
-        className='circle-button'
+        className='circle-button web'
         id={`web-btn-${game_id}`}
         onClick={webBtnHandler}
       >
@@ -128,14 +100,14 @@ export default function Tools({game_id, path, programPath, url, gamePickerState,
           {url}
         </Tooltip>
         <WebSvg color='black' />
-      </WebButton>
-      <EditButton
+      </button>
+      <button
         type='button'
-        className='circle-button'
+        className='circle-button edit'
         onClick={editBtnHandler}
       >
         <EditSvg color='black' />
-      </EditButton>
-    </ToolsFieldset>
+      </button>
+    </fieldset>
   )
 }

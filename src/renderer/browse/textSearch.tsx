@@ -6,7 +6,7 @@ import { useSelector, useDispatch } from "react-redux"
 import { debounce } from 'lodash'
 import { FixedSizeList as List } from 'react-window'
 
-import { setSortOrder, setStatus } from "../../lib/store/gamelibrary"
+import { setSortOrder, clearSearchRestraints, setStatus } from "../../lib/store/gamelibrary"
 
 import { GamelibState, RootState } from "../../types"
 
@@ -18,7 +18,6 @@ interface Props {
 export default function TextSearch({scrollToItem, filterGamelib}: Props) {
   const dispatch = useDispatch()
   const game_titles = useSelector((state: RootState) => state.data.gamelib).map(g => g.title)
-  const searchRestraints = useSelector((state: RootState) => state.data.searchRestraints)
   const sortedGamelib = useSelector((state: RootState) => state.data.sortedGamelib)
   const [searchValue, setSearchValue] = useState('')
   const [suggestions, setSuggestions] = useState<string[]>([])
@@ -85,6 +84,7 @@ export default function TextSearch({scrollToItem, filterGamelib}: Props) {
       return new Promise(resolve => {
         setTimeout(() => {
           dispatch(setSortOrder(sortby))
+          dispatch(clearSearchRestraints())
           dispatch(setStatus('succeeded'))
           resolve('done')
         }, 10)
@@ -97,7 +97,21 @@ export default function TextSearch({scrollToItem, filterGamelib}: Props) {
       inputRef.current?.blur()
       const val = forceVal || searchValue
 
+      const searchRestraints = {
+        include: {
+          tags: [],
+          status: [],
+          categories: {}
+        },
+        exclude: {
+          tags: [],
+          status: [],
+          categories: {}
+        }
+      }
+
       await sortGamelib('alphabetical')
+
       const currentGamelib = filterGamelib(
         sortedGamelib.alphabetical,
         searchRestraints,

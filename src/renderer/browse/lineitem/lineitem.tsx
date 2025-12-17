@@ -3,7 +3,6 @@ import React, {
   CSSProperties,
   useEffect
 } from 'react'
-import styled from 'styled-components'
 import { useSelector } from 'react-redux'
 
 // eslint-disable-next-line import/no-cycle
@@ -17,17 +16,6 @@ import { useContextMenu } from '../../ContextMenuProvider'
 
 import { ContextMenuTemplate, RootState, GameEntry } from '../../../types'
 
-const LineitemDiv = styled.div`
-  min-height: 140px;
-  max-height: 140px;
-  padding: 0;
-  padding-right: 3px;
-
-  fieldset {
-    margin: 0 1px;
-    padding-top: 0;
-  }
-`
 
 export interface GamePickerState {
   setShowGamePicker: React.Dispatch<React.SetStateAction<boolean>>,
@@ -90,11 +78,10 @@ export default function Lineitem({gamePickerState, lineData, setDislikedGame, st
     }
   }, [clearContextMenuData, contextMenuData, game_id, setDislikedGame, title])
 
-
   return (
-    <LineitemDiv
+    <div
       style={{background: styleVars.$bgNormal, ...style}}
-      className='horizontal-container'
+      className='horizontal-container line-item'
       data-title={title}
       onContextMenu={handleContextMenu}
     >
@@ -128,6 +115,6 @@ export default function Lineitem({gamePickerState, lineData, setDislikedGame, st
       <Description
         description={description}
       />
-    </LineitemDiv>
+    </div>
   )
 }

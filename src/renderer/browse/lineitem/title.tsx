@@ -1,31 +1,7 @@
-import React from 'react'
-import styled from 'styled-components'
-
+import React, { useMemo, useState } from 'react'
 
 import Tooltip from '../../shared/tooltip'
 
-const TitleFieldset = styled.fieldset`
-  position: relative;
-  min-width: 205px;
-  max-width: 205px;
-
-  img.preview {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    opacity: 0.8;
-    height: 100%;
-    width: 100%;
-    padding: 1px;
-  }
-`
-const TitleP = styled.p`
-  position: relative;
-  text-shadow: -1px -1px 2px black, 1px 1px 2px black, -1px 1px 2px black, 1px -1px 2px black;
-  filter: drop-shadow(0 0 1px #0005)
-`
 
 interface Props {
   game_id: number,
@@ -34,29 +10,38 @@ interface Props {
   status_color: string,
 }
 export default function Title({game_id, title, img, status_color}: Props) {
-  const imgPaths = img.map(i => encodeURIComponent(i))
+  const [showTooltip, setShowTooltip] = useState(false)
+  const imgPaths = useMemo(() => img.map(i => encodeURIComponent(i)), [img])
+
   return (
-    <TitleFieldset id={`title-${game_id}`}>
+    <fieldset
+      id={`title-${game_id}`}
+      className='title'
+      onMouseEnter={() => setShowTooltip(true)}
+    >
       <legend>Title</legend>
       <img
         className='preview'
         src={`load-image://${imgPaths[0]}`}
         alt="Dynamic Local Resource"
+        loading='lazy'
       />
-      <Tooltip
-        float
-        className='tooltip-image'
-        place='right'
-        opacity='1'
-        anchorSelect={`#title-${game_id}`}
-      >
-        <img
-          src={`load-image://${imgPaths.at(-1)}`}
-          alt="Dynamic Local Resource Tooltip"
-          loading='lazy'
-        />
-      </Tooltip>
-      <TitleP style={{color: status_color}}>{title}</TitleP>
-    </TitleFieldset>
+      {showTooltip && (
+        <Tooltip
+          float
+          className='tooltip-image'
+          place='right'
+          opacity='1'
+          anchorSelect={`#title-${game_id}`}
+        >
+          <img
+            src={`load-image://${imgPaths.at(-1)}`}
+            alt="Dynamic Local Resource Tooltip"
+            loading='lazy'
+          />
+        </Tooltip>
+      )}
+      <p style={{color: status_color}}>{title}</p>
+    </fieldset>
   )
 }
