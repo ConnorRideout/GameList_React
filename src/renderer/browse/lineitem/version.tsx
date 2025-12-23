@@ -1,10 +1,8 @@
 // STRETCH: add a "previously played version" tooltip
 import React, { useMemo, useState } from 'react'
 
-import Tooltip from '../../shared/tooltip'
 import { RefreshSvg } from '../../shared/svg'
 
-import { useOpenUrlMutation } from '../../../lib/store/filesystemApi'
 import { useCheckUpdatedUrlMutation } from '../../../lib/store/websitesApi'
 
 import { Timestamps } from '../../../lib/types/types-gamelibrary'
@@ -18,23 +16,7 @@ interface Props {
 }
 export default function Version({game_id, version, timestamps, url, status_color}: Props) {
   const [checkForUpdatedUrl] = useCheckUpdatedUrlMutation()
-  const [openUrl] = useOpenUrlMutation()
   const [updateMessage, setUpdateMessage] = useState('')
-  const [showTooltip, setShowTooltip] = useState(false)
-
-  const parseTimestamp = (time: string) => {
-    let timetag = time.replace('_', ' ')
-    if (timetag.includes('create')) timetag = `${timetag.slice(0, 1).toUpperCase()}${timetag.slice(1)}`
-    else timetag = `Last ${timetag.slice(0, -3)}`
-    return timetag
-  }
-
-  const convertUTCToLocal = (utcTimestamp: string) => {
-    // Parse the UTC timestamp into a Date object
-    const date = new Date(`${utcTimestamp}Z`); // 'Z' at the end indicates UTC
-    // Return the time as a string formatted using 'sv-SE' which will give the correct appearance
-    return date.toLocaleString('sv-SE').slice(0, -3)
-  }
 
   const splitAtSlash = (text: string) => {
     return text.replace(/(\/|\\)/g, '$1\u200B')
@@ -55,53 +37,31 @@ export default function Version({game_id, version, timestamps, url, status_color
     setTimeout(() => setUpdateMessage(''), tOut)
   }
 
-  const pClassName = updateMessage === 'An updated version is available!' ?
-    'updated'
-    : updateMessage === 'No updates available' ?
-    'no-update'
-    : ''
-
   return (
     <fieldset
       className='version-container'
-      onMouseEnter={() => setShowTooltip(true)}
     >
       <legend>Version
         <button
           id={`versionBtn${game_id}`}
           type='button'
           onClick={handleCheckUpdate}
+          data-tooltip-id='versionCheckTooltip'
+          data-tooltip-content={updateMessage}
+          data-tooltip-hidden={!updateMessage}
+          data-url={url}
         >
           <RefreshSvg />
         </button>
-        {showTooltip && (
-          <Tooltip
-            anchorSelect={`#versionBtn${game_id}`}
-            isOpen={!!updateMessage}
-            closeEvents={{}}
-            delayShow={0}
-            place='bottom-start'
-            clickable
-          >
-            <p className={pClassName}>{updateMessage}</p>
-            {updateMessage === 'An updated version is available!' && (
-              <button type='button' onClick={() => openUrl(url)}>Open</button>
-            )}
-          </Tooltip>
-        )}
       </legend>
-      <p id={`version${game_id}`} style={{color: status_color}}>
+      <p
+        id={`version${game_id}`}
+        style={{color: status_color}}
+        data-tooltip-id='versionTooltip'
+        data-tooltip-content={JSON.stringify(timestamps)}
+      >
         {displayVersion}
       </p>
-      {showTooltip && (
-        <Tooltip anchorSelect={`#version${game_id}`}>
-          {Object.entries(timestamps).map(([time, timestamp]) => (
-            timestamp
-            ? <p key={timestamp}>{`${parseTimestamp(time)}: ${convertUTCToLocal(timestamp)}`}</p>
-            : ''
-          ))}
-        </Tooltip>
-      )}
     </fieldset>
   )
 }

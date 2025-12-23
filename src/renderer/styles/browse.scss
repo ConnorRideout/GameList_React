@@ -401,6 +401,7 @@
             border-right: 1px inset variables.$bgDark;
             padding: 0;
             min-height: 80%;
+
           }
 
           h2 {
@@ -552,4 +553,10 @@
     }
   }
 
+}
+
+#versionTooltip {
+  p {
+    padding: 0 3px;
+  }
 }

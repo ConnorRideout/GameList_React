@@ -1,7 +1,7 @@
 import React from 'react'
 import { useDispatch } from 'react-redux'
 
-import Tooltip from '../../shared/tooltip'
+// import Tooltip from '../../shared/tooltip'
 import { PlaySvg, WebSvg, EditSvg } from '../../shared/svg'
 
 import {
@@ -95,10 +95,9 @@ export default function Tools({game_id, path, programPath, url, gamePickerState,
         className='circle-button web'
         id={`web-btn-${game_id}`}
         onClick={webBtnHandler}
+        data-tooltip-id='toolsTooltip'
+        data-tooltip-content={url}
       >
-        <Tooltip anchorSelect={`#web-btn-${game_id}`}>
-          {url}
-        </Tooltip>
         <WebSvg color='black' />
       </button>
       <button

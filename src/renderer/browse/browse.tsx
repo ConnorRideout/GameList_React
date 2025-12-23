@@ -18,6 +18,9 @@ import GamePicker from './dialogs/gamePicker'
 import MissingGames from './dialogs/missingGames'
 import DislikeGame from './dialogs/dislike'
 import NewGames from './dialogs/newGames'
+import { VersionTooltip, VersionCheckTooltip } from './lineitem/tooltips/versionTooltip'
+import TitleTooltip from './lineitem/tooltips/titleTooltip'
+import ToolsTooltip from './lineitem/tooltips/toolsTooltip'
 
 import { SearchRestraints, RootState, GameEntry } from '../../types'
 
@@ -309,6 +312,10 @@ export default function Browse() {
             </List>
           </>
         )}
+        <ToolsTooltip />
+        <TitleTooltip />
+        <VersionTooltip />
+        <VersionCheckTooltip />
       </div>
     </div>
   )
