@@ -16,7 +16,7 @@ export default function Tooltip({ children, ...props }: TooltipProps) {
   const styleVars = useSelector((state: RootState) => state.data.styleVars)
   const defaultProps = {
     delayShow: 300,
-    border: `1px solid ${styleVars.$fgNormal}`,
+    border: `1px solid ${styleVars.$fgNormal || 'white'}`,
     ...props,
     className: `tooltip ${props.className || ''}`,
   }
